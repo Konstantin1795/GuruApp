@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: guru_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: guru_db
+      POSTGRES_USER: guru_user
+      POSTGRES_PASSWORD: guru_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: guru_pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@guru.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+
+volumes:
+  postgres_data:
