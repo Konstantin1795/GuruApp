@@ -1,0 +1,27 @@
+<?php
+
+namespace App\Modules\Auth\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+final class RegisterRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function rules(): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'device_name' => ['nullable', 'string', 'max:255'],
+        ];
+    }
+}
+

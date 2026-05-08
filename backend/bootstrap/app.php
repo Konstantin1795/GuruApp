@@ -3,6 +3,9 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,8 +15,56 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->api(append: [
+            \App\Support\Http\Middleware\ForceJsonResponse::class,
+            \App\Support\Http\Middleware\RequestId::class,
+        ]);
+
+        $middleware->redirectGuestsTo(function (Request $request) {
+            return $request->is('api/*') || $request->expectsJson()
+                ? null
+                : '/login';
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\Throwable $e, Request $request) {
+            if (! $request->is('api/*') && ! $request->expectsJson()) {
+                return null;
+            }
+
+            $status = match (true) {
+                $e instanceof \Illuminate\Auth\AuthenticationException => Response::HTTP_UNAUTHORIZED,
+                $e instanceof \Illuminate\Auth\Access\AuthorizationException => Response::HTTP_FORBIDDEN,
+                $e instanceof \Illuminate\Validation\ValidationException => Response::HTTP_UNPROCESSABLE_ENTITY,
+                $e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException => Response::HTTP_NOT_FOUND,
+                $e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface => $e->getStatusCode(),
+                default => Response::HTTP_INTERNAL_SERVER_ERROR,
+            };
+
+            $error = [
+                'message' => $e instanceof \Illuminate\Validation\ValidationException
+                    ? 'Validation failed.'
+                    : ($e->getMessage() ?: Response::$statusTexts[$status] ?? 'Server error.'),
+                'type' => class_basename($e::class),
+            ];
+
+            if ($e instanceof \Illuminate\Validation\ValidationException) {
+                $error['fields'] = $e->errors();
+            }
+
+            if (config('app.debug')) {
+                $error['exception'] = $e::class;
+                $error['trace'] = collect($e->getTrace())->take(5)->all();
+            }
+
+            $requestId = (string) ($request->headers->get('X-Request-Id') ?: Str::uuid());
+
+            return response()->json([
+                'ok' => false,
+                'error' => $error,
+                'meta' => [
+                    'request_id' => $requestId,
+                ],
+            ], $status);
+        });
     })->create();
