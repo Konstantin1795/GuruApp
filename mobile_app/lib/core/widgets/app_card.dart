@@ -2,32 +2,49 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors.dart';
+import '../theme/app_radii.dart';
+import '../theme/app_spacing.dart';
+
+/// Glass-morphism card — the primary surface component of GURU.
+///
+/// Use [onTap] to make the card tappable.
 class AppCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
   final VoidCallback? onTap;
 
+  /// Override default border radius (default = [AppRadii.xxl]).
+  final double? radius;
+
   const AppCard({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(16),
+    this.padding = const EdgeInsets.all(AppSpacing.lg),
     this.onTap,
+    this.radius,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final border = theme.colorScheme.primary.withValues(alpha: 0.18);
+    final r = radius ?? AppRadii.xxl;
 
-    final content = ClipRRect(
-      borderRadius: BorderRadius.circular(20),
+    final glass = ClipRRect(
+      borderRadius: BorderRadius.circular(r),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
         child: Container(
           decoration: BoxDecoration(
-            color: theme.colorScheme.surface.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: border),
+            borderRadius: BorderRadius.circular(r),
+            border: Border.all(color: AppColors.border),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppColors.cardGradientStart,
+                AppColors.cardGradientEnd,
+              ],
+            ),
           ),
           padding: padding,
           child: child,
@@ -35,12 +52,12 @@ class AppCard extends StatelessWidget {
       ),
     );
 
-    if (onTap == null) return content;
+    if (onTap == null) return glass;
+
     return InkWell(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(r),
       onTap: onTap,
-      child: content,
+      child: glass,
     );
   }
 }
-

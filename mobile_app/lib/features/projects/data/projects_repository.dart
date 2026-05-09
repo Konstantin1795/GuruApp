@@ -24,5 +24,20 @@ class ProjectsRepository {
     final data = (json['data'] as Map).cast<String, dynamic>();
     return Paginated<Project>.fromJson(data, parseItem: Project.fromJson);
   }
+
+  Future<Project> createCompany({
+    required int companyId,
+    required String name,
+    int? customerCounterpartyId,
+  }) async {
+    final json = await _api.createCompanyProject(
+      companyId: companyId,
+      name: name,
+      customerCounterpartyId: customerCounterpartyId,
+    );
+    final data = (json['data'] as Map).cast<String, dynamic>();
+    final p = (data['project'] as Map).cast<String, dynamic>();
+    return Project.fromJson(p);
+  }
 }
 

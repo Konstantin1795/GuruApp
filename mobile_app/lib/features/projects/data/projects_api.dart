@@ -14,6 +14,21 @@ class ProjectsApi {
         query: {'page': page, 'per_page': perPage},
       );
 
+  Future<Map<String, dynamic>> createCompanyProject({
+    required int companyId,
+    required String name,
+    int? customerCounterpartyId,
+  }) =>
+      _api.postJson(
+        '/company-workspace/$companyId/projects',
+        body: {
+          'name': name,
+          if (customerCounterpartyId != null) ...{
+            'customer_counterparty_id': customerCounterpartyId,
+          },
+        },
+      );
+
   Future<Map<String, dynamic>> listPersonalProjects({
     required int page,
     required int perPage,

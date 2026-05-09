@@ -5,8 +5,11 @@ import '../../../core/api/api_exception.dart';
 import '../../../core/api/api_models.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_input.dart';
+import '../../counterparties/providers.dart';
 import '../../projects/domain/project.dart';
 import '../../projects/providers.dart';
+import 'project_participants_screen.dart';
 
 class CompanyProjectsState {
   final List<Project> items;
@@ -89,6 +92,18 @@ class CompanyProjectsController extends StateNotifier<AsyncValue<CompanyProjects
   }
 
   Future<void> refresh() => _loadFirstPage();
+
+  Future<void> create({
+    required String name,
+    required int customerCounterpartyId,
+  }) async {
+    await ref.read(projectsRepositoryProvider).createCompany(
+          companyId: companyId,
+          name: name,
+          customerCounterpartyId: customerCounterpartyId,
+        );
+    await refresh();
+  }
 }
 
 final companyProjectsControllerProvider = StateNotifierProvider.family<
@@ -96,9 +111,125 @@ final companyProjectsControllerProvider = StateNotifierProvider.family<
   return CompanyProjectsController(companyId: companyId, ref: ref);
 });
 
+/// Общий диалог создания проекта (дашборд «+», экран Projects).
+Future<bool?> showCompanyCreateProjectDialog({
+  required BuildContext context,
+  required WidgetRef ref,
+  required int companyId,
+  bool autofocusProjectName = false,
+}) async {
+  final messenger = ScaffoldMessenger.maybeOf(context);
+
+  final customers = await ref.read(counterpartiesRepositoryProvider).fetchCustomersOnly(
+        companyId: companyId,
+        page: 1,
+        perPage: 50,
+      );
+
+  if (!context.mounted) return false;
+  if (customers.isEmpty) {
+    messenger?.showSnackBar(
+      const SnackBar(content: Text('Сначала добавьте заказчика')),
+    );
+    return false;
+  }
+
+  final nameCtrl = TextEditingController();
+  var selected = customers.first;
+  bool isSubmitting = false;
+
+  final created = await showDialog<bool>(
+    context: context,
+    barrierDismissible: false,
+    builder: (ctx) => StatefulBuilder(
+      builder: (ctx, setState) => AlertDialog(
+        title: const Text('Создать проект'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppInput(
+              controller: nameCtrl,
+              label: 'Название проекта',
+              autofocus: autofocusProjectName,
+              textInputAction: TextInputAction.done,
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<int>(
+              initialValue: selected.id,
+              decoration: const InputDecoration(labelText: 'Заказчик'),
+              items: customers
+                  .map(
+                    (c) => DropdownMenuItem<int>(
+                      value: c.id,
+                      child: Text(
+                        c.pickerDisplayLabel,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  )
+                  .toList(),
+              onChanged: isSubmitting
+                  ? null
+                  : (v) {
+                      final next = customers.firstWhere((c) => c.id == v);
+                      setState(() => selected = next);
+                    },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: isSubmitting ? null : () => Navigator.of(ctx).pop(false),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: isSubmitting
+                ? null
+                : () async {
+                    final name = nameCtrl.text.trim();
+                    if (name.isEmpty) {
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        const SnackBar(content: Text('Введите название проекта')),
+                      );
+                      return;
+                    }
+                    setState(() => isSubmitting = true);
+                    try {
+                      await ref.read(companyProjectsControllerProvider(companyId).notifier).create(
+                            name: name,
+                            customerCounterpartyId: selected.id,
+                          );
+                      if (ctx.mounted) Navigator.of(ctx).pop(true);
+                    } catch (e) {
+                      setState(() => isSubmitting = false);
+                      if (!ctx.mounted) return;
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        SnackBar(
+                          content:
+                              Text(e is ApiException ? e.message : 'Не удалось создать проект'),
+                        ),
+                      );
+                    }
+                  },
+            child: Text(isSubmitting ? 'Создание...' : 'Создать'),
+          ),
+        ],
+      ),
+    ),
+  );
+
+  return created;
+}
+
 class CompanyProjectsScreen extends ConsumerWidget {
   final int companyId;
-  const CompanyProjectsScreen({super.key, required this.companyId});
+  final bool showCreateButton;
+  const CompanyProjectsScreen({
+    super.key,
+    required this.companyId,
+    this.showCreateButton = true,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -128,32 +259,77 @@ class CompanyProjectsScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            if (showCreateButton) ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: AppButton(
+                      label: 'Создать проект',
+                      icon: Icons.add,
+                      onPressed: () async {
+                        final created = await showCompanyCreateProjectDialog(
+                          context: context,
+                          ref: ref,
+                          companyId: companyId,
+                          autofocusProjectName: false,
+                        );
+                        if (created == true && context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Проект создан')),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+            ],
             if (data.items.isEmpty)
               const AppCard(
                 child: Text('No projects yet.'),
               )
             else
               ...data.items.map(
-                (p) => AppCard(
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(p.name, style: const TextStyle(fontWeight: FontWeight.w600)),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Progress: ${p.progressPercent}%',
-                              style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-                            ),
-                          ],
+                (p) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: AppCard(
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => ProjectParticipantsScreen(
+                          project: p,
+                          companyId: companyId,
                         ),
                       ),
-                      if (!p.isActive)
-                        Text('inactive',
-                            style: TextStyle(color: Colors.white.withValues(alpha: 0.6))),
-                    ],
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(p.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Прогресс: ${p.progressPercent}%',
+                                style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          Icons.chevron_right,
+                          color: Colors.white.withValues(alpha: 0.45),
+                        ),
+                        if (!p.isActive) ...[
+                          const SizedBox(width: 4),
+                          Text(
+                            'неактивен',
+                            style: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
                 ),
               ),
