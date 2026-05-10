@@ -157,6 +157,8 @@ Middleware: `EnsureCompanyWorkspaceAccess` — доступ есть у **акт
 | Метод | Путь | Назначение |
 |-------|------|------------|
 | GET | `/context` | Контекст воркспейса |
+| GET | `/operations/transfers/history` | Агрегированная лента переводов по всем проектам с видимостью для пользователя в компании |
+| GET | `/operations/transfers/pending-count` | `{ pending_action_count }` — переводы, где от пользователя ожидается шаг подтверждения (whitelist действий, см. `TransferPendingActionCountService`) |
 | GET | `/companies/current` | Текущая компания |
 | GET/POST | `/projects` | Список / создание проекта |
 | GET | `/projects/{projectId}/participants` | Участники (пагинация) |
@@ -168,7 +170,7 @@ Middleware: `EnsureCompanyWorkspaceAccess` — доступ есть у **акт
 | GET | `/projects/{projectId}/operations/transfers/recipients` | Список допустимых получателей по типу (`transfer_target_type` в query) |
 | GET | `/projects/{projectId}/operations/transfers` | Список переводов |
 | POST | `/projects/{projectId}/operations/transfers` | Создать перевод |
-| GET | `/projects/{projectId}/operations/transfers/{transferId}` | Деталь перевода (история статусов в ответе) |
+| GET | `/projects/{projectId}/operations/transfers/{transferId}` | Деталь перевода: в `data.transfer` — история статусов, при загрузке проекта — `project_name`; в `data.available_actions` — карта разрешённых POST-действий для UI |
 | POST | `/projects/{projectId}/operations/transfers/{transferId}/approve-project-head` | Утвердить (сотрудн. сценарий): дельты → `WAITING_24_HOURS`, старт 24 ч UTC |
 | POST | `/projects/{projectId}/operations/transfers/{transferId}/reject-project-head` | Отклонить на согласовании РП (с промежуточным `REJECTED` и возвратом в `CREATED`) |
 | POST | `/projects/{projectId}/operations/transfers/{transferId}/reset-approval` | Сотрудник: сброс из `PROJECT_HEAD_APPROVAL` в `CREATED` |
@@ -190,11 +192,13 @@ Middleware: `EnsurePersonalWorkspaceAccess` — пользователь с ак
 | Метод | Путь | Назначение |
 |-------|------|------------|
 | GET | `/context` | Контекст |
+| GET | `/operations/transfers/history` | Лента переводов по всем проектам с участием пользователя (видимость как в company-контуре на проект) |
+| GET | `/operations/transfers/pending-count` | То же правило счётчика «ожидают подтверждения», что и в company-workspace |
 | GET | `/companies` | Компании пользователя (в личном кабинете) |
 | GET | `/projects` | Проекты пользователя (в ресурсе — `my_wallet`, **`my_participation`** с `level` и `project_role_code` для клиента) |
 | GET | `/income-by-month` | Доход по месяцам (исполнительский контур) |
 
-**Переводы (ТЗ-05.3):** те же доменные сервисы, что и в company-workspace (`TransferService`, `TransferRecipientListService`, `OperationVisibilityService`, `TransferLifecycleService`). Отличается префикс маршрута и проверка инициатора: **`PersonalWorkspaceTransferGuard`** — создание перевода, выдача списка получателей для формы и действия сотрудника (`submit-for-approval`, `reset-approval`, `return-to-created`) разрешены только если участник проекта **уровня `first`** и **роль в проекте `EMPLOYEE`**; иначе **403**. Поставщик, подрядчик, 2-й уровень и заказчик не создают переводы через этот контур (видимость списков переводов — по `OperationVisibilityService`: не РП видит только операции, где он initiator/sender/receiver).
+**Переводы (ТЗ-05.3):** те же доменные сервисы, что и в company-workspace (`TransferService`, `TransferRecipientListService`, `OperationVisibilityService`, `TransferLifecycleService`, **`TransferAvailableActionsService`**, **`TransferPendingActionCountService`**). Отличается префикс маршрута и проверка инициатора: **`PersonalWorkspaceTransferGuard`** — создание перевода, выдача списка получателей для формы и действия сотрудника (`submit-for-approval`, `reset-approval`, `return-to-created`) разрешены только если участник проекта **уровня `first`** и **роль в проекте `EMPLOYEE`**; иначе **403**. Поставщик, подрядчик, 2-й уровень и заказчик не создают переводы через этот контур (видимость списков переводов — по `OperationVisibilityService`: не РП видит только операции, где он initiator/sender/receiver).
 
 | Метод | Путь | Назначение |
 |-------|------|------------|
@@ -295,6 +299,9 @@ Middleware: `EnsurePersonalWorkspaceAccess` — пользователь с ак
 - **`TransferParticipantResolver`** — допустимые получатели и автосоздание участника второго порядка для расчётного перевода.
 - **`TransferService::create`** — создание `Operation` + `TransferOperation`: **PROJECT_HEAD / PARTNER** → сразу **`COMPLETED`** с применением дельт; **EMPLOYEE** → **`PROJECT_HEAD_APPROVAL`** без дельт.
 - **`TransferLifecycleService`** — все действия после создания (согласование РП, 24 ч, завершение, откаты).
+- **`TransferAvailableActionsService`** — карта **`available_actions`** для клиента (те же условия, что разрешают соответствующий POST).
+- **`TransferPendingActionCountService`** — число переводов с «обязательным» входящим шагом для пользователя (whitelist **`PENDING_BADGE_ACTION_KEYS`**, без опциональных действий вроде `complete_immediate`).
+- **`OperationVisibilityService::transferQueryForUserAcrossProjects`** — базовый запрос для агрегированной ленты переводов.
 - **`TransferRecipientListService`** + `ListTransferRecipientsController` — список получателей для UI.
 
 **ТЗ-05.2 v3 (сжато):** подотчётный перевод — получатели участники 1-го порядка (PROJECT_HEAD, PARTNER, EMPLOYEE); расчётный — контрагенты с автодобавлением 2-го уровня; 24 ч отсчитываются в UTC от `waiting_period_started_at`.
@@ -365,11 +372,11 @@ erDiagram
 ### 9.3. UI и единый стиль
 
 - Базовые виджеты: `AppScaffold`, `AppCard`, `AppInput`, `AppButton`, тема `guru_theme.dart`.
-- **Company workspace** (`CompanyWorkspaceShell`): нижняя навигация — «Главная», уведомления (заглушка), **«Операции»** — агрегатор-плейсхолдер (`CompanyOperationsPlaceholderScreen`); живой сценарий переводов — из **участников проекта** (иконка ⇄) или из bottom sheet «Операции» → выбор проекта → **`CreateTransferScreen`** с **`TransferApiScope.company`**.
+- **Company workspace** (`CompanyWorkspaceShell`): нижняя навигация — «Главная», уведомления (заглушка), **«Операции»** — агрегатор-плейсхолдер (`CompanyOperationsPlaceholderScreen`); живая работа с переводами — из **участников проекта** (иконка ⇄), bottom sheet «Операции» → проект, а также **главная компании**: плитка «История операций» → **`AggregatedTransfersHistoryScreen`** (`GET …/operations/transfers/history`), бейдж **`pending_action_count`** (`GET …/operations/transfers/pending-count`). По строке в **`TransfersScreen`** → **`TransferDetailScreen`**: таймлайн **`status_history`**, кнопки только при **`available_actions[key]`**; после успешного POST — **`Navigator.pushReplacement`** тем же `transferId` (стабильность виджетов); **`invalidate` счётчика** не вызывается с экрана детали во время действия — обновление при **`pop`** / refresh главной.
 - **Personal workspace (исполнитель)** — вкладка **«Операции»** (`personal_operations_tab.dart`): пункт «Перевод» (только проекты, где `my_participation` = first + EMPLOYEE), список проектов → **`TransfersScreen`** / **`CreateTransferScreen`** с **`TransferApiScope.personal`**; «Отчёт» — disabled. Поставщик/подрядчик/2-й уровень: просмотр переводов без кнопки создания (`canCreateTransfer: false`).
 - **Проекты** → **Участники** (`ProjectParticipantsScreen`):
   - карточка участника → **Кошелёк** (`ParticipantWalletScreen`);
-  - иконка **⇄** → **Переводы** (`TransfersScreen`) → **создание** (`CreateTransferScreen`).
+  - иконка **⇄** → **Переводы** (`TransfersScreen`) → **создание** (`CreateTransferScreen`), переход в деталь перевода из списка.
 
 ### 9.4. Соответствие backend enum’ам
 
@@ -397,7 +404,7 @@ Flutter дублирует коды в:
 | Wallet foundation (TZ-04) | Таблица балансов, фабрика, API баланса, экран в приложении |
 | Operation lifecycle foundation (TZ-05A) | operations + status history + transition service + исключение 422 |
 | Performance foundation | Индексы, кэш словарей, стандарты пагинации |
-| Transfer operation (ТЗ-05.2 v3) | Полный контур: lifecycle, recipients API, действия перевода, планировщик 24 ч UTC, Flutter список/создание/выбор получателя |
+| Transfer operation (ТЗ-05.2 v3) | Полный контур: lifecycle, recipients API, действия перевода, планировщик 24 ч UTC, **`available_actions`** и pending-count, агрегированная история; Flutter: список/создание/деталь/история по всем проектам |
 | Вкладка «Операции» в нижнем меню (агрегатор) | **Пока плейсхолдер**; реальные переводы открываются из экрана участников проекта |
 
 ---
@@ -426,4 +433,4 @@ Flutter дублирует коды в:
 
 ---
 
-*Версия документа: 2026-05-10 (доп.: ТЗ-05.3 personal-workspace transfers). Отражает кодовую базу GuruApp на указанную дату.*
+*Версия документа: 2026-05-09 (доп.: агрегированная история переводов, pending-count, экран детали во Flutter). Отражает кодовую базу GuruApp на указанную дату.*

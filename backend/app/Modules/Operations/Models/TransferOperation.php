@@ -60,6 +60,7 @@ final class TransferOperation extends Model
         return $this->belongsTo(Operation::class, 'operation_id');
     }
 
+    /** @return BelongsTo<Project, TransferOperation> */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class, 'project_id');

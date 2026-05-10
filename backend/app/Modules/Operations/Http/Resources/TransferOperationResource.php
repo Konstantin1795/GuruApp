@@ -39,6 +39,10 @@ final class TransferOperationResource extends JsonResource
             'waiting_period_started_at' => optional($transfer->waiting_period_started_at)?->toIso8601String(),
             'created_at' => optional($transfer->created_at)?->toIso8601String(),
             'updated_at' => optional($transfer->updated_at)?->toIso8601String(),
+            'project_name' => $this->when(
+                $transfer->relationLoaded('project') && $transfer->project,
+                fn () => $transfer->project->name,
+            ),
             'status_history' => $this->when(
                 $transfer->relationLoaded('operation')
                     && $transfer->operation

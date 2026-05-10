@@ -1,8 +1,13 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CompanyDashboardScreen extends StatelessWidget {
+import '../../operations/data/transfers_api.dart';
+import '../../operations/presentation/aggregated_transfers_history_screen.dart';
+import '../../operations/providers.dart';
+
+class CompanyDashboardScreen extends ConsumerWidget {
   final int companyId;
   final VoidCallback onOpenProjects;
   final VoidCallback onOpenCounterparties;
@@ -21,10 +26,27 @@ class CompanyDashboardScreen extends StatelessWidget {
   static const _accent = Color(0xFF00D6C9);
 
   @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      children: [
+  Widget build(BuildContext context, WidgetRef ref) {
+    final pendingAsync = ref.watch(
+      transferPendingActionCountProvider((scope: TransferApiScope.company, companyId: companyId)),
+    );
+    final pending = pendingAsync.valueOrNull ?? 0;
+    final historyBadge = pending > 0 ? '$pending' : null;
+
+    final pendingKey = (scope: TransferApiScope.company, companyId: companyId);
+
+    Future<void> refreshPendingCount() async {
+      ref.invalidate(transferPendingActionCountProvider(pendingKey));
+      await ref.read(transferPendingActionCountProvider(pendingKey).future);
+    }
+
+    return RefreshIndicator(
+      color: CompanyDashboardScreen._accent,
+      onRefresh: refreshPendingCount,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        children: [
         _AnalyticsCard(),
         const SizedBox(height: 14),
         Row(
@@ -61,10 +83,22 @@ class CompanyDashboardScreen extends StatelessWidget {
           icon: Icons.history,
           title: 'История операций',
           subtitle: 'Ожидают подтверждения',
-          badgeText: '3',
-          onTap: () => _toast(context, 'TODO: история'),
+          badgeText: historyBadge,
+          onTap: () {
+            Navigator.of(context)
+                .push(
+              MaterialPageRoute<void>(
+                builder: (_) => AggregatedTransfersHistoryScreen(
+                  apiScope: TransferApiScope.company,
+                  companyId: companyId,
+                ),
+              ),
+            )
+                .then((_) => refreshPendingCount());
+          },
         ),
       ],
+      ),
     );
   }
 

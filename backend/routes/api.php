@@ -23,6 +23,9 @@ Route::middleware('auth:sanctum')->group(function () {
         ->group(function () {
             Route::get('/context', \App\Modules\Workspaces\Http\Controllers\CompanyWorkspaceContextController::class);
 
+            Route::get('/operations/transfers/history', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ListAggregatedTransfersController::class);
+            Route::get('/operations/transfers/pending-count', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\TransferPendingCountController::class);
+
             Route::get('/companies/current', \App\Modules\Companies\Http\Controllers\CompanyWorkspace\CurrentCompanyController::class);
             Route::get('/projects', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\ListProjectsController::class);
             Route::post('/projects', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\CreateProjectController::class);
@@ -53,6 +56,9 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware(\App\Modules\Workspaces\Http\Middleware\EnsurePersonalWorkspaceAccess::class)
         ->group(function () {
             Route::get('/context', \App\Modules\Workspaces\Http\Controllers\PersonalWorkspaceContextController::class);
+
+            Route::get('/operations/transfers/history', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\ListAggregatedTransfersController::class);
+            Route::get('/operations/transfers/pending-count', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\TransferPendingCountController::class);
 
             Route::get('/companies', \App\Modules\Companies\Http\Controllers\PersonalWorkspace\ListCompaniesController::class);
             Route::get('/projects', \App\Modules\Projects\Http\Controllers\PersonalWorkspace\ListProjectsController::class);

@@ -4,6 +4,7 @@ namespace App\Modules\Operations\Http\Controllers\CompanyWorkspace;
 
 use App\Modules\Operations\Http\Resources\TransferOperationResource;
 use App\Modules\Operations\Services\OperationVisibilityService;
+use App\Modules\Operations\Services\TransferAvailableActionsService;
 use App\Modules\Projects\Services\ProjectVisibilityService;
 use App\Support\Http\ApiResponse;
 use Illuminate\Http\Request;
@@ -14,6 +15,7 @@ final class ShowTransferController
         Request $request,
         ProjectVisibilityService $projectVisibility,
         OperationVisibilityService $operationVisibility,
+        TransferAvailableActionsService $availableActions,
         int $companyId,
         int $projectId,
         int $transferId,
@@ -24,13 +26,19 @@ final class ShowTransferController
         $transfer = $operationVisibility
             ->assertCanViewTransfer($project, $userId, $transferId)
             ->load([
+                'initiator',
                 'sender.counterparty.user',
                 'receiver.counterparty.user',
                 'operation.statusHistory',
             ]);
 
+        $participant = $operationVisibility->participantForUser($project, $userId);
+
         return ApiResponse::ok([
             'transfer' => (new TransferOperationResource($transfer))->resolve(),
+            'available_actions' => $participant !== null
+                ? $availableActions->forParticipant($participant, $transfer)
+                : [],
         ]);
     }
 }

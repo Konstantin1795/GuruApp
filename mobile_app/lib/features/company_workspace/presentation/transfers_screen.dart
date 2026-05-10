@@ -17,6 +17,7 @@ import '../../operations/data/transfers_api.dart';
 import '../../operations/domain/transfer_recipient_pick.dart';
 import '../../operations/domain/transfer_operation.dart';
 import '../../operations/domain/transfer_target_type.dart';
+import '../../operations/presentation/transfer_detail_screen.dart';
 import '../../operations/providers.dart';
 
 class TransfersState {
@@ -172,7 +173,29 @@ class TransfersScreen extends ConsumerWidget {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                   children: [
-                    ...data.items.map((t) => _TransferCard(transfer: t)),
+                    ...data.items.map(
+                      (t) => _TransferCard(
+                        transfer: t,
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => TransferDetailScreen(
+                                apiScope: apiScope,
+                                companyId: companyId,
+                                projectId: projectId,
+                                transferId: t.id,
+                              ),
+                            ),
+                          ).then((_) {
+                            ref.invalidate(
+                              transferPendingActionCountProvider(
+                                (scope: apiScope, companyId: companyId),
+                              ),
+                            );
+                          });
+                        },
+                      ),
+                    ),
                     if (data.hasMore) ...[
                       const SizedBox(height: 8),
                       AppButton(
@@ -421,60 +444,68 @@ class _CreateTransferScreenState extends ConsumerState<CreateTransferScreen> {
 
 class _TransferCard extends StatelessWidget {
   final TransferOperation transfer;
+  final VoidCallback onTap;
   static const _accent = Color(0xFF00D6C9);
 
-  const _TransferCard({required this.transfer});
+  const _TransferCard({required this.transfer, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(22),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
-              gradient: LinearGradient(
-                colors: [Colors.white.withValues(alpha: 0.09), _accent.withValues(alpha: 0.05)],
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(22),
+          onTap: onTap,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(22),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+                  gradient: LinearGradient(
+                    colors: [Colors.white.withValues(alpha: 0.09), _accent.withValues(alpha: 0.05)],
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(
-                        transfer.receiverName ?? 'Участник #${transfer.receiverProjectParticipantId}',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            transfer.receiverName ?? 'Участник #${transfer.receiverProjectParticipantId}',
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                        Text(
+                          transfer.amount,
+                          style: const TextStyle(color: _accent, fontSize: 18, fontWeight: FontWeight.w900),
+                        ),
+                      ],
                     ),
+                    const SizedBox(height: 8),
                     Text(
-                      transfer.amount,
-                      style: const TextStyle(color: _accent, fontSize: 18, fontWeight: FontWeight.w900),
+                      transfer.targetType.label,
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.65)),
+                    ),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 6,
+                      children: [
+                        _Chip(label: transfer.status.label),
+                        if (transfer.comment != null && transfer.comment!.trim().isNotEmpty)
+                          _Chip(label: transfer.comment!.trim()),
+                      ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  transfer.targetType.label,
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.65)),
-                ),
-                const SizedBox(height: 6),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 6,
-                  children: [
-                    _Chip(label: transfer.status.label),
-                    if (transfer.comment != null && transfer.comment!.trim().isNotEmpty)
-                      _Chip(label: transfer.comment!.trim()),
-                  ],
-                ),
-              ],
+              ),
             ),
           ),
         ),

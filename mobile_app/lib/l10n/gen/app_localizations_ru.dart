@@ -405,6 +405,59 @@ class AppLocalizationsRu extends AppLocalizations {
   String get transferTypeAccountable => 'На подотчётный баланс';
 
   @override
+  String get transferDetailTitle => 'Перевод';
+
+  @override
+  String get transferLifecycleTitle => 'Ход операции';
+
+  @override
+  String get transferDetailErrorLoad => 'Не удалось загрузить перевод.';
+
+  @override
+  String get transferActionError => 'Не удалось выполнить действие.';
+
+  @override
+  String get transferActionCommentTitle => 'Комментарий к действию';
+
+  @override
+  String get transferActionApproveProjectHead => 'Подтвердить';
+
+  @override
+  String get transferActionRejectProjectHead => 'Отклонить';
+
+  @override
+  String get transferActionResetApproval => 'Сбросить согласование';
+
+  @override
+  String get transferActionSubmitForApproval => 'Отправить на согласование РП';
+
+  @override
+  String get transferActionCompleteImmediate => 'Завершить перевод';
+
+  @override
+  String get transferActionReturnToCreated => 'Вернуть в статус «Создана»';
+
+  @override
+  String get transferActionReturnToProjectHeadApproval =>
+      'Вернуть на согласование РП';
+
+  @override
+  String get transferActionCompleteWaiting => 'Завершить период ожидания';
+
+  @override
+  String get transferActionRollbackCompleted => 'Откатить перевод';
+
+  @override
+  String get transferActionReturnCompletedToProjectHeadApproval =>
+      'Вернуть на согласование РП';
+
+  @override
+  String get transferHistoryAllProjects => 'Все доступные проекты';
+
+  @override
+  String get transferHistoryAuthorSystem => 'Система';
+
+  @override
   String get operationsTitle => 'Операции';
 
   @override

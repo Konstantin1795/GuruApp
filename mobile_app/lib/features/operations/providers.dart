@@ -11,3 +11,15 @@ final transfersApiProvider = Provider<TransfersApi>(
 final transfersRepositoryProvider = Provider<TransfersRepository>(
   (ref) => TransfersRepository(ref.watch(transfersApiProvider)),
 );
+
+typedef TransferPendingKey = ({TransferApiScope scope, int companyId});
+
+final transferPendingActionCountProvider =
+    FutureProvider.autoDispose.family<int, TransferPendingKey>(
+  (ref, key) async {
+    return ref.read(transfersRepositoryProvider).pendingActionCount(
+          scope: key.scope,
+          companyId: key.companyId,
+        );
+  },
+);

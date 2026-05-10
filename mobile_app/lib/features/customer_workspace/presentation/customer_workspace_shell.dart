@@ -12,6 +12,9 @@ import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_loader.dart';
 import '../../../features/auth/presentation/login_screen.dart';
 import '../../auth/providers.dart';
+import '../../operations/data/transfers_api.dart';
+import '../../operations/presentation/aggregated_transfers_history_screen.dart';
+import '../../operations/providers.dart';
 import '../domain/personal_workspace_project_row.dart';
 import '../providers.dart';
 import 'money_format.dart';
@@ -90,9 +93,15 @@ class _CustomerHomeBody extends ConsumerWidget {
     final localeName = Localizations.localeOf(context).toLanguageTag();
     final async = ref.watch(customerWorkspaceDataProvider);
 
+    final pendingKey = (scope: TransferApiScope.personal, companyId: 0);
+
     Future<void> reload() async {
       ref.invalidate(customerWorkspaceDataProvider);
-      await ref.read(customerWorkspaceDataProvider.future);
+      ref.invalidate(transferPendingActionCountProvider(pendingKey));
+      await Future.wait([
+        ref.read(customerWorkspaceDataProvider.future),
+        ref.read(transferPendingActionCountProvider(pendingKey).future),
+      ]);
     }
 
     return async.when(
@@ -117,11 +126,20 @@ class _CustomerHomeBody extends ConsumerWidget {
             ),
           );
         }
+        final pendingAsync = ref.watch(
+          transferPendingActionCountProvider((scope: TransferApiScope.personal, companyId: 0)),
+        );
+        final pendingTransfers = pendingAsync.valueOrNull ?? 0;
+
         return _HomeScrollContent(
           projects: data.projects,
           localeName: localeName,
           onWorkspaces: () => context.go('/workspaces'),
           onRefresh: reload,
+          pendingTransferActions: pendingTransfers,
+          onOperationsHistoryClosed: () => ref.invalidate(
+                transferPendingActionCountProvider((scope: TransferApiScope.personal, companyId: 0)),
+              ),
         );
       },
       loading: () => Center(
@@ -194,12 +212,16 @@ class _HomeScrollContent extends StatefulWidget {
   final String localeName;
   final VoidCallback onWorkspaces;
   final Future<void> Function() onRefresh;
+  final int pendingTransferActions;
+  final VoidCallback onOperationsHistoryClosed;
 
   const _HomeScrollContent({
     required this.projects,
     required this.localeName,
     required this.onWorkspaces,
     required this.onRefresh,
+    required this.pendingTransferActions,
+    required this.onOperationsHistoryClosed,
   });
 
   @override
@@ -295,10 +317,33 @@ class _HomeScrollContentState extends State<_HomeScrollContent> {
                         ),
                       ),
                     ),
+                    trailing: widget.pendingTransferActions > 0
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.accent.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              '${widget.pendingTransferActions}',
+                              style: AppTextStyles.bodyStrong.copyWith(
+                                color: AppColors.accent,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          )
+                        : null,
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(l10n.customerOperationsHistorySoon)),
-                      );
+                      Navigator.of(context)
+                          .push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const AggregatedTransfersHistoryScreen(
+                                apiScope: TransferApiScope.personal,
+                                companyId: 0,
+                              ),
+                            ),
+                          )
+                          .then((_) => widget.onOperationsHistoryClosed());
                     },
                   ),
                 ],

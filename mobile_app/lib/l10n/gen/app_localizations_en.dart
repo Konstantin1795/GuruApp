@@ -405,6 +405,59 @@ class AppLocalizationsEn extends AppLocalizations {
   String get transferTypeAccountable => 'To accountable balance';
 
   @override
+  String get transferDetailTitle => 'Transfer';
+
+  @override
+  String get transferLifecycleTitle => 'Lifecycle';
+
+  @override
+  String get transferDetailErrorLoad => 'Could not load transfer.';
+
+  @override
+  String get transferActionError => 'Action failed.';
+
+  @override
+  String get transferActionCommentTitle => 'Comment';
+
+  @override
+  String get transferActionApproveProjectHead => 'Approve';
+
+  @override
+  String get transferActionRejectProjectHead => 'Reject';
+
+  @override
+  String get transferActionResetApproval => 'Reset approval';
+
+  @override
+  String get transferActionSubmitForApproval => 'Submit for approval';
+
+  @override
+  String get transferActionCompleteImmediate => 'Complete now';
+
+  @override
+  String get transferActionReturnToCreated => 'Return to Created';
+
+  @override
+  String get transferActionReturnToProjectHeadApproval =>
+      'Return to project head approval';
+
+  @override
+  String get transferActionCompleteWaiting => 'Complete waiting period';
+
+  @override
+  String get transferActionRollbackCompleted => 'Rollback completed transfer';
+
+  @override
+  String get transferActionReturnCompletedToProjectHeadApproval =>
+      'Return to project head approval';
+
+  @override
+  String get transferHistoryAllProjects => 'All accessible projects';
+
+  @override
+  String get transferHistoryAuthorSystem => 'System';
+
+  @override
   String get operationsTitle => 'Operations';
 
   @override

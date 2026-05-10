@@ -872,6 +872,108 @@ abstract class AppLocalizations {
   /// **'To accountable balance'**
   String get transferTypeAccountable;
 
+  /// No description provided for @transferDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get transferDetailTitle;
+
+  /// No description provided for @transferLifecycleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifecycle'**
+  String get transferLifecycleTitle;
+
+  /// No description provided for @transferDetailErrorLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load transfer.'**
+  String get transferDetailErrorLoad;
+
+  /// No description provided for @transferActionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Action failed.'**
+  String get transferActionError;
+
+  /// No description provided for @transferActionCommentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment'**
+  String get transferActionCommentTitle;
+
+  /// No description provided for @transferActionApproveProjectHead.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get transferActionApproveProjectHead;
+
+  /// No description provided for @transferActionRejectProjectHead.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get transferActionRejectProjectHead;
+
+  /// No description provided for @transferActionResetApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset approval'**
+  String get transferActionResetApproval;
+
+  /// No description provided for @transferActionSubmitForApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit for approval'**
+  String get transferActionSubmitForApproval;
+
+  /// No description provided for @transferActionCompleteImmediate.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete now'**
+  String get transferActionCompleteImmediate;
+
+  /// No description provided for @transferActionReturnToCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Return to Created'**
+  String get transferActionReturnToCreated;
+
+  /// No description provided for @transferActionReturnToProjectHeadApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Return to project head approval'**
+  String get transferActionReturnToProjectHeadApproval;
+
+  /// No description provided for @transferActionCompleteWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete waiting period'**
+  String get transferActionCompleteWaiting;
+
+  /// No description provided for @transferActionRollbackCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Rollback completed transfer'**
+  String get transferActionRollbackCompleted;
+
+  /// No description provided for @transferActionReturnCompletedToProjectHeadApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Return to project head approval'**
+  String get transferActionReturnCompletedToProjectHeadApproval;
+
+  /// No description provided for @transferHistoryAllProjects.
+  ///
+  /// In en, this message translates to:
+  /// **'All accessible projects'**
+  String get transferHistoryAllProjects;
+
+  /// No description provided for @transferHistoryAuthorSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get transferHistoryAuthorSystem;
+
   /// No description provided for @operationsTitle.
   ///
   /// In en, this message translates to:

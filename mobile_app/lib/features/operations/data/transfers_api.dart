@@ -78,4 +78,49 @@ class TransfersApi {
       _api.getJson(
         '${_basePath(scope: scope, companyId: companyId, projectId: projectId)}/$transferId',
       );
+
+  String _aggregatedHistoryPath({required TransferApiScope scope, required int companyId}) {
+    return switch (scope) {
+      TransferApiScope.company => '/company-workspace/$companyId/operations/transfers/history',
+      TransferApiScope.personal => '/personal-workspace/operations/transfers/history',
+    };
+  }
+
+  String _pendingCountPath({required TransferApiScope scope, required int companyId}) {
+    return switch (scope) {
+      TransferApiScope.company => '/company-workspace/$companyId/operations/transfers/pending-count',
+      TransferApiScope.personal => '/personal-workspace/operations/transfers/pending-count',
+    };
+  }
+
+  Future<Map<String, dynamic>> listHistoryAggregated({
+    required TransferApiScope scope,
+    required int companyId,
+    required int page,
+    required int perPage,
+  }) =>
+      _api.getJson(
+        _aggregatedHistoryPath(scope: scope, companyId: companyId),
+        query: {'page': page, 'per_page': perPage},
+      );
+
+  Future<Map<String, dynamic>> pendingActionCount({
+    required TransferApiScope scope,
+    required int companyId,
+  }) =>
+      _api.getJson(_pendingCountPath(scope: scope, companyId: companyId));
+
+  /// Сегмент после id перевода, например `approve-project-head`.
+  Future<Map<String, dynamic>> postTransferAction({
+    required TransferApiScope scope,
+    required int companyId,
+    required int projectId,
+    required int transferId,
+    required String actionSegment,
+    Map<String, dynamic>? body,
+  }) =>
+      _api.postJson(
+        '${_basePath(scope: scope, companyId: companyId, projectId: projectId)}/$transferId/$actionSegment',
+        body: body,
+      );
 }

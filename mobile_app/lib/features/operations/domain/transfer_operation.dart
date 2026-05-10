@@ -17,6 +17,8 @@ class TransferOperation {
   final OperationStatus status;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  /// Если отдано API (агрегированный список по компании).
+  final String? projectName;
 
   const TransferOperation({
     required this.id,
@@ -33,6 +35,7 @@ class TransferOperation {
     required this.status,
     required this.createdAt,
     required this.updatedAt,
+    this.projectName,
   });
 
   factory TransferOperation.fromJson(Map<String, dynamic> json) {
@@ -66,6 +69,7 @@ class TransferOperation {
       status: OperationStatus.fromJson((json['operation_status'] ?? '').toString()),
       createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) : null,
       updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at'].toString()) : null,
+      projectName: json['project_name'] as String?,
     );
   }
 

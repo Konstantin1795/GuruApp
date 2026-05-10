@@ -33,3 +33,12 @@ String? companyWorkspaceHeaderRoleLabel(WidgetRef ref, int companyId, AppLocaliz
   final code = entry?.role ?? company?.myCompanyRoleCode;
   return companyWorkspaceRoleLabelFromCode(code, l10n);
 }
+
+/// То же для экранов без подписки на провайдеры в [build] (избегаем лишних перестроек).
+String? companyWorkspaceHeaderRoleLabelRead(WidgetRef ref, int companyId, AppLocalizations l10n) {
+  final ws = ref.read(workspacesProvider).valueOrNull;
+  final entry = companyWorkspaceEntry(ws, companyId);
+  final company = ref.read(currentCompanyProvider(companyId)).valueOrNull;
+  final code = entry?.role ?? company?.myCompanyRoleCode;
+  return companyWorkspaceRoleLabelFromCode(code, l10n);
+}

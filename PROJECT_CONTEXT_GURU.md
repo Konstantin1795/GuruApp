@@ -1,6 +1,6 @@
 # GURU — Project Context (single-file handoff)
 
-**Last updated:** 2026-05-10  
+**Last updated:** 2026-05-09  
 
 **Назначение:** один файл для прикрепления в новый чат Cursor — восстановить контекст без обязательного чтения остальных документов.  
 
@@ -72,7 +72,10 @@ C:\GuruApp\
 - **Создание:** `TransferService::create` — HEAD/PARTNER первого порядка → часто сразу **`COMPLETED`** с дельтами; **EMPLOYEE** → **`PROJECT_HEAD_APPROVAL`** без дельт
 - **После создания:** только **`TransferLifecycleService`** + HTTP POST из таблиц ниже
 - **Математика:** только **`TransferBalanceService`** (целые центы где нужно); списание **всегда** с `sender.accountable_balance` / `accountable_spent`; запрет на списание `personal_balance` отправителя; отрицательный подотчёт не блокируется ошибкой «недостаточно средств»
-- **Видимость:** `OperationVisibilityService` — **`PROJECT_HEAD`** видит все переводы проекта; остальные — только где они **initiator / sender / receiver**
+- **Видимость:** `OperationVisibilityService` — **`PROJECT_HEAD`** видит все переводы проекта; остальные — только где они **initiator / sender / receiver**; **`transferQueryForUserAcrossProjects`** — объединение видимых переводов по нескольким проектам (агрегированная история).
+- **Доступные действия UI:** `TransferAvailableActionsService::forParticipant` — те же правила, что и POST у `TransferLifecycleService` (ключи вида `approve_project_head`, `complete_waiting`, …).
+- **Бейдж «ожидают подтверждения»:** `TransferPendingActionCountService` считает переводы, где у пользователя есть хотя бы одно действие из whitelist **`PENDING_BADGE_ACTION_KEYS`** (`approve_project_head`, `reject_project_head`, `submit_for_approval`). Опциональные шаги (**`complete_immediate`**, сброс на согласование из WAITING без обязательности, **`rollback_completed`** и т.д.) **не** увеличивают счётчик — иначе завышение при черновиках РП/партнёра.
+- **Ответ `GET …/transfers/{id}`:** в `data` — `transfer` (в т.ч. **`status_history`**, при загрузке `project` — **`project_name`**); отдельное поле **`available_actions`** — карта `bool` для кнопок клиента.
 - **Терминальность статусов:** `OperationStatus::isTerminal()` vs **`isTerminalForOperationType(OperationType)`** — для **TRANSFER** **`REJECTED`** не финал (отклонение РП → возврат к правкам). Кэш словаря: `DictionaryCacheService`, ключ статусов **`guru:dict:operation_statuses:v2`**
 - **Получатели ACCOUNTABLE_BALANCE:** участники **first** с ролями PROJECT_HEAD, PARTNER, EMPLOYEE; **себе на подотчёт нельзя**; текущий участник **исключается** из списка для UI
 - **Получатели PERSONAL_BALANCE:** любой активный контрагент компании: **OWNER, PARTNER, EMPLOYEE, SUPPLIER, CONTRACTOR, CUSTOMER**; **себе на расчётный можно**; при отсутствии в проекте — автосоздание участника **second** + кошелёк; маппинг ролей company→project для 2-го порядка включая **CUSTOMER → CUSTOMER**, **OWNER → PARTNER** (техн. роль в проекте)
@@ -130,6 +133,8 @@ app/Support/Http              — ApiResponse, Pagination, Middleware (RequestId
 | Метод | Относительный путь |
 |-------|---------------------|
 | GET | `/context` |
+| GET | `/operations/transfers/history` |
+| GET | `/operations/transfers/pending-count` |
 | GET | `/companies/current` |
 | GET, POST | `/projects` |
 | GET | `/projects/{projectId}/participants` |
@@ -160,6 +165,8 @@ app/Support/Http              — ApiResponse, Pagination, Middleware (RequestId
 | Метод | Путь |
 |-------|------|
 | GET | `/context` |
+| GET | `/operations/transfers/history` |
+| GET | `/operations/transfers/pending-count` |
 | GET | `/companies` |
 | GET | `/projects` |
 | GET | `/income-by-month` |
@@ -239,10 +246,14 @@ lib/core/           api_client, api_models, routing, theme (accent #00D6C9), wid
 lib/features/
   auth/
   workspaces/       workspace entry, create company
-  company_workspace/ shell, projects, participants, transfers (transfers_screen.dart)
+  company_workspace/ shell, projects, participants, transfers_screen.dart, company_dashboard_screen.dart (плитка «История операций», pull-to-refresh счётчика)
   personal_workspace/ shell, personal_operations_tab, income, companies list
-  customer_workspace/ /customer routes
-  operations/       domain + transfers_api (TransferApiScope) + repository
+  customer_workspace/ CustomerWorkspaceShell — главная: «История операций» → AggregatedTransfersHistoryScreen (personal scope)
+  operations/
+    domain/         transfer_operation.dart, transfer_detail_view.dart, operation_status_history_entry.dart
+    data/           transfers_api.dart (listHistoryAggregated, pendingActionCount, postTransferAction), transfers_repository.dart
+    presentation/   transfer_detail_screen.dart, aggregated_transfers_history_screen.dart
+    providers.dart  transferPendingActionCountProvider (FutureProvider.autoDispose.family)
 ```
 
 ### 9.2 Маршруты go_router (`router_provider.dart`)
@@ -258,7 +269,11 @@ lib/features/
 
 Переводы из компании: **`TransferApiScope.company`**. Из личного кабинета сотрудника: **`TransferApiScope.personal`** (URL без `companyId` в пути, `companyId` в теле/DTO всё равно нужен для бизнеса — передаётся из выбранного проекта).
 
-Экраны переводов: `CreateTransferScreen`, `TransfersScreen` — параметр **`canCreateTransfer`** для personal (только first-order **EMPLOYEE**).
+Экраны переводов: встроенные **`CreateTransferScreen`** / **`TransfersScreen`** (`company_workspace/presentation/transfers_screen.dart`) — параметр **`canCreateTransfer`** для personal (только first-order **EMPLOYEE**).
+
+**Деталь перевода (`transfer_detail_screen.dart`):** таймлайн из **`status_history`** (комментарий, автор, дата); кнопки только при **`available_actions[key] === true`**; POST через **`TransfersRepository.performTransferAction`** (сегмент пути = snake_case → kebab-case). После успешного действия **`Navigator.pushReplacement`** новым экраном с тем же `transferId` — обход падений `_dependents.isEmpty` при резкой смене статуса; **`invalidate` счётчика не вызывается с этого экрана** во время действия (обновление бейджа при **`Navigator.pop`** из `.then` родителя или refresh главной). Заголовок: **`ref.read`** для имени/роли и **`companyWorkspaceHeaderRoleLabelRead`** — без лишних **`ref.watch`** на экране. Контент: **`SingleChildScrollView`** + **`LayoutBuilder`**, для **`minHeight`** использовать только **`constraints.hasBoundedHeight`** (иначе мигание красного error-widget).
+
+**История операций:** **`AggregatedTransfersHistoryScreen`** — `GET …/operations/transfers/history` (company: все доступные проекты компании; personal: все проекты с участием пользователя); строка с названием проекта при наличии **`project_name`**. Главная компании и кабинет заказчика: плитка / пункт меню с числом **`pending_action_count`** и переходом в эту ленту.
 
 ### 9.3 ApiClient (Dio)
 
@@ -280,14 +295,15 @@ lib/features/
 | Parse error на сервере после правок | `php -l`, убрать лишние символы в `.php` |
 | 403 на personal transfer create | Не EMPLOYEE first-order — ожидаемо по ТЗ-05.3 |
 | Двойной `data` в JSON | Проверить `JsonResource::withoutWrapping()` |
+| Красный экран на долю секунды после действия на детали перевода | Уже снижено: `pushReplacement`, ограничение `minHeight`, отказ от `invalidate` на экране детали; при появлении — проверить unbounded constraints / версию Flutter |
 
 ---
 
 ## 11) Явно не сделано / долг
 
-- Операции **INCOME**, **REPORT** (продуктово)
-- Полный **экран детали перевода** в Flutter с кнопками lifecycle для РП (REST в company-workspace есть)
-- Push, realtime, offline, аналитика
+- Операции **INCOME**, **REPORT** (продуктово); расширить **`PENDING_BADGE_ACTION_KEYS`** под согласование заказчика и новые типы.
+- Вкладка **«Операции»** в нижнем меню компании — по-прежнему **плейсхолдер**; живые переводы из участников / истории на главной.
+- Push, realtime, offline, продвинутая аналитика на главной компании (сейчас частично заглушки).
 - Полное использование **bavix/laravel-wallet** под сценарии GURU
 
 ---
