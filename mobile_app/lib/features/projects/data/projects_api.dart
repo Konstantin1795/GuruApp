@@ -32,10 +32,15 @@ class ProjectsApi {
   Future<Map<String, dynamic>> listPersonalProjects({
     required int page,
     required int perPage,
-  }) =>
-      _api.getJson(
-        '/personal-workspace/projects',
-        query: {'page': page, 'per_page': perPage},
-      );
+    String? workspaceRole,
+  }) {
+    final query = <String, dynamic>{
+      'page': page,
+      'per_page': perPage,
+    };
+    if (workspaceRole != null) {
+      query['workspace_role'] = workspaceRole;
+    }
+    return _api.getJson('/personal-workspace/projects', query: query);
+  }
 }
-

@@ -7,6 +7,10 @@ import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/company_workspace/presentation/company_workspace_shell.dart';
+import '../../features/customer_workspace/presentation/customer_companies_screen.dart';
+import '../../features/customer_workspace/presentation/customer_company_projects_screen.dart';
+import '../../features/customer_workspace/presentation/customer_workspace_shell.dart';
+import '../../features/personal_workspace/presentation/personal_all_companies_screen.dart';
 import '../../features/personal_workspace/presentation/personal_workspace_shell.dart';
 import '../../features/workspaces/presentation/create_company_screen.dart';
 import '../../features/workspaces/presentation/workspace_entry_screen.dart';
@@ -63,6 +67,20 @@ final routerProvider = Provider<GoRouter>((ref) {
             CompanyWorkspaceShell(companyId: int.parse(state.pathParameters['companyId']!)),
       ),
       GoRoute(path: '/personal', builder: (context, state) => const PersonalWorkspaceShell()),
+      GoRoute(
+        path: '/personal/companies',
+        builder: (context, state) => const PersonalAllCompaniesScreen(),
+      ),
+      GoRoute(path: '/customer', builder: (context, state) => const CustomerWorkspaceShell()),
+      GoRoute(path: '/customer/companies', builder: (context, state) => const CustomerCompaniesScreen()),
+      GoRoute(
+        path: '/customer/companies/:companyId/projects',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['companyId']!);
+          final name = state.extra as String?;
+          return CustomerCompanyProjectsScreen(companyId: id, companyName: name);
+        },
+      ),
     ],
   );
 });

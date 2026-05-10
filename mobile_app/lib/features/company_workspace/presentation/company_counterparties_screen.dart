@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/api/api_models.dart';
+import '../../../core/localization/app_localizations_extension.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_input.dart';
+import '../../../core/widgets/app_loader.dart';
 import '../../counterparties/domain/counterparty.dart';
 import '../../counterparties/providers.dart';
 
@@ -160,6 +162,7 @@ class _CompanyCounterpartiesScreenState extends ConsumerState<CompanyCounterpart
   }
 
   Future<void> _showCreateDialog(BuildContext context) async {
+    final l10n = context.l10n;
     final fullNameCtrl = TextEditingController();
     final emailCtrl = TextEditingController();
     String role = kCompanyWorkspaceCounterpartyRoles.first;
@@ -170,23 +173,21 @@ class _CompanyCounterpartiesScreenState extends ConsumerState<CompanyCounterpart
       barrierDismissible: false,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setState) => AlertDialog(
-          title: const Text('Add counterparty'),
+          title: Text(l10n.addCounterparty),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 AppInput(
                   controller: fullNameCtrl,
-                  label: 'ФИО',
-                  hint: 'e.g. Иванов Иван',
+                  label: l10n.counterpartyFullName,
                   autofocus: true,
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 12),
                 AppInput(
                   controller: emailCtrl,
-                  label: 'Email',
-                  hint: 'e.g. customer@guru.local',
+                  label: l10n.counterpartyEmail,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
                   onSubmitted: (_) {},
@@ -194,7 +195,7 @@ class _CompanyCounterpartiesScreenState extends ConsumerState<CompanyCounterpart
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   initialValue: role,
-                  decoration: const InputDecoration(labelText: 'Роль'),
+                  decoration: InputDecoration(labelText: l10n.counterpartyRole),
                   items: kCompanyWorkspaceCounterpartyRoles
                       .map(
                         (r) => DropdownMenuItem(
@@ -211,7 +212,7 @@ class _CompanyCounterpartiesScreenState extends ConsumerState<CompanyCounterpart
           actions: [
             TextButton(
               onPressed: isSubmitting ? null : () => Navigator.of(ctx).pop(false),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             TextButton(
               onPressed: isSubmitting
@@ -221,13 +222,13 @@ class _CompanyCounterpartiesScreenState extends ConsumerState<CompanyCounterpart
                       final email = emailCtrl.text.trim();
                       if (fullName.isEmpty) {
                         ScaffoldMessenger.of(ctx).showSnackBar(
-                          const SnackBar(content: Text('Введите ФИО')),
+                          SnackBar(content: Text(l10n.counterpartyEnterName)),
                         );
                         return;
                       }
                       if (email.isEmpty) {
                         ScaffoldMessenger.of(ctx).showSnackBar(
-                          const SnackBar(content: Text('Введите email пользователя')),
+                          SnackBar(content: Text(l10n.counterpartyEnterEmail)),
                         );
                         return;
                       }
@@ -243,13 +244,12 @@ class _CompanyCounterpartiesScreenState extends ConsumerState<CompanyCounterpart
                         if (!ctx.mounted) return;
                         ScaffoldMessenger.of(ctx).showSnackBar(
                           SnackBar(
-                            content:
-                                Text(e is ApiException ? e.message : 'Не удалось создать контрагента'),
+                            content: Text(e is ApiException ? e.message : l10n.counterpartyErrorCreate),
                           ),
                         );
                       }
                     },
-              child: Text(isSubmitting ? 'Creating...' : 'Create'),
+              child: Text(isSubmitting ? '...' : l10n.create),
             ),
           ],
         ),
@@ -259,7 +259,7 @@ class _CompanyCounterpartiesScreenState extends ConsumerState<CompanyCounterpart
     if (ok != true) return;
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Контрагент добавлен')),
+      SnackBar(content: Text(context.l10n.counterpartyAdded)),
     );
   }
 
@@ -267,18 +267,20 @@ class _CompanyCounterpartiesScreenState extends ConsumerState<CompanyCounterpart
   Widget build(BuildContext context) {
     final state = ref.watch(companyCounterpartiesControllerProvider(widget.companyId));
 
+    final l10n = context.l10n;
+
     return state.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const AppLoader(),
       error: (e, _) => Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(e is ApiException ? e.message : 'Failed to load counterparties.'),
+              Text(e is ApiException ? e.message : l10n.counterpartiesErrorLoad),
               const SizedBox(height: 12),
               AppButton(
-                label: 'Retry',
+                label: l10n.retry,
                 onPressed: () => ref
                     .read(companyCounterpartiesControllerProvider(widget.companyId).notifier)
                     .refresh(),
@@ -305,7 +307,7 @@ class _CompanyCounterpartiesScreenState extends ConsumerState<CompanyCounterpart
                     Expanded(
                       child: AppInput(
                         controller: _searchCtrl,
-                        label: 'Search (id, role, email, name)',
+                        label: l10n.counterpartySearch,
                         textInputAction: TextInputAction.search,
                         onSubmitted: (v) => ref
                             .read(companyCounterpartiesControllerProvider(widget.companyId).notifier)
@@ -316,7 +318,7 @@ class _CompanyCounterpartiesScreenState extends ConsumerState<CompanyCounterpart
                     SizedBox(
                       width: 110,
                       child: AppButton(
-                        label: 'Add',
+                        label: l10n.add,
                         onPressed: () => _showCreateDialog(context),
                       ),
                     ),
@@ -325,46 +327,49 @@ class _CompanyCounterpartiesScreenState extends ConsumerState<CompanyCounterpart
                 const SizedBox(height: 12),
               ],
               if (data.items.isEmpty)
-                const AppCard(
-                  child: Text('No counterparties yet.'),
-                )
+                AppCard(child: Text(l10n.counterpartiesEmpty))
               else
                 ...data.items.map(
-                  (c) => AppCard(
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                c.userEmail ??
-                                    c.email ??
-                                    c.userName ??
-                                    c.fullName ??
-                                    'Counterparty #${c.id}',
-                                style: const TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Роль: ${companyWorkspaceCounterpartyRoleLabelRu(c.companyRole)}'
-                                '${c.userId != null ? ' • user_id=${c.userId}' : ' • invite'}',
-                                style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-                              ),
-                            ],
+                  (c) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: AppCard(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  c.userEmail ??
+                                      c.email ??
+                                      c.userName ??
+                                      c.fullName ??
+                                      'Counterparty #${c.id}',
+                                  style: const TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${l10n.counterpartyRole}: ${companyWorkspaceCounterpartyRoleLabelRu(c.companyRole)}'
+                                  '${c.userId != null ? '' : ' • invite'}',
+                                  style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        if (!c.isActive)
-                          Text('inactive',
-                              style: TextStyle(color: Colors.white.withValues(alpha: 0.6))),
-                      ],
+                          if (!c.isActive)
+                            Text(
+                              l10n.projectInactive,
+                              style: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               const SizedBox(height: 8),
               if (data.hasMore)
                 AppButton(
-                  label: data.isLoadingMore ? 'Loading...' : 'Load more',
+                  label: data.isLoadingMore ? l10n.loading : l10n.loadMore,
                   onPressed: data.isLoadingMore
                       ? null
                       : () => ref
@@ -376,7 +381,7 @@ class _CompanyCounterpartiesScreenState extends ConsumerState<CompanyCounterpart
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Text(
-                      'Total: ${data.pagination!.total}',
+                      l10n.counterpartyTotal(data.pagination!.total),
                       style: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                     ),
                   ),

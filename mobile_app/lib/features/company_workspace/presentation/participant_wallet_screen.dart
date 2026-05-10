@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/api_exception.dart';
+import '../../../core/localization/app_localizations_extension.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_loader.dart';
 import '../../../core/widgets/app_scaffold.dart';
+import '../../auth/providers.dart';
+import 'company_workspace_identity.dart';
 import '../../../core/widgets/app_section_title.dart';
 import '../../projects/domain/participant_wallet.dart';
 import '../../projects/domain/project_participant.dart';
@@ -68,13 +71,20 @@ class ParticipantWalletScreen extends ConsumerWidget {
     );
     final state = ref.watch(_participantWalletProvider(key));
 
+    final l10n = context.l10n;
+
+    final userName = ref.watch(currentUserProvider).valueOrNull?.name.trim() ?? '';
+    final roleLabel = companyWorkspaceHeaderRoleLabel(ref, companyId, l10n);
+
     return AppScaffold(
-      title: 'Кошелёк',
+      headerUserName: userName.isEmpty ? null : userName,
+      headerRoleLabel: roleLabel,
+      title: l10n.walletTitle,
       subtitle: participant.displayName,
       body: state.when(
         loading: () => const AppLoader(),
         error: (e, _) => _ErrorBody(
-          message: e is ApiException ? e.message : 'Не удалось загрузить кошелёк',
+          message: e is ApiException ? e.message : l10n.walletErrorLoad,
           onRetry: () => ref.read(_participantWalletProvider(key).notifier).refresh(),
         ),
         data: (wallet) => RefreshIndicator(
@@ -83,31 +93,31 @@ class ParticipantWalletScreen extends ConsumerWidget {
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
             children: [
-              const AppSectionTitle(title: 'Личные средства'),
+              AppSectionTitle(title: l10n.walletPersonalFunds),
               const SizedBox(height: 10),
               _WalletCard(
                 items: [
                   _BalanceItem(
-                    label: 'Баланс',
+                    label: l10n.walletBalance,
                     value: wallet.personalBalance,
                     accent: true,
                   ),
-                  _BalanceItem(label: 'Заработано', value: wallet.personalEarned),
-                  _BalanceItem(label: 'Получено', value: wallet.personalReceived),
+                  _BalanceItem(label: l10n.walletEarned, value: wallet.personalEarned),
+                  _BalanceItem(label: l10n.walletReceived, value: wallet.personalReceived),
                 ],
               ),
               const SizedBox(height: 20),
-              const AppSectionTitle(title: 'Подотчётные средства'),
+              AppSectionTitle(title: l10n.walletAccountableFunds),
               const SizedBox(height: 10),
               _WalletCard(
                 items: [
                   _BalanceItem(
-                    label: 'Баланс',
+                    label: l10n.walletBalance,
                     value: wallet.accountableBalance,
                     accent: true,
                   ),
-                  _BalanceItem(label: 'Получено', value: wallet.accountableReceived),
-                  _BalanceItem(label: 'Потрачено', value: wallet.accountableSpent),
+                  _BalanceItem(label: l10n.walletReceived, value: wallet.accountableReceived),
+                  _BalanceItem(label: l10n.walletSpent, value: wallet.accountableSpent),
                 ],
               ),
               const SizedBox(height: 24),
@@ -234,14 +244,15 @@ class _RoleChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const labels = {
-      'PROJECT_HEAD': 'Руководитель проекта',
-      'PARTNER': 'Партнёр',
-      'CUSTOMER': 'Заказчик',
-      'SUPERVISOR': 'Куратор',
-      'EMPLOYEE': 'Сотрудник',
-      'SUPPLIER': 'Поставщик',
-      'CONTRACTOR': 'Подрядчик',
+    final l10n = context.l10n;
+    final labels = {
+      'PROJECT_HEAD': l10n.roleProjectHead,
+      'PARTNER':      l10n.rolePartner,
+      'CUSTOMER':     l10n.roleCustomer,
+      'SUPERVISOR':   l10n.roleSupervisor,
+      'EMPLOYEE':     l10n.roleEmployee,
+      'SUPPLIER':     l10n.roleSupplier,
+      'CONTRACTOR':   l10n.roleContractor,
     };
     return Center(
       child: Container(
@@ -279,7 +290,7 @@ class _ErrorBody extends StatelessWidget {
           children: [
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 16),
-            AppButton(label: 'Повторить', onPressed: onRetry),
+            AppButton(label: context.l10n.retry, onPressed: onRetry),
           ],
         ),
       ),

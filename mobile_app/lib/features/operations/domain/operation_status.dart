@@ -1,3 +1,5 @@
+import 'operation_type.dart';
+
 enum OperationStatus {
   created,
   projectHeadApproval,
@@ -40,8 +42,18 @@ enum OperationStatus {
         rolledBack          => 'Откат',
       };
 
-  bool get isTerminal => switch (this) {
+  /// Default terminality for generic lifecycles (REJECTED is final until overridden per type).
+  bool get isTerminalDefault => switch (this) {
         completed || rejected || rolledBack => true,
         _ => false,
+      };
+
+  /// Whether this status is terminal for [type]. Transfer treats [rejected] as intermediate.
+  bool isTerminalForOperationType(OperationType type) => switch (type) {
+        OperationType.transfer => switch (this) {
+            completed || rolledBack => true,
+            _ => false,
+          },
+        OperationType.income || OperationType.report => isTerminalDefault,
       };
 }

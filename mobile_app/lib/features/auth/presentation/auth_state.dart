@@ -3,7 +3,10 @@ import 'package:logger/logger.dart';
 
 import '../providers.dart';
 import '../../../core/providers.dart';
+import '../../customer_workspace/providers.dart';
+import '../../personal_workspace/providers.dart';
 import '../../workspaces/providers.dart';
+
 
 enum AuthStatus { initial, loading, unauthenticated, authenticated, error }
 
@@ -65,6 +68,7 @@ class AuthController extends StateNotifier<AuthState> {
         stackTrace: st,
       );
       await auth.clearToken();
+      _ref.invalidate(currentUserProvider);
       _logger.i('Redirect to login (bootstrap error)');
       state = AuthState(AuthStatus.error, errorMessage: e.toString());
       state = const AuthState(AuthStatus.unauthenticated);
@@ -73,6 +77,11 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   Future<void> setAuthenticated() async {
+    // Invalidate workspace cache so the new user's session always
+    // fetches fresh data — prevents showing a previous user's companies.
+    _ref.invalidate(workspacesProvider);
+    _ref.invalidate(customerWorkspaceDataProvider);
+    _ref.invalidate(performerWorkspaceDataProvider);
     state = const AuthState(AuthStatus.authenticated);
   }
 
@@ -83,6 +92,11 @@ class AuthController extends StateNotifier<AuthState> {
       _logger.w('Logout failed, clearing local token anyway.', error: e, stackTrace: st);
       await _ref.read(authRepositoryProvider).clearToken();
     }
+    // Clear workspace cache on logout.
+    _ref.invalidate(workspacesProvider);
+    _ref.invalidate(customerWorkspaceDataProvider);
+    _ref.invalidate(performerWorkspaceDataProvider);
+    _ref.invalidate(currentUserProvider);
     state = const AuthState(AuthStatus.unauthenticated);
   }
 }

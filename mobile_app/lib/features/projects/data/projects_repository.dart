@@ -1,4 +1,5 @@
 import '../../../core/api/api_models.dart';
+import '../../customer_workspace/domain/personal_workspace_project_row.dart';
 import '../domain/project.dart';
 import 'projects_api.dart';
 
@@ -22,7 +23,43 @@ class ProjectsRepository {
   }) async {
     final json = await _api.listPersonalProjects(page: page, perPage: perPage);
     final data = (json['data'] as Map).cast<String, dynamic>();
-    return Paginated<Project>.fromJson(data, parseItem: Project.fromJson);
+    return Paginated<Project>.fromJson(data, parseItem: _projectFromPersonalPayload);
+  }
+
+  Future<Paginated<PersonalWorkspaceProjectRow>> listPersonalWorkspaceRows({
+    required int page,
+    required int perPage,
+    String? workspaceRole,
+  }) async {
+    final json = await _api.listPersonalProjects(
+      page: page,
+      perPage: perPage,
+      workspaceRole: workspaceRole,
+    );
+    final data = (json['data'] as Map).cast<String, dynamic>();
+    return Paginated<PersonalWorkspaceProjectRow>.fromJson(
+      data,
+      parseItem: PersonalWorkspaceProjectRow.fromJson,
+    );
+  }
+
+  Future<List<PersonalWorkspaceProjectRow>> listAllPersonalWorkspaceRows({
+    String? workspaceRole,
+    int perPage = 50,
+  }) async {
+    final out = <PersonalWorkspaceProjectRow>[];
+    var page = 1;
+    while (true) {
+      final batch = await listPersonalWorkspaceRows(
+        page: page,
+        perPage: perPage,
+        workspaceRole: workspaceRole,
+      );
+      out.addAll(batch.items);
+      if (!batch.pagination.hasMore) break;
+      page++;
+    }
+    return out;
   }
 
   Future<Project> createCompany({
@@ -41,3 +78,17 @@ class ProjectsRepository {
   }
 }
 
+/// Builds a flat [Project] from nested personal-workspace payload.
+Project _projectFromPersonalPayload(Map<String, dynamic> json) {
+  final p = (json['project'] as Map).cast<String, dynamic>();
+  final c = (json['company'] as Map).cast<String, dynamic>();
+  return Project(
+    id: p['id'] as int,
+    companyId: c['id'] as int,
+    name: p['name'] as String,
+    progressPercent: (p['progress_percent'] as num).toInt(),
+    isActive: p['is_active'] as bool,
+    createdAt: null,
+    updatedAt: null,
+  );
+}

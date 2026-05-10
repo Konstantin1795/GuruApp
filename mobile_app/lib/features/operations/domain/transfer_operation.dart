@@ -1,4 +1,5 @@
 import 'operation_status.dart';
+import 'operation_type.dart';
 import 'transfer_target_type.dart';
 
 class TransferOperation {
@@ -34,20 +35,40 @@ class TransferOperation {
     required this.updatedAt,
   });
 
-  factory TransferOperation.fromJson(Map<String, dynamic> json) => TransferOperation(
-        id: json['id'] as int,
-        operationId: json['operation_id'] as int,
-        projectId: json['project_id'] as int,
-        initiatorProjectParticipantId: json['initiator_project_participant_id'] as int,
-        senderProjectParticipantId: json['sender_project_participant_id'] as int,
-        receiverProjectParticipantId: json['receiver_project_participant_id'] as int,
-        senderName: json['sender_name'] as String?,
-        receiverName: json['receiver_name'] as String?,
-        targetType: TransferTargetType.fromJson(json['transfer_target_type'] as String),
-        amount: json['amount'] as String,
-        comment: json['comment'] as String?,
-        status: OperationStatus.fromJson(json['operation_status'] as String),
-        createdAt: DateTime.tryParse((json['created_at'] as String?) ?? ''),
-        updatedAt: DateTime.tryParse((json['updated_at'] as String?) ?? ''),
-      );
+  factory TransferOperation.fromJson(Map<String, dynamic> json) {
+    int readInt(dynamic v) {
+      if (v is int) return v;
+      if (v is num) return v.toInt();
+      return int.tryParse('$v') ?? 0;
+    }
+
+    String readAmount(dynamic v) {
+      if (v == null) return '0.00';
+      if (v is String) return v;
+      if (v is num) {
+        return v.toStringAsFixed(2);
+      }
+      return v.toString();
+    }
+
+    return TransferOperation(
+      id: readInt(json['id']),
+      operationId: readInt(json['operation_id']),
+      projectId: readInt(json['project_id']),
+      initiatorProjectParticipantId: readInt(json['initiator_project_participant_id']),
+      senderProjectParticipantId: readInt(json['sender_project_participant_id']),
+      receiverProjectParticipantId: readInt(json['receiver_project_participant_id']),
+      senderName: json['sender_name'] as String?,
+      receiverName: json['receiver_name'] as String?,
+      targetType: TransferTargetType.fromJson((json['transfer_target_type'] ?? '').toString()),
+      amount: readAmount(json['amount']),
+      comment: json['comment'] as String?,
+      status: OperationStatus.fromJson((json['operation_status'] ?? '').toString()),
+      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) : null,
+      updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at'].toString()) : null,
+    );
+  }
+
+  /// Transfer lifecycle terminality (REJECTED is intermediate).
+  bool get isStatusTerminal => status.isTerminalForOperationType(OperationType.transfer);
 }

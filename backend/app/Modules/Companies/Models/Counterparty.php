@@ -25,6 +25,8 @@ final class Counterparty extends Model
     protected $fillable = [
         'company_id',
         'user_id',
+        'full_name',
+        'email',
         'company_role_code',
         'is_active',
     ];

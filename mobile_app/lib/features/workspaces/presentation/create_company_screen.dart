@@ -3,12 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/api/api_exception.dart';
-import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/localization/app_localizations_extension.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_input.dart';
+import '../../../core/widgets/app_scaffold.dart';
 import '../providers.dart';
-import 'workspace_entry_screen.dart';
 
 class CreateCompanyScreen extends ConsumerStatefulWidget {
   const CreateCompanyScreen({super.key});
@@ -35,14 +36,16 @@ class _CreateCompanyScreenState extends ConsumerState<CreateCompanyScreen> {
     });
 
     try {
-      final id = await ref.read(workspacesRepositoryProvider).createCompany(name: _name.text.trim());
+      final id = await ref
+          .read(workspacesRepositoryProvider)
+          .createCompany(name: _name.text.trim());
       ref.invalidate(workspacesProvider);
       if (!mounted) return;
       context.go('/company/$id');
     } on ApiException catch (e) {
       setState(() => _error = e.message);
     } catch (_) {
-      setState(() => _error = 'Failed to create company.');
+      setState(() => _error = context.l10n.companyCreateError);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -50,8 +53,10 @@ class _CreateCompanyScreenState extends ConsumerState<CreateCompanyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return AppScaffold(
-      title: 'Create company',
+      title: l10n.createCompanyTitle,
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Center(
@@ -62,34 +67,39 @@ class _CreateCompanyScreenState extends ConsumerState<CreateCompanyScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'New company',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                    l10n.createCompanyHeading,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'You will become OWNER',
+                    l10n.createCompanySubtitle,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.white.withValues(alpha: 0.72),
+                          color: AppColors.textSecondary,
                         ),
                   ),
                   const SizedBox(height: 18),
                   AppInput(
                     controller: _name,
-                    label: 'Company name',
+                    label: l10n.companyNameLabel,
                     textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => _submit(),
                   ),
                   const SizedBox(height: 16),
                   if (_error != null) ...[
                     Align(
                       alignment: Alignment.centerLeft,
-                      child: Text(_error!, style: const TextStyle(color: Colors.redAccent)),
+                      child: Text(
+                        _error!,
+                        style: const TextStyle(color: AppColors.error),
+                      ),
                     ),
                     const SizedBox(height: 12),
                   ],
                   AppButton(
-                    label: 'Create',
+                    label: l10n.create,
                     onPressed: _loading ? null : _submit,
                     loading: _loading,
                     icon: Icons.add,
@@ -103,4 +113,3 @@ class _CreateCompanyScreenState extends ConsumerState<CreateCompanyScreen> {
     );
   }
 }
-

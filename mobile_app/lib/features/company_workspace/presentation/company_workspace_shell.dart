@@ -3,15 +3,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/api/api_exception.dart';
+import '../../../core/localization/app_localizations_extension.dart';
+import '../../../core/localization/locale_provider.dart';
+import '../../../l10n/gen/app_localizations.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_input.dart';
 import '../../../core/widgets/app_scaffold.dart';
+import '../../auth/providers.dart';
 import '../../counterparties/domain/counterparty.dart';
 import '../../projects/domain/project.dart';
+import '../../workspaces/providers.dart';
 import '../providers.dart';
+import 'company_counterparties_screen.dart' show CompanyCounterpartiesScreen, companyCounterpartiesControllerProvider;
 import 'company_dashboard_screen.dart';
-import 'company_counterparties_screen.dart';
 import 'company_operations_placeholder_screen.dart';
 import 'company_projects_screen.dart';
+import 'company_workspace_identity.dart';
 import 'transfers_screen.dart';
 
 class CompanyWorkspaceShell extends ConsumerStatefulWidget {
@@ -26,6 +33,7 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
   int _index = 0;
 
   Future<void> _quickCreateCounterparty() async {
+    final l10n = context.l10n;
     final fullNameCtrl = TextEditingController();
     final emailCtrl = TextEditingController();
     String role = 'CUSTOMER';
@@ -36,33 +44,33 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
       barrierDismissible: false,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setState) => AlertDialog(
-          title: const Text('Add counterparty'),
+          title: Text(l10n.addCounterparty),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 AppInput(
                   controller: fullNameCtrl,
-                  label: 'ФИО',
+                  label: l10n.counterpartyFullName,
                   autofocus: true,
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 12),
                 AppInput(
                   controller: emailCtrl,
-                  label: 'Email',
+                  label: l10n.counterpartyEmail,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   initialValue: role,
-                  decoration: const InputDecoration(labelText: 'Роль'),
+                  decoration: InputDecoration(labelText: l10n.counterpartyRole),
                   items: [
                     for (final r in kCompanyWorkspaceCounterpartyRoles)
                       DropdownMenuItem<String>(
                         value: r,
-                        child: Text(companyWorkspaceCounterpartyRoleLabelRu(r)),
+                        child: Text(_localizeRole(r, l10n)),
                       ),
                   ],
                   onChanged: isSubmitting ? null : (v) => role = v ?? role,
@@ -73,7 +81,7 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
           actions: [
             TextButton(
               onPressed: isSubmitting ? null : () => Navigator.of(ctx).pop(false),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             TextButton(
               onPressed: isSubmitting
@@ -82,13 +90,15 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
                       final fullName = fullNameCtrl.text.trim();
                       final email = emailCtrl.text.trim();
                       if (fullName.isEmpty) {
-                        ScaffoldMessenger.of(ctx)
-                            .showSnackBar(const SnackBar(content: Text('Введите ФИО')));
+                        ScaffoldMessenger.of(ctx).showSnackBar(
+                          SnackBar(content: Text(l10n.counterpartyEnterName)),
+                        );
                         return;
                       }
                       if (email.isEmpty) {
-                        ScaffoldMessenger.of(ctx)
-                            .showSnackBar(const SnackBar(content: Text('Введите email')));
+                        ScaffoldMessenger.of(ctx).showSnackBar(
+                          SnackBar(content: Text(l10n.counterpartyEnterEmail)),
+                        );
                         return;
                       }
                       setState(() => isSubmitting = true);
@@ -101,11 +111,15 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
                         setState(() => isSubmitting = false);
                         if (!ctx.mounted) return;
                         ScaffoldMessenger.of(ctx).showSnackBar(
-                          SnackBar(content: Text(e is ApiException ? e.message : 'Ошибка создания')),
+                          SnackBar(
+                            content: Text(
+                              e is ApiException ? e.message : l10n.counterpartyErrorCreate,
+                            ),
+                          ),
                         );
                       }
                     },
-              child: Text(isSubmitting ? 'Creating...' : 'Create'),
+              child: Text(isSubmitting ? '...' : l10n.create),
             ),
           ],
         ),
@@ -114,8 +128,9 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
 
     if (created == true && mounted) {
       setState(() => _index = 2);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Контрагент добавлен')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.counterpartyAdded)),
+      );
     }
   }
 
@@ -128,7 +143,9 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
     );
     if (created != true || !mounted) return;
     setState(() => _index = 1);
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Проект создан')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.l10n.projectCreated)),
+    );
   }
 
   // ─── Operation type picker ────────────────────────────────────────────────
@@ -140,81 +157,78 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Sheet handle
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(99),
+      builder: (ctx) {
+        final l10n = ctx.l10n;
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(99),
+                    ),
                   ),
                 ),
-              ),
-              const Text(
-                'Тип операции',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
+                Text(
+                  l10n.operationTypeTitle,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 18),
-              // Поступление — disabled (next stage)
-              _OperationTypeItem(
-                icon: Icons.arrow_downward_rounded,
-                label: 'Поступление',
-                description: 'Будет доступно на следующем этапе',
-                enabled: false,
-                onTap: () {},
-              ),
-              const SizedBox(height: 12),
-              // Перевод — active
-              _OperationTypeItem(
-                icon: Icons.swap_horiz,
-                label: 'Перевод',
-                description: 'Перераспределение средств между участниками',
-                enabled: true,
-                onTap: () {
-                  Navigator.of(ctx).pop();
-                  _openCreateTransferFlow();
-                },
-              ),
-              const SizedBox(height: 12),
-              // Отчёт — disabled (future)
-              _OperationTypeItem(
-                icon: Icons.receipt_long_outlined,
-                label: 'Отчёт',
-                description: 'Будет доступно позже',
-                enabled: false,
-                onTap: () {},
-              ),
-            ],
+                const SizedBox(height: 18),
+                _OperationTypeItem(
+                  icon: Icons.arrow_downward_rounded,
+                  label: l10n.operationIncome,
+                  description: l10n.operationIncomeSoon,
+                  enabled: false,
+                  onTap: () {},
+                ),
+                const SizedBox(height: 12),
+                _OperationTypeItem(
+                  icon: Icons.swap_horiz,
+                  label: l10n.operationTransfer,
+                  description: l10n.operationTransferDescription,
+                  enabled: true,
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+                    _openCreateTransferFlow();
+                  },
+                ),
+                const SizedBox(height: 12),
+                _OperationTypeItem(
+                  icon: Icons.receipt_long_outlined,
+                  label: l10n.operationReport,
+                  description: l10n.operationReportSoon,
+                  enabled: false,
+                  onTap: () {},
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  /// Picks a project (shows dialog if multiple) then opens CreateTransferScreen.
   Future<void> _openCreateTransferFlow() async {
-    // Ensure projects are loaded.
+    final l10n = context.l10n;
     final projectsState =
         ref.read(companyProjectsControllerProvider(widget.companyId)).valueOrNull;
 
     if (projectsState == null || projectsState.items.isEmpty) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Нет доступных проектов. Создайте проект сначала.')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.noProjects)));
       return;
     }
 
@@ -223,13 +237,15 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
     if (projectsState.items.length == 1) {
       selectedProject = projectsState.items.first;
     } else {
-      // Show project picker dialog.
       if (!mounted) return;
       selectedProject = await showDialog<Project>(
         context: context,
         builder: (ctx) => SimpleDialog(
           backgroundColor: const Color(0xFF0B1B2A),
-          title: const Text('Выберите проект', style: TextStyle(color: Colors.white)),
+          title: Text(
+            ctx.l10n.selectProject,
+            style: const TextStyle(color: Colors.white),
+          ),
           children: projectsState.items
               .map(
                 (p) => SimpleDialogOption(
@@ -238,7 +254,10 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: Text(
                       p.name,
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -261,31 +280,55 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
     );
   }
 
+  // ─── Language picker ──────────────────────────────────────────────────────
+
+  Future<void> _showLanguagePicker() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => _LanguagePickerSheet(
+        onSelect: (locale) {
+          Navigator.of(ctx).pop();
+          ref.read(localeProvider.notifier).setLocale(locale);
+        },
+      ),
+    );
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final companyId = widget.companyId;
+    final workspacesData = ref.watch(workspacesProvider).valueOrNull;
+    final wsEntry = companyWorkspaceEntry(workspacesData, companyId);
     final company = ref.watch(currentCompanyProvider(companyId));
-    final companyName = company.valueOrNull?.name ?? 'Company #$companyId';
-    final title = switch (_index) {
-      0 => companyName,
-      1 => 'Projects',
-      2 => 'Counterparties',
-      3 => 'Операции',
-      _ => companyName,
-    };
-    final subtitle = _index == 0 ? 'Руководитель компании' : null;
+
+    final nameFromApi = company.valueOrNull?.name.trim();
+    final nameFromWs = wsEntry?.companyName.trim();
+    final companyName = (nameFromApi != null && nameFromApi.isNotEmpty)
+        ? nameFromApi
+        : (nameFromWs != null && nameFromWs.isNotEmpty)
+            ? nameFromWs
+            : 'Company #$companyId';
+
+    final headerRole = companyWorkspaceHeaderRoleLabel(ref, companyId, l10n);
+    final userName = ref.watch(currentUserProvider).valueOrNull?.name.trim() ?? '';
 
     return AppScaffold(
-      title: title,
-      subtitle: subtitle,
+      headerUserName: userName.isEmpty ? null : userName,
+      headerRoleLabel: headerRole,
+      title: companyName,
       actions: [
         if (_index == 0)
           IconButton(
-            onPressed: () => ScaffoldMessenger.of(context)
-                .showSnackBar(const SnackBar(content: Text('TODO: menu'))),
-            icon: const Icon(Icons.menu),
+            onPressed: _showLanguagePicker,
+            tooltip: l10n.changeLanguage,
+            icon: const Icon(Icons.translate_outlined),
           ),
         IconButton(
           onPressed: () => context.go('/workspaces'),
@@ -322,6 +365,90 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
   }
 }
 
+// ─── Language picker sheet ────────────────────────────────────────────────────
+
+class _LanguagePickerSheet extends ConsumerWidget {
+  final ValueChanged<Locale> onSelect;
+  const _LanguagePickerSheet({required this.onSelect});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final current = ref.watch(localeProvider);
+    final l10n = context.l10n;
+
+    Widget option(String flag, String label, Locale locale) {
+      final selected = current.languageCode == locale.languageCode;
+      return InkWell(
+        onTap: () => onSelect(locale),
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.accentDim : Colors.white.withValues(alpha: 0.04),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: selected ? AppColors.accentBorder : AppColors.border,
+            ),
+          ),
+          child: Row(
+            children: [
+              Text(flag, style: const TextStyle(fontSize: 22)),
+              const SizedBox(width: 14),
+              Text(
+                label,
+                style: TextStyle(
+                  color: selected ? AppColors.accent : AppColors.textPrimary,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+                  fontSize: 15,
+                ),
+              ),
+              if (selected) ...[
+                const Spacer(),
+                const Icon(Icons.check, color: AppColors.accent, size: 20),
+              ],
+            ],
+          ),
+        ),
+      );
+    }
+
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: AppColors.textDisabled,
+                  borderRadius: BorderRadius.circular(99),
+                ),
+              ),
+            ),
+            Text(
+              l10n.language,
+              style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 16),
+            option('🇷🇺', l10n.languageRu, const Locale('ru')),
+            option('🇬🇧', l10n.languageEn, const Locale('en')),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // ─── Bottom navigation ────────────────────────────────────────────────────────
 
 class _BottomPillNav extends StatelessWidget {
@@ -335,10 +462,11 @@ class _BottomPillNav extends StatelessWidget {
     required this.onOperations,
   });
 
-  static const _accent = Color(0xFF00D6C9);
+  static const _accent = AppColors.accent;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final selectedHome = activeIndex == 0;
 
     Widget circle({
@@ -355,7 +483,9 @@ class _BottomPillNav extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.white.withValues(alpha: selected ? 1 : 0.85)),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: selected ? 1 : 0.85),
+            ),
           ),
           alignment: Alignment.center,
           child: Icon(icon, color: const Color(0xFF0B1B2A)),
@@ -388,9 +518,12 @@ class _BottomPillNav extends StatelessWidget {
                 child: const Icon(Icons.swap_horiz, color: Color(0xFF0B1B2A)),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Операции',
-                style: TextStyle(color: Color(0xFF0B1B2A), fontWeight: FontWeight.w800),
+              Text(
+                l10n.operationsTitle,
+                style: const TextStyle(
+                  color: Color(0xFF0B1B2A),
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ],
           ),
@@ -414,7 +547,7 @@ class _BottomPillNav extends StatelessWidget {
               icon: Icons.notifications,
               selected: false,
               onTap: () => ScaffoldMessenger.of(context)
-                  .showSnackBar(const SnackBar(content: Text('TODO: уведомления'))),
+                  .showSnackBar(SnackBar(content: Text(l10n.notificationsComingSoon))),
             ),
             const Spacer(),
             pill(),
@@ -442,15 +575,14 @@ class _OperationTypeItem extends StatelessWidget {
     required this.onTap,
   });
 
-  static const _accent = Color(0xFF00D6C9);
+  static const _accent = AppColors.accent;
 
   @override
   Widget build(BuildContext context) {
     final iconColor = enabled ? _accent : Colors.white.withValues(alpha: 0.25);
     final textColor = enabled ? Colors.white : Colors.white.withValues(alpha: 0.35);
-    final descColor = enabled
-        ? Colors.white.withValues(alpha: 0.55)
-        : Colors.white.withValues(alpha: 0.25);
+    final descColor =
+        enabled ? Colors.white.withValues(alpha: 0.55) : Colors.white.withValues(alpha: 0.25);
 
     return InkWell(
       onTap: enabled ? onTap : null,
@@ -461,7 +593,9 @@ class _OperationTypeItem extends StatelessWidget {
           color: Colors.white.withValues(alpha: enabled ? 0.07 : 0.03),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: enabled ? _accent.withValues(alpha: 0.25) : Colors.white.withValues(alpha: 0.07),
+            color: enabled
+                ? _accent.withValues(alpha: 0.25)
+                : Colors.white.withValues(alpha: 0.07),
           ),
         ),
         child: Row(
@@ -481,11 +615,14 @@ class _OperationTypeItem extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label,
-                      style: TextStyle(
-                          color: textColor,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700)),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                   const SizedBox(height: 2),
                   Text(description,
                       style: TextStyle(color: descColor, fontSize: 12)),
@@ -493,10 +630,21 @@ class _OperationTypeItem extends StatelessWidget {
               ),
             ),
             if (enabled)
-              Icon(Icons.chevron_right, color: Colors.white.withValues(alpha: 0.4)),
+              Icon(Icons.chevron_right,
+                  color: Colors.white.withValues(alpha: 0.4)),
           ],
         ),
       ),
     );
   }
 }
+
+String _localizeRole(String role, AppLocalizations l10n) => switch (role) {
+      'OWNER'      => l10n.roleOwner,
+      'PARTNER'    => l10n.rolePartner,
+      'EMPLOYEE'   => l10n.roleEmployee,
+      'CONTRACTOR' => l10n.roleContractor,
+      'SUPPLIER'   => l10n.roleSupplier,
+      'CUSTOMER'   => l10n.roleCustomer,
+      _            => role,
+    };

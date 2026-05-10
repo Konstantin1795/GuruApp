@@ -5,6 +5,7 @@ namespace App\Modules\Auth\Http\Controllers;
 use App\Models\User;
 use App\Modules\Auth\Http\Resources\UserResource;
 use App\Modules\Companies\Models\Counterparty;
+use App\Modules\Companies\Services\UserCounterpartyLinkingService;
 use App\Support\Http\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -13,7 +14,7 @@ use App\Modules\Workspaces\Services\WorkspaceResolver;
 
 final class TokenController
 {
-    public function issue(Request $request)
+    public function issue(Request $request, UserCounterpartyLinkingService $linkingService)
     {
         $data = $request->validate([
             'email' => ['required', 'email'],
@@ -29,6 +30,8 @@ final class TokenController
             ]);
         }
 
+        $linkingService->linkByEmail($user);
+
         $deviceName = $data['device_name'] ?? 'api';
         $token = $user->createToken($deviceName);
 
@@ -38,9 +41,10 @@ final class TokenController
         ], status: 201);
     }
 
-    public function me(Request $request)
+    public function me(Request $request, UserCounterpartyLinkingService $linkingService)
     {
         $user = $request->user();
+        $linkingService->linkByEmail($user);
         $userId = (int) $user->id;
 
         $companyRoles = Counterparty::query()

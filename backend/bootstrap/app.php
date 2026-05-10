@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,17 +19,26 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(append: [
             \App\Support\Http\Middleware\ForceJsonResponse::class,
             \App\Support\Http\Middleware\RequestId::class,
+            \App\Support\Http\Middleware\RejectHtmlApiResponses::class,
         ]);
 
         $middleware->redirectGuestsTo(function (Request $request) {
-            return $request->is('api/*') || $request->expectsJson()
-                ? null
-                : '/login';
+            $path = trim($request->path(), '/');
+            $isApi = $request->expectsJson()
+                || str_starts_with($path, 'api/')
+                || $request->is('api/*');
+
+            return $isApi ? null : '/login';
         });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (\Throwable $e, Request $request) {
-            if (! $request->is('api/*') && ! $request->expectsJson()) {
+            $path = trim($request->path(), '/');
+            $isApi = $request->expectsJson()
+                || str_starts_with($path, 'api/')
+                || $request->is('api/*');
+
+            if (! $isApi) {
                 return null;
             }
 
@@ -36,6 +46,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 $e instanceof \Illuminate\Auth\AuthenticationException => Response::HTTP_UNAUTHORIZED,
                 $e instanceof \Illuminate\Auth\Access\AuthorizationException => Response::HTTP_FORBIDDEN,
                 $e instanceof \Illuminate\Validation\ValidationException => Response::HTTP_UNPROCESSABLE_ENTITY,
+                $e instanceof \App\Modules\Operations\Exceptions\InvalidOperationTransitionException => Response::HTTP_UNPROCESSABLE_ENTITY,
                 $e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException => Response::HTTP_NOT_FOUND,
                 $e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface => $e->getStatusCode(),
                 default => Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -67,4 +78,8 @@ return Application::configure(basePath: dirname(__DIR__))
                 ],
             ], $status);
         });
-    })->create();
+    })
+    ->withSchedule(function (Schedule $schedule): void {
+        $schedule->command('operations:complete-expired-transfer-waiting')->everyMinute();
+    })
+    ->create();

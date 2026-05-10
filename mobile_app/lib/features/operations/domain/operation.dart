@@ -30,4 +30,7 @@ class Operation {
         createdAt: DateTime.tryParse((json['created_at'] as String?) ?? ''),
         updatedAt: DateTime.tryParse((json['updated_at'] as String?) ?? ''),
       );
+
+  /// Terminal for this operation's [type] (Transfer: [rejected] is not terminal).
+  bool get isTerminalForType => status.isTerminalForOperationType(type);
 }

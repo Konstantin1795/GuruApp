@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/api/api_models.dart';
+import '../../../core/localization/app_localizations_extension.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_input.dart';
+import '../../../core/widgets/app_loader.dart';
 import '../../counterparties/providers.dart';
 import '../../projects/domain/project.dart';
 import '../../projects/providers.dart';
@@ -118,6 +120,7 @@ Future<bool?> showCompanyCreateProjectDialog({
   required int companyId,
   bool autofocusProjectName = false,
 }) async {
+  final l10n = context.l10n;
   final messenger = ScaffoldMessenger.maybeOf(context);
 
   final customers = await ref.read(counterpartiesRepositoryProvider).fetchCustomersOnly(
@@ -129,7 +132,7 @@ Future<bool?> showCompanyCreateProjectDialog({
   if (!context.mounted) return false;
   if (customers.isEmpty) {
     messenger?.showSnackBar(
-      const SnackBar(content: Text('Сначала добавьте заказчика')),
+      SnackBar(content: Text(l10n.projectNoCustomer)),
     );
     return false;
   }
@@ -143,20 +146,20 @@ Future<bool?> showCompanyCreateProjectDialog({
     barrierDismissible: false,
     builder: (ctx) => StatefulBuilder(
       builder: (ctx, setState) => AlertDialog(
-        title: const Text('Создать проект'),
+        title: Text(ctx.l10n.createProject),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             AppInput(
               controller: nameCtrl,
-              label: 'Название проекта',
+              label: ctx.l10n.projectNameLabel,
               autofocus: autofocusProjectName,
               textInputAction: TextInputAction.done,
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<int>(
               initialValue: selected.id,
-              decoration: const InputDecoration(labelText: 'Заказчик'),
+              decoration: InputDecoration(labelText: ctx.l10n.projectCustomerLabel),
               items: customers
                   .map(
                     (c) => DropdownMenuItem<int>(
@@ -181,7 +184,7 @@ Future<bool?> showCompanyCreateProjectDialog({
         actions: [
           TextButton(
             onPressed: isSubmitting ? null : () => Navigator.of(ctx).pop(false),
-            child: const Text('Отмена'),
+            child: Text(ctx.l10n.cancel),
           ),
           TextButton(
             onPressed: isSubmitting
@@ -190,7 +193,7 @@ Future<bool?> showCompanyCreateProjectDialog({
                     final name = nameCtrl.text.trim();
                     if (name.isEmpty) {
                       ScaffoldMessenger.of(ctx).showSnackBar(
-                        const SnackBar(content: Text('Введите название проекта')),
+                        SnackBar(content: Text(ctx.l10n.projectNameLabel)),
                       );
                       return;
                     }
@@ -206,13 +209,14 @@ Future<bool?> showCompanyCreateProjectDialog({
                       if (!ctx.mounted) return;
                       ScaffoldMessenger.of(ctx).showSnackBar(
                         SnackBar(
-                          content:
-                              Text(e is ApiException ? e.message : 'Не удалось создать проект'),
+                          content: Text(
+                            e is ApiException ? e.message : ctx.l10n.projectErrorCreate,
+                          ),
                         ),
                       );
                     }
                   },
-            child: Text(isSubmitting ? 'Создание...' : 'Создать'),
+            child: Text(isSubmitting ? '...' : ctx.l10n.create),
           ),
         ],
       ),
@@ -236,17 +240,17 @@ class CompanyProjectsScreen extends ConsumerWidget {
     final state = ref.watch(companyProjectsControllerProvider(companyId));
 
     return state.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const AppLoader(),
       error: (e, _) => Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(e is ApiException ? e.message : 'Failed to load projects.'),
+              Text(e is ApiException ? e.message : context.l10n.projectsErrorLoad),
               const SizedBox(height: 12),
               AppButton(
-                label: 'Retry',
+                label: context.l10n.retry,
                 onPressed: () =>
                     ref.read(companyProjectsControllerProvider(companyId).notifier).refresh(),
               ),
@@ -264,7 +268,7 @@ class CompanyProjectsScreen extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: AppButton(
-                      label: 'Создать проект',
+                      label: context.l10n.createProject,
                       icon: Icons.add,
                       onPressed: () async {
                         final created = await showCompanyCreateProjectDialog(
@@ -275,7 +279,7 @@ class CompanyProjectsScreen extends ConsumerWidget {
                         );
                         if (created == true && context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Проект создан')),
+                            SnackBar(content: Text(context.l10n.projectCreated)),
                           );
                         }
                       },
@@ -286,9 +290,7 @@ class CompanyProjectsScreen extends ConsumerWidget {
               const SizedBox(height: 12),
             ],
             if (data.items.isEmpty)
-              const AppCard(
-                child: Text('No projects yet.'),
-              )
+              AppCard(child: Text(context.l10n.projectsEmpty))
             else
               ...data.items.map(
                 (p) => Padding(
@@ -311,7 +313,7 @@ class CompanyProjectsScreen extends ConsumerWidget {
                               Text(p.name, style: const TextStyle(fontWeight: FontWeight.w600)),
                               const SizedBox(height: 4),
                               Text(
-                                'Прогресс: ${p.progressPercent}%',
+                                context.l10n.projectProgress(p.progressPercent),
                                 style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
                               ),
                             ],
@@ -324,7 +326,7 @@ class CompanyProjectsScreen extends ConsumerWidget {
                         if (!p.isActive) ...[
                           const SizedBox(width: 4),
                           Text(
-                            'неактивен',
+                            context.l10n.projectInactive,
                             style: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                           ),
                         ],
@@ -336,7 +338,7 @@ class CompanyProjectsScreen extends ConsumerWidget {
             const SizedBox(height: 8),
             if (data.hasMore)
               AppButton(
-                label: data.isLoadingMore ? 'Loading...' : 'Load more',
+                label: data.isLoadingMore ? context.l10n.loading : context.l10n.loadMore,
                 onPressed: data.isLoadingMore
                     ? null
                     : () => ref
@@ -348,7 +350,7 @@ class CompanyProjectsScreen extends ConsumerWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Text(
-                    'Total: ${data.pagination!.total}',
+                    context.l10n.projectTotal(data.pagination!.total),
                     style: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                   ),
                 ),

@@ -9,7 +9,7 @@ final class Pagination
     /**
      * @return array{page:int, per_page:int}
      */
-    public static function fromRequest(Request $request, int $defaultPerPage = 15, int $maxPerPage = 50): array
+    public static function fromRequest(Request $request, int $defaultPerPage = 20, int $maxPerPage = 50): array
     {
         $page = (int) $request->query('page', 1);
         $page = $page < 1 ? 1 : $page;

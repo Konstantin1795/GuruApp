@@ -1,0 +1,238 @@
+{
+  "@@locale": "en",
+
+  "appName": "GURU",
+
+  "cancel": "Cancel",
+  "save": "Save",
+  "create": "Create",
+  "delete": "Delete",
+  "edit": "Edit",
+  "retry": "Retry",
+  "add": "Add",
+  "remove": "Remove",
+  "close": "Close",
+  "confirm": "Confirm",
+  "loadMore": "Load more",
+  "loading": "Loading...",
+  "errorGeneric": "Something went wrong. Please try again.",
+  "errorValidation": "Please check the entered data.",
+  "errorNetwork": "Connection error. Check your internet.",
+
+  "language": "Language",
+  "changeLanguage": "Change language",
+  "languageRu": "Русский",
+  "languageEn": "English",
+
+  "authWelcome": "Welcome back",
+  "authWelcomeSubtitle": "Sign in to continue",
+  "authSignIn": "Sign in",
+  "authSignUp": "Create account",
+  "authSignUpTitle": "Create account",
+  "authSignUpSubtitle": "Start using GURU",
+  "authBackToLogin": "Back to login",
+  "authEmail": "Email",
+  "authPassword": "Password",
+  "authName": "Name",
+  "authConfirmPassword": "Confirm password",
+  "authLoginFailed": "Login failed. Check your credentials.",
+  "authRegisterFailed": "Registration failed.",
+
+  "workspacesTitle": "Workspaces",
+  "workspaceChoose": "Choose a workspace",
+  "workspaceCompany": "Company workspace",
+  "workspacePersonal": "Personal workspace",
+  "workspacesEmpty": "No workspaces available yet.",
+  "workspacesErrorLoad": "Failed to load workspaces.",
+  "openPersonal": "Open personal workspace",
+  "personalRoles": "Roles: {roles}",
+  "@personalRoles": {
+    "placeholders": {
+      "roles": { "type": "String" }
+    }
+  },
+  "logout": "Logout",
+
+  "createCompanyTitle": "Create company",
+  "createCompanyHeading": "New company",
+  "createCompanySubtitle": "You will become OWNER",
+  "companyNameLabel": "Company name",
+  "companyCreateError": "Failed to create company.",
+
+  "dashboardAnalytics": "Quarter analytics",
+  "dashboardIncome": "Income",
+  "dashboardDebt": "Debt",
+  "dashboardOverpayment": "Overpayment",
+  "dashboardActiveProjects": "Active projects",
+  "dashboardDocuments": "Documents",
+  "dashboardHistory": "Operations history",
+  "dashboardAwaitingConfirmation": "Awaiting confirmation",
+
+  "projectsTitle": "Projects",
+  "createProject": "Create project",
+  "projectNameLabel": "Project name",
+  "projectCustomerLabel": "Customer",
+  "projectNoCustomer": "Add a customer first",
+  "projectsEmpty": "No projects yet.",
+  "projectsErrorLoad": "Failed to load projects.",
+  "projectProgress": "Progress: {percent}%",
+  "@projectProgress": {
+    "placeholders": {
+      "percent": { "type": "int" }
+    }
+  },
+  "projectInactive": "inactive",
+  "projectCreated": "Project created",
+  "projectErrorCreate": "Failed to create project",
+  "projectTotal": "Total: {count}",
+  "@projectTotal": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "counterpartiesTitle": "Counterparties",
+  "addCounterparty": "Add counterparty",
+  "counterpartyFullName": "Full name",
+  "counterpartyEmail": "Email",
+  "counterpartyRole": "Role",
+  "counterpartiesEmpty": "No counterparties yet.",
+  "counterpartiesErrorLoad": "Failed to load counterparties.",
+  "counterpartyAdded": "Counterparty added",
+  "counterpartyErrorCreate": "Create error",
+  "counterpartyEnterName": "Enter full name",
+  "counterpartyEnterEmail": "Enter email",
+  "counterpartySearch": "Search by name…",
+  "counterpartyTotal": "Total: {count}",
+  "@counterpartyTotal": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "roleOwner": "Owner",
+  "rolePartner": "Partner",
+  "companyWorkspaceRoleHead": "Company head",
+  "roleEmployee": "Employee",
+  "roleContractor": "Contractor",
+  "roleSupplier": "Supplier",
+  "roleCustomer": "Customer",
+  "roleProjectHead": "Project Head",
+  "roleSupervisor": "Supervisor",
+
+  "participantsTitle": "Participants",
+  "addParticipant": "Add",
+  "participantCounterparty": "Counterparty",
+  "participantRole": "Role",
+  "participantsEmpty": "No participants yet.",
+  "participantsErrorLoad": "Failed to load participants.",
+  "participantAdded": "Participant added",
+  "participantRemoved": "Participant removed",
+  "participantUpdated": "Role updated",
+  "participantErrorAdd": "Failed to add participant",
+  "participantErrorRemove": "Failed to remove participant",
+  "participantErrorUpdate": "Failed to update role",
+  "participantConfirmRemove": "Remove this participant?",
+  "participantRemoveTitle": "Remove participant",
+  "participantEditRole": "Edit role",
+  "participantTransfers": "Transfers",
+
+  "walletTitle": "Wallet",
+  "walletPersonalFunds": "Personal funds",
+  "walletAccountableFunds": "Accountable funds",
+  "walletBalance": "Balance",
+  "walletEarned": "Earned",
+  "walletReceived": "Received",
+  "walletSpent": "Spent",
+  "walletErrorLoad": "Failed to load wallet.",
+
+  "transfersTitle": "Transfers",
+  "createTransfer": "Create transfer",
+  "transfersEmpty": "No transfers yet.",
+  "transfersErrorLoad": "Failed to load transfers.",
+  "transferErrorCreate": "Failed to create transfer",
+  "transferCreated": "Transfer created",
+  "transferReceiver": "Receiver",
+  "transferType": "Transfer type",
+  "transferAmountLabel": "Amount",
+  "transferAmountHint": "10000.00",
+  "transferAmountError": "Enter an amount greater than 0, up to 2 decimal places",
+  "transferCommentLabel": "Comment",
+  "transferCommentHint": "Accountable for procurement",
+  "transferNoParticipants": "No participants available for transfer",
+  "transferTypePersonal": "To settlement balance",
+  "transferTypeAccountable": "To accountable balance",
+
+  "operationsTitle": "Operations",
+  "operationTypeTitle": "Operation type",
+  "operationIncome": "Income",
+  "operationTransfer": "Transfer",
+  "operationReport": "Report",
+  "operationIncomeDescription": "Source of project funds",
+  "operationTransferDescription": "Redistribute funds between participants",
+  "operationReportDescription": "Confirm work completed",
+  "operationIncomeSoon": "Income will be available at the next stage",
+  "operationReportSoon": "Report will be available later",
+  "selectProject": "Select project",
+  "noProjects": "No projects available. Create a project first.",
+  "operationsPlaceholder": "Operations (placeholder).\n\nThis screen will be implemented at the next stage.",
+
+  "statusCreated": "Created",
+  "statusProjectHeadApproval": "Awaiting project head approval",
+  "statusCustomerApproval": "Awaiting customer approval",
+  "statusWaiting24h": "Waiting 24 hours",
+  "statusCompleted": "Completed",
+  "statusRejected": "Rejected",
+  "statusRolledBack": "Rolled back",
+
+  "personalWorkspaceTitle": "Personal workspace",
+  "personalWorkspacePlaceholder": "Supplier, contractor, and employee: companies and monthly income.",
+  "personalIncomeTitle": "Income",
+  "personalIncomePeriodSubtitle": "for the whole period",
+  "personalTop5Title": "Top 5",
+  "personalShowAllLink": "Show all >",
+  "personalRoleInCompany": "Role in company",
+  "personalWorkspaceEmpty": "No companies yet.",
+  "personalWorkspaceLoadError": "Failed to load personal workspace.",
+  
+  "notificationsComingSoon": "TODO: notifications",
+
+  "openCustomerWorkspace": "Customer workspace",
+  "customerWorkspaceSubtitle": "Projects where you are the customer",
+  "customerHomeTitle": "Home",
+  "customerAllProjects": "All projects",
+  "customerDocuments": "Documents",
+  "customerCompaniesTitle": "Companies",
+  "customerProjectsTitle": "Projects",
+  "customerSearchHint": "Search",
+  "customerTabActive": "Active",
+  "customerTabInactive": "Inactive",
+  "customerTabClosed": "Closed",
+  "customerReceived": "Received",
+  "customerSpentAccumulated": "Spent",
+  "customerBalancePersonal": "Balance",
+  "customerDebt": "Debt",
+  "customerProgress": "Progress",
+  "customerProgressPercent": "{percent}%",
+  "@customerProgressPercent": {
+    "placeholders": {
+      "percent": { "type": "int" }
+    }
+  },
+  "customerProjectsTotalCount": "{count} projects",
+  "@customerProjectsTotalCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "customerAwaitingBadge": "Awaiting confirmation",
+  "customerDocumentsSoon": "Documents will be available later.",
+  "customerOperationsHistorySoon": "Operation history will be available later.",
+  "customerNoData": "No data yet.",
+  "customerErrorLoad": "Failed to load data.",
+
+  "navNotifications": "Notifications",
+  "navOperations": "Operations",
+  "personalOperationsProjectsTitle": "Transfers by project",
+  "personalOperationsNoTransferProjects": "No projects where you can create a transfer."
+}

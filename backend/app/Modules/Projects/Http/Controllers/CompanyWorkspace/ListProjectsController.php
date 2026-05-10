@@ -3,7 +3,7 @@
 namespace App\Modules\Projects\Http\Controllers\CompanyWorkspace;
 
 use App\Modules\Projects\Http\Resources\ProjectResource;
-use App\Modules\Projects\Models\Project;
+use App\Modules\Projects\Services\ProjectVisibilityService;
 use App\Support\Http\ApiResponse;
 use App\Support\Http\Pagination\PaginatedResourceResponse;
 use App\Support\Http\Pagination\Pagination;
@@ -11,12 +11,12 @@ use Illuminate\Http\Request;
 
 final class ListProjectsController
 {
-    public function __invoke(Request $request, int $companyId)
+    public function __invoke(Request $request, ProjectVisibilityService $visibility, int $companyId)
     {
         $p = Pagination::fromRequest($request);
 
-        $query = Project::query()
-            ->where('company_id', $companyId)
+        $query = $visibility
+            ->queryForCompanyWorkspace((int) $request->user()->id, $companyId)
             ->orderByDesc('id');
 
         $paginator = $query->paginate(

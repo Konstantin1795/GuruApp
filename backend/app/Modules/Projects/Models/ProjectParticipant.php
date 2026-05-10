@@ -6,6 +6,7 @@ use App\Modules\Companies\Models\Counterparty;
 use App\Modules\Dictionaries\Models\ProjectRole;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @property int $id
@@ -44,6 +45,11 @@ final class ProjectParticipant extends Model
     public function role(): BelongsTo
     {
         return $this->belongsTo(ProjectRole::class, 'project_role_code', 'code');
+    }
+
+    public function wallet(): HasOne
+    {
+        return $this->hasOne(ProjectParticipantWallet::class, 'project_participant_id');
     }
 }
 

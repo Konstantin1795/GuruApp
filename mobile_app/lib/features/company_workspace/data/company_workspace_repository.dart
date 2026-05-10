@@ -4,14 +4,35 @@ class CurrentCompany {
   final int id;
   final String name;
   final bool isActive;
+  final String? myCompanyRoleCode;
 
-  const CurrentCompany({required this.id, required this.name, required this.isActive});
+  const CurrentCompany({
+    required this.id,
+    required this.name,
+    required this.isActive,
+    this.myCompanyRoleCode,
+  });
 
-  factory CurrentCompany.fromJson(Map<String, dynamic> json) => CurrentCompany(
-        id: json['id'] as int,
-        name: json['name'] as String,
-        isActive: json['is_active'] as bool,
-      );
+  factory CurrentCompany.fromJson(Map<String, dynamic> json) {
+    int readInt(dynamic v) {
+      if (v is int) return v;
+      if (v is num) return v.toInt();
+      return int.tryParse('$v') ?? 0;
+    }
+
+    bool readBool(dynamic v) {
+      if (v is bool) return v;
+      if (v is num) return v != 0;
+      if (v is String) return v == '1' || v.toLowerCase() == 'true';
+      return false;
+    }
+
+    return CurrentCompany(
+      id: readInt(json['id']),
+      name: (json['name'] ?? '').toString(),
+      isActive: readBool(json['is_active']),
+    );
+  }
 }
 
 class CompanyWorkspaceRepository {
@@ -22,7 +43,14 @@ class CompanyWorkspaceRepository {
     final json = await _api.getCurrentCompany(companyId: companyId);
     final data = (json['data'] as Map).cast<String, dynamic>();
     final company = (data['company'] as Map).cast<String, dynamic>();
-    return CurrentCompany.fromJson(company);
+    final role = data['my_company_role']?.toString();
+    final parsed = CurrentCompany.fromJson(company);
+    return CurrentCompany(
+      id: parsed.id,
+      name: parsed.name,
+      isActive: parsed.isActive,
+      myCompanyRoleCode: role,
+    );
   }
 }
 

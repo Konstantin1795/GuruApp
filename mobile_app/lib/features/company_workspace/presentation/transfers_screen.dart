@@ -5,16 +5,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/api/api_models.dart';
+import '../../../core/localization/app_localizations_extension.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_input.dart';
 import '../../../core/widgets/app_loader.dart';
 import '../../../core/widgets/app_scaffold.dart';
+import '../../auth/providers.dart';
+import 'company_workspace_identity.dart';
+import '../../operations/data/transfers_api.dart';
+import '../../operations/domain/transfer_recipient_pick.dart';
 import '../../operations/domain/transfer_operation.dart';
 import '../../operations/domain/transfer_target_type.dart';
 import '../../operations/providers.dart';
-import '../../projects/domain/project_participant.dart';
-import '../../projects/providers.dart';
 
 class TransfersState {
   final List<TransferOperation> items;
@@ -41,7 +44,7 @@ class TransfersState {
       );
 }
 
-typedef TransfersKey = ({int companyId, int projectId});
+typedef TransfersKey = ({TransferApiScope apiScope, int companyId, int projectId});
 
 final transfersControllerProvider =
     StateNotifierProvider.family<TransfersController, AsyncValue<TransfersState>, TransfersKey>(
@@ -61,6 +64,7 @@ class TransfersController extends StateNotifier<AsyncValue<TransfersState>> {
     state = const AsyncValue.loading();
     try {
       final page = await ref.read(transfersRepositoryProvider).list(
+            scope: key.apiScope,
             companyId: key.companyId,
             projectId: key.projectId,
             page: 1,
@@ -83,6 +87,7 @@ class TransfersController extends StateNotifier<AsyncValue<TransfersState>> {
     state = AsyncValue.data(current.copyWith(isLoadingMore: true));
     try {
       final page = await ref.read(transfersRepositoryProvider).list(
+            scope: key.apiScope,
             companyId: key.companyId,
             projectId: key.projectId,
             page: (current.pagination?.page ?? 1) + 1,
@@ -99,56 +104,53 @@ class TransfersController extends StateNotifier<AsyncValue<TransfersState>> {
       state = AsyncValue.data(current.copyWith(isLoadingMore: false));
     }
   }
-
-  Future<void> create({
-    required int receiverProjectParticipantId,
-    required TransferTargetType targetType,
-    required String amount,
-    String? comment,
-  }) async {
-    await ref.read(transfersRepositoryProvider).create(
-          companyId: key.companyId,
-          projectId: key.projectId,
-          receiverProjectParticipantId: receiverProjectParticipantId,
-          targetType: targetType,
-          amount: amount,
-          comment: comment,
-        );
-    await refresh();
-  }
 }
 
 class TransfersScreen extends ConsumerWidget {
+  final TransferApiScope apiScope;
   final int companyId;
   final int projectId;
   final String projectName;
+  final bool canCreateTransfer;
 
   const TransfersScreen({
     super.key,
+    this.apiScope = TransferApiScope.company,
     required this.companyId,
     required this.projectId,
     required this.projectName,
+    this.canCreateTransfer = true,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final key = (companyId: companyId, projectId: projectId);
+    final key = (apiScope: apiScope, companyId: companyId, projectId: projectId);
     final state = ref.watch(transfersControllerProvider(key));
 
+    final l10n = context.l10n;
+
+    final userName = ref.watch(currentUserProvider).valueOrNull?.name.trim() ?? '';
+    final roleLabel = apiScope == TransferApiScope.personal
+        ? l10n.personalWorkspaceTitle
+        : companyWorkspaceHeaderRoleLabel(ref, companyId, l10n);
+
     return AppScaffold(
-      title: 'Переводы',
+      headerUserName: userName.isEmpty ? null : userName,
+      headerRoleLabel: roleLabel,
+      title: l10n.transfersTitle,
       subtitle: projectName,
       actions: [
-        IconButton(
-          tooltip: 'Создать перевод',
-          onPressed: () => _openCreate(context, ref, key),
-          icon: const Icon(Icons.add),
-        ),
+        if (canCreateTransfer)
+          IconButton(
+            tooltip: l10n.createTransfer,
+            onPressed: () => _openCreate(context, ref, key),
+            icon: const Icon(Icons.add),
+          ),
       ],
       body: state.when(
         loading: () => const AppLoader(),
         error: (e, _) => _ErrorBody(
-          message: e is ApiException ? e.message : 'Не удалось загрузить переводы',
+          message: e is ApiException ? e.message : l10n.transfersErrorLoad,
           onRetry: () => ref.read(transfersControllerProvider(key).notifier).refresh(),
         ),
         data: (data) => RefreshIndicator(
@@ -159,10 +161,10 @@ class TransfersScreen extends ConsumerWidget {
                   children: [
                     AppEmptyState(
                       icon: Icons.swap_horiz,
-                      title: 'Переводов пока нет',
-                      actionLabel: 'Создать перевод',
-                      actionIcon: Icons.add,
-                      onAction: () => _openCreate(context, ref, key),
+                      title: l10n.transfersEmpty,
+                      actionLabel: canCreateTransfer ? l10n.createTransfer : null,
+                      actionIcon: canCreateTransfer ? Icons.add : null,
+                      onAction: canCreateTransfer ? () => _openCreate(context, ref, key) : null,
                     ),
                   ],
                 )
@@ -174,7 +176,7 @@ class TransfersScreen extends ConsumerWidget {
                     if (data.hasMore) ...[
                       const SizedBox(height: 8),
                       AppButton(
-                        label: data.isLoadingMore ? 'Загрузка...' : 'Загрузить ещё',
+                        label: data.isLoadingMore ? l10n.loading : l10n.loadMore,
                         onPressed: data.isLoadingMore
                             ? null
                             : () => ref.read(transfersControllerProvider(key).notifier).loadMore(),
@@ -191,6 +193,7 @@ class TransfersScreen extends ConsumerWidget {
     final created = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (_) => CreateTransferScreen(
+          apiScope: key.apiScope,
           companyId: key.companyId,
           projectId: key.projectId,
           projectName: projectName,
@@ -202,7 +205,7 @@ class TransfersScreen extends ConsumerWidget {
       await ref.read(transfersControllerProvider(key).notifier).refresh();
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Перевод создан')),
+          SnackBar(content: Text(context.l10n.transferCreated)),
         );
       }
     }
@@ -210,12 +213,14 @@ class TransfersScreen extends ConsumerWidget {
 }
 
 class CreateTransferScreen extends ConsumerStatefulWidget {
+  final TransferApiScope apiScope;
   final int companyId;
   final int projectId;
   final String projectName;
 
   const CreateTransferScreen({
     super.key,
+    this.apiScope = TransferApiScope.company,
     required this.companyId,
     required this.projectId,
     required this.projectName,
@@ -228,17 +233,17 @@ class CreateTransferScreen extends ConsumerStatefulWidget {
 class _CreateTransferScreenState extends ConsumerState<CreateTransferScreen> {
   late final TextEditingController _amountCtrl;
   late final TextEditingController _commentCtrl;
-  ProjectParticipant? _receiver;
   TransferTargetType _targetType = TransferTargetType.accountableBalance;
   bool _isSubmitting = false;
-  late Future<List<ProjectParticipant>> _participantsFuture;
+  late Future<List<TransferRecipientPick>> _recipientsFuture;
+  int? _selectedReceiverKey;
 
   @override
   void initState() {
     super.initState();
     _amountCtrl = TextEditingController();
     _commentCtrl = TextEditingController();
-    _participantsFuture = _loadParticipants();
+    _recipientsFuture = _loadRecipients();
   }
 
   @override
@@ -248,103 +253,145 @@ class _CreateTransferScreenState extends ConsumerState<CreateTransferScreen> {
     super.dispose();
   }
 
-  Future<List<ProjectParticipant>> _loadParticipants() async {
-    final repo = ref.read(projectParticipantsRepositoryProvider);
-    final items = await repo.list(companyId: widget.companyId, projectId: widget.projectId);
-    return items.where((p) => p.isActive).toList(growable: false);
+  int _pickKey(TransferRecipientPick p) => p.projectParticipantId ?? p.counterpartyId ?? 0;
+
+  Future<List<TransferRecipientPick>> _loadRecipients() {
+    return ref.read(transfersRepositoryProvider).listRecipients(
+          scope: widget.apiScope,
+          companyId: widget.companyId,
+          projectId: widget.projectId,
+          targetType: _targetType,
+        );
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
+    final userName = ref.watch(currentUserProvider).valueOrNull?.name.trim() ?? '';
+    final roleLabel = widget.apiScope == TransferApiScope.personal
+        ? l10n.personalWorkspaceTitle
+        : companyWorkspaceHeaderRoleLabel(ref, widget.companyId, l10n);
+
     return AppScaffold(
-      title: 'Создать перевод',
+      headerUserName: userName.isEmpty ? null : userName,
+      headerRoleLabel: roleLabel,
+      title: l10n.createTransfer,
       subtitle: widget.projectName,
-      body: FutureBuilder<List<ProjectParticipant>>(
-        future: _participantsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            final e = snapshot.error;
-            return _ErrorBody(
-              message: e is ApiException ? e.message : 'Не удалось загрузить участников',
-              onRetry: () => setState(() => _participantsFuture = _loadParticipants()),
-            );
-          }
-
-          final participants = snapshot.data ?? const <ProjectParticipant>[];
-          if (participants.isEmpty) {
-            return const Center(child: Text('Нет участников для перевода'));
-          }
-          _receiver ??= participants.first;
-
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              DropdownButtonFormField<int>(
-                initialValue: _receiver?.id,
-                decoration: const InputDecoration(labelText: 'Получатель'),
-                items: participants
-                    .map(
-                      (p) => DropdownMenuItem<int>(
-                        value: p.id,
-                        child: Text('${p.displayName} · ${_roleLabel(p.role)}'),
-                      ),
-                    )
-                    .toList(),
-                onChanged: _isSubmitting
-                    ? null
-                    : (id) {
-                        if (id == null) return;
-                        setState(() => _receiver = participants.firstWhere((p) => p.id == id));
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: DropdownButtonFormField<TransferTargetType>(
+              key: ValueKey(_targetType),
+              initialValue: _targetType,
+              decoration: InputDecoration(labelText: context.l10n.transferType),
+              items: [
+                DropdownMenuItem(
+                  value: TransferTargetType.accountableBalance,
+                  child: Text(context.l10n.transferTypeAccountable),
+                ),
+                DropdownMenuItem(
+                  value: TransferTargetType.personalBalance,
+                  child: Text(context.l10n.transferTypePersonal),
+                ),
+              ],
+              onChanged: _isSubmitting
+                  ? null
+                  : (TransferTargetType? v) {
+                        setState(() {
+                          _targetType = v ?? _targetType;
+                          _selectedReceiverKey = null;
+                          _recipientsFuture = _loadRecipients();
+                        });
                       },
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<TransferTargetType>(
-                initialValue: _targetType,
-                decoration: const InputDecoration(labelText: 'Тип перевода'),
-                items: TransferTargetType.values
-                    .map((t) => DropdownMenuItem(value: t, child: Text(t.label)))
-                    .toList(),
-                onChanged: _isSubmitting
-                    ? null
-                    : (value) => setState(() => _targetType = value ?? _targetType),
-              ),
-              const SizedBox(height: 12),
-              AppInput(
-                controller: _amountCtrl,
-                label: 'Сумма',
-                hint: '10000.00',
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              ),
-              const SizedBox(height: 12),
-              AppInput(
-                controller: _commentCtrl,
-                label: 'Комментарий',
-                hint: 'Подотчёт на закупку',
-                textInputAction: TextInputAction.done,
-              ),
-              const SizedBox(height: 18),
-              AppButton(
-                label: _isSubmitting ? 'Создание...' : 'Создать перевод',
-                loading: _isSubmitting,
-                onPressed: _isSubmitting ? null : () => _submit(),
-              ),
-            ],
-          );
-        },
+            ),
+          ),
+          Expanded(
+            child: FutureBuilder<List<TransferRecipientPick>>(
+              future: _recipientsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return const AppLoader();
+                }
+                if (snapshot.hasError) {
+                  final e = snapshot.error;
+                  return _ErrorBody(
+                    message: e is ApiException ? e.message : context.l10n.participantsErrorLoad,
+                    onRetry: () => setState(() => _recipientsFuture = _loadRecipients()),
+                  );
+                }
+
+                final picks = snapshot.data ?? const <TransferRecipientPick>[];
+                if (picks.isEmpty) {
+                  return Center(child: Text(context.l10n.transferNoParticipants));
+                }
+
+                _selectedReceiverKey ??= _pickKey(picks.first);
+                final selectedKey = _selectedReceiverKey!;
+                TransferRecipientPick pickForKey(int k) =>
+                    picks.firstWhere((p) => _pickKey(p) == k, orElse: () => picks.first);
+
+                return ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    DropdownButtonFormField<int>(
+                      key: ValueKey<int>(selectedKey),
+                      initialValue: selectedKey,
+                      decoration: InputDecoration(labelText: context.l10n.transferReceiver),
+                      items: picks
+                          .map(
+                            (p) => DropdownMenuItem<int>(
+                              value: _pickKey(p),
+                              child: Text(p.label),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: _isSubmitting
+                          ? null
+                          : (id) {
+                              if (id == null) return;
+                              setState(() => _selectedReceiverKey = id);
+                            },
+                    ),
+                    const SizedBox(height: 12),
+                    AppInput(
+                      controller: _amountCtrl,
+                      label: context.l10n.transferAmountLabel,
+                      hint: context.l10n.transferAmountHint,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    ),
+                    const SizedBox(height: 12),
+                    AppInput(
+                      controller: _commentCtrl,
+                      label: context.l10n.transferCommentLabel,
+                      hint: context.l10n.transferCommentHint,
+                      textInputAction: TextInputAction.done,
+                    ),
+                    const SizedBox(height: 18),
+                    AppButton(
+                      label: context.l10n.createTransfer,
+                      loading: _isSubmitting,
+                      onPressed: _isSubmitting
+                          ? null
+                          : () => _submit(pickForKey(selectedKey)),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Future<void> _submit() async {
-    final receiver = _receiver;
+  Future<void> _submit(TransferRecipientPick pick) async {
     final amount = _amountCtrl.text.trim().replaceAll(',', '.');
-    if (receiver == null) return;
     if (!RegExp(r'^(?!0+(?:\.0{1,2})?$)\d+(?:\.\d{1,2})?$').hasMatch(amount)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Введите сумму больше 0, до 2 знаков после точки')),
+        SnackBar(content: Text(context.l10n.transferAmountError)),
       );
       return;
     }
@@ -352,9 +399,11 @@ class _CreateTransferScreenState extends ConsumerState<CreateTransferScreen> {
     setState(() => _isSubmitting = true);
     try {
       await ref.read(transfersRepositoryProvider).create(
+            scope: widget.apiScope,
             companyId: widget.companyId,
             projectId: widget.projectId,
-            receiverProjectParticipantId: receiver.id,
+            receiverProjectParticipantId: pick.projectParticipantId,
+            receiverCounterpartyId: pick.counterpartyId,
             targetType: _targetType,
             amount: amount,
             comment: _commentCtrl.text.trim(),
@@ -364,7 +413,7 @@ class _CreateTransferScreenState extends ConsumerState<CreateTransferScreen> {
       setState(() => _isSubmitting = false);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_friendlyError(e, 'Не удалось создать перевод'))),
+        SnackBar(content: Text(_friendlyError(e, context.l10n.transferErrorCreate))),
       );
     }
   }
@@ -466,7 +515,7 @@ class _ErrorBody extends StatelessWidget {
           children: [
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 16),
-            AppButton(label: 'Повторить', onPressed: onRetry),
+            AppButton(label: context.l10n.retry, onPressed: onRetry),
           ],
         ),
       ),
@@ -491,14 +540,3 @@ String _friendlyError(Object e, String fallback) {
   }
   return fallback;
 }
-
-String _roleLabel(String role) => switch (role) {
-      'PROJECT_HEAD' => 'Руководитель',
-      'PARTNER' => 'Партнёр',
-      'CUSTOMER' => 'Заказчик',
-      'SUPERVISOR' => 'Куратор',
-      'EMPLOYEE' => 'Сотрудник',
-      'SUPPLIER' => 'Поставщик',
-      'CONTRACTOR' => 'Подрядчик',
-      _ => role,
-    };

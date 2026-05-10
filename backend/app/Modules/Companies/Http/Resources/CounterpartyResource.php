@@ -22,6 +22,13 @@ final class CounterpartyResource extends JsonResource
             'user_id' => $this->user_id,
             'company_role' => $this->company_role_code,
             'is_active' => (bool) $this->is_active,
+            'full_name' => $this->full_name,
+            'email' => $this->email,
+            'user' => $this->whenLoaded('user', fn () => [
+                'id' => $this->user->id,
+                'name' => $this->user->name,
+                'email' => $this->user->email,
+            ]),
             'created_at' => optional($this->created_at)?->toIso8601String(),
             'updated_at' => optional($this->updated_at)?->toIso8601String(),
         ];

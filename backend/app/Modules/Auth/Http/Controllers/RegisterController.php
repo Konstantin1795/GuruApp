@@ -5,12 +5,13 @@ namespace App\Modules\Auth\Http\Controllers;
 use App\Models\User;
 use App\Modules\Auth\Http\Requests\RegisterRequest;
 use App\Modules\Auth\Http\Resources\UserResource;
+use App\Modules\Companies\Services\UserCounterpartyLinkingService;
 use App\Support\Http\ApiResponse;
 use Illuminate\Support\Facades\Hash;
 
 final class RegisterController
 {
-    public function __invoke(RegisterRequest $request)
+    public function __invoke(RegisterRequest $request, UserCounterpartyLinkingService $linkingService)
     {
         $data = $request->validated();
 
@@ -19,6 +20,8 @@ final class RegisterController
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+
+        $linkingService->linkByEmail($user);
 
         $deviceName = $data['device_name'] ?? 'api';
         $token = $user->createToken($deviceName);

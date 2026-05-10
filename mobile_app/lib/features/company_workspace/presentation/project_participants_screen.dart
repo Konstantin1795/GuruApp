@@ -4,8 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/api_exception.dart';
+import '../../../core/localization/app_localizations_extension.dart';
 import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/app_loader.dart';
 import '../../../core/widgets/app_scaffold.dart';
+import '../../auth/providers.dart';
+import 'company_workspace_identity.dart';
+import '../../../l10n/gen/app_localizations.dart';
 import '../../counterparties/domain/counterparty.dart';
 import '../../counterparties/providers.dart';
 import '../../projects/domain/project.dart';
@@ -118,13 +123,20 @@ class ProjectParticipantsScreen extends ConsumerWidget {
     final key = (companyId: companyId, projectId: project.id);
     final state = ref.watch(projectParticipantsControllerProvider(key));
 
+    final l10n = context.l10n;
+
+    final userName = ref.watch(currentUserProvider).valueOrNull?.name.trim() ?? '';
+    final roleLabel = companyWorkspaceHeaderRoleLabel(ref, companyId, l10n);
+
     return AppScaffold(
-      title: 'Участники',
+      headerUserName: userName.isEmpty ? null : userName,
+      headerRoleLabel: roleLabel,
+      title: l10n.participantsTitle,
       subtitle: project.name,
       actions: [
         IconButton(
           icon: const Icon(Icons.swap_horiz),
-          tooltip: 'Переводы',
+          tooltip: l10n.participantTransfers,
           onPressed: () => Navigator.of(context).push(
             MaterialPageRoute<void>(
               builder: (_) => TransfersScreen(
@@ -137,14 +149,14 @@ class ProjectParticipantsScreen extends ConsumerWidget {
         ),
         IconButton(
           icon: const Icon(Icons.person_add_alt_1_outlined),
-          tooltip: 'Добавить участника',
+          tooltip: l10n.addParticipant,
           onPressed: () => _showAddDialog(context, ref, key, state.valueOrNull?.items ?? []),
         ),
       ],
       body: state.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const AppLoader(),
         error: (e, _) => _ErrorBody(
-          message: e is ApiException ? e.message : 'Не удалось загрузить участников',
+          message: e is ApiException ? e.message : l10n.participantsErrorLoad,
           onRetry: () =>
               ref.read(projectParticipantsControllerProvider(key).notifier).refresh(),
         ),
@@ -197,7 +209,7 @@ class ProjectParticipantsScreen extends ConsumerWidget {
     );
     if (added == true && context.mounted) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Участник добавлен')));
+          .showSnackBar(SnackBar(content: Text(context.l10n.participantAdded)));
     }
   }
 }
@@ -231,18 +243,16 @@ List<ProjectParticipant> _sortedParticipants(List<ProjectParticipant> items) {
   return list;
 }
 
-String _projectRoleTitleRu(String code) {
-  const labels = {
-    'PROJECT_HEAD': 'Руководитель проекта',
-    'PARTNER': 'Партнёр',
-    'CUSTOMER': 'Заказчик',
-    'SUPERVISOR': 'Куратор',
-    'EMPLOYEE': 'Сотрудник',
-    'SUPPLIER': 'Поставщик',
-    'CONTRACTOR': 'Подрядчик',
-  };
-  return labels[code] ?? code;
-}
+String _projectRoleTitleL10n(String code, AppLocalizations l10n) => switch (code) {
+      'PROJECT_HEAD' => l10n.roleProjectHead,
+      'PARTNER'      => l10n.rolePartner,
+      'CUSTOMER'     => l10n.roleCustomer,
+      'SUPERVISOR'   => l10n.roleSupervisor,
+      'EMPLOYEE'     => l10n.roleEmployee,
+      'SUPPLIER'     => l10n.roleSupplier,
+      'CONTRACTOR'   => l10n.roleContractor,
+      _              => code,
+    };
 
 const _manualProjectRoles = {'PARTNER', 'SUPERVISOR', 'EMPLOYEE'};
 
@@ -279,7 +289,7 @@ class _ParticipantsList extends StatelessWidget {
             SizedBox(
               width: 132,
               child: AppButton(
-                label: 'Добавить',
+                label: context.l10n.addParticipant,
                 icon: Icons.person_add_alt_1_outlined,
                 onPressed: onAdd,
               ),
@@ -370,7 +380,7 @@ class _ParticipantTile extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _projectRoleTitleRu(participant.role),
+                        _projectRoleTitleL10n(participant.role, context.l10n),
                         style: const TextStyle(
                           color: _accent,
                           fontWeight: FontWeight.w800,
@@ -404,7 +414,7 @@ class _ParticipantTile extends ConsumerWidget {
                           _LevelChip(level: participant.level),
                           if (!participant.isActive)
                             Text(
-                              'неактивен',
+                              context.l10n.projectInactive,
                               style: TextStyle(
                                 fontSize: 11,
                                 color: Colors.white.withValues(alpha: 0.45),
@@ -429,25 +439,23 @@ class _ParticipantTile extends ConsumerWidget {
                         );
                         if (ok == true && context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Роль обновлена')),
+                            SnackBar(content: Text(context.l10n.participantUpdated)),
                           );
                         }
                       } else if (value == 'delete' && canDelete) {
                         final confirm = await showDialog<bool>(
                           context: context,
                           builder: (ctx) => AlertDialog(
-                            title: const Text('Удалить участника?'),
-                            content: Text(
-                              '${participant.displayName} будет исключён из проекта.',
-                            ),
+                            title: Text(ctx.l10n.participantRemoveTitle),
+                            content: Text(participant.displayName),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.of(ctx).pop(false),
-                                child: const Text('Отмена'),
+                                child: Text(ctx.l10n.cancel),
                               ),
                               TextButton(
                                 onPressed: () => Navigator.of(ctx).pop(true),
-                                child: const Text('Удалить'),
+                                child: Text(ctx.l10n.delete),
                               ),
                             ],
                           ),
@@ -459,7 +467,7 @@ class _ParticipantTile extends ConsumerWidget {
                               .removeParticipant(participantId: participant.id);
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Участник удалён')),
+                              SnackBar(content: Text(context.l10n.participantRemoved)),
                             );
                           }
                         } catch (e) {
@@ -467,7 +475,7 @@ class _ParticipantTile extends ConsumerWidget {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                e is ApiException ? e.message : 'Не удалось удалить',
+                                e is ApiException ? e.message : context.l10n.participantErrorRemove,
                               ),
                             ),
                           );
@@ -476,9 +484,9 @@ class _ParticipantTile extends ConsumerWidget {
                     },
                     itemBuilder: (ctx) => [
                       if (canEditRole)
-                        const PopupMenuItem(value: 'edit', child: Text('Изменить роль')),
+                        PopupMenuItem(value: 'edit', child: Text(ctx.l10n.participantEditRole)),
                       if (canDelete)
-                        const PopupMenuItem(value: 'delete', child: Text('Удалить')),
+                        PopupMenuItem(value: 'delete', child: Text(ctx.l10n.delete)),
                     ],
                   ),
               ],
@@ -523,11 +531,6 @@ Future<bool?> _showEditRoleDialog({
   required _ParticipantsKey participantsKey,
 }) async {
   const allowedRoles = ['PARTNER', 'SUPERVISOR', 'EMPLOYEE'];
-  const roleLabels = {
-    'PARTNER': 'Партнёр',
-    'SUPERVISOR': 'Куратор',
-    'EMPLOYEE': 'Сотрудник',
-  };
 
   var selectedRole = allowedRoles.contains(participant.role) ? participant.role : allowedRoles.first;
   bool isSubmitting = false;
@@ -536,8 +539,15 @@ Future<bool?> _showEditRoleDialog({
     context: context,
     barrierDismissible: false,
     builder: (ctx) => StatefulBuilder(
-      builder: (ctx, setState) => AlertDialog(
-        title: const Text('Изменить роль'),
+      builder: (ctx, setState) {
+        final l10n = ctx.l10n;
+        final roleLabels = {
+          'PARTNER': l10n.rolePartner,
+          'SUPERVISOR': l10n.roleSupervisor,
+          'EMPLOYEE': l10n.roleEmployee,
+        };
+        return AlertDialog(
+        title: Text(l10n.participantEditRole),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -549,8 +559,8 @@ Future<bool?> _showEditRoleDialog({
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               initialValue: selectedRole,
-              decoration: const InputDecoration(
-                labelText: 'Роль в проекте',
+              decoration: InputDecoration(
+                labelText: l10n.participantRole,
                 isDense: true,
               ),
               items: allowedRoles
@@ -570,7 +580,7 @@ Future<bool?> _showEditRoleDialog({
         actions: [
           TextButton(
             onPressed: isSubmitting ? null : () => Navigator.of(ctx).pop(false),
-            child: const Text('Отмена'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: isSubmitting
@@ -591,16 +601,17 @@ Future<bool?> _showEditRoleDialog({
                       ScaffoldMessenger.of(ctx).showSnackBar(
                         SnackBar(
                           content: Text(
-                            e is ApiException ? e.message : 'Не удалось обновить роль',
+                            e is ApiException ? e.message : l10n.participantErrorUpdate,
                           ),
                         ),
                       );
                     }
                   },
-            child: Text(isSubmitting ? 'Сохранение...' : 'Сохранить'),
+            child: Text(isSubmitting ? '...' : l10n.save),
           ),
         ],
-      ),
+      );
+      },
     ),
   );
 }
@@ -622,22 +633,16 @@ class _EmptyBody extends StatelessWidget {
             Icon(Icons.group_outlined, size: 64, color: Colors.white.withValues(alpha: 0.25)),
             const SizedBox(height: 16),
             Text(
-              'Участников пока нет',
+              context.l10n.participantsEmpty,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: Colors.white.withValues(alpha: 0.8),
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Добавьте первого участника проекта',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.45)),
-            ),
             const SizedBox(height: 24),
             AppButton(
-              label: 'Добавить участника',
+              label: context.l10n.addParticipant,
               icon: Icons.person_add_alt_1_outlined,
               onPressed: onAdd,
             ),
@@ -663,7 +668,7 @@ class _ErrorBody extends StatelessWidget {
           children: [
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 16),
-            AppButton(label: 'Повторить', onPressed: onRetry),
+            AppButton(label: context.l10n.retry, onPressed: onRetry),
           ],
         ),
       ),
@@ -702,7 +707,7 @@ Future<bool?> showAddProjectParticipantDialog({
   } catch (e) {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Не удалось загрузить контрагентов: $e')),
+        SnackBar(content: Text(context.l10n.participantErrorAdd)),
       );
     }
     return false;
@@ -714,12 +719,12 @@ Future<bool?> showAddProjectParticipantDialog({
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Нет доступных контрагентов'),
-        content: const Text('Нет доступных контрагентов для добавления'),
+        title: Text(ctx.l10n.counterpartiesEmpty),
+        content: Text(ctx.l10n.counterpartiesEmpty),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Закрыть'),
+            child: Text(ctx.l10n.close),
           ),
         ],
       ),
@@ -728,11 +733,6 @@ Future<bool?> showAddProjectParticipantDialog({
   }
 
   const allowedRoles = ['PARTNER', 'SUPERVISOR', 'EMPLOYEE'];
-  const roleLabels = {
-    'PARTNER': 'Партнёр',
-    'SUPERVISOR': 'Куратор',
-    'EMPLOYEE': 'Сотрудник',
-  };
 
   Counterparty selected = allCounterparties.first;
   String selectedRole = allowedRoles.first;
@@ -742,101 +742,106 @@ Future<bool?> showAddProjectParticipantDialog({
     context: context,
     barrierDismissible: false,
     builder: (ctx) => StatefulBuilder(
-      builder: (ctx, setState) => AlertDialog(
-        title: const Text('Добавить участника'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Контрагент',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 6),
-              DropdownButtonFormField<int>(
-                initialValue: selected.id,
-                isExpanded: true,
-                decoration: const InputDecoration(
-                  isDense: true,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                ),
-                items: allCounterparties
-                    .map(
-                      (c) => DropdownMenuItem<int>(
-                        value: c.id,
-                        child: Text(
-                          c.pickerDisplayLabel,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    )
-                    .toList(),
-                onChanged: isSubmitting
-                    ? null
-                    : (v) {
-                        if (v == null) return;
-                        setState(
-                          () => selected = allCounterparties.firstWhere((c) => c.id == v),
-                        );
-                      },
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Роль в проекте',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 6),
-              DropdownButtonFormField<String>(
-                initialValue: selectedRole,
-                decoration: const InputDecoration(
-                  isDense: true,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                ),
-                items: allowedRoles
-                    .map(
-                      (r) => DropdownMenuItem<String>(
-                        value: r,
-                        child: Text(roleLabels[r] ?? r),
-                      ),
-                    )
-                    .toList(),
-                onChanged:
-                    isSubmitting ? null : (v) => setState(() => selectedRole = v ?? selectedRole),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: isSubmitting ? null : () => Navigator.of(ctx).pop(false),
-            child: const Text('Отмена'),
-          ),
-          TextButton(
-            onPressed: isSubmitting
-                ? null
-                : () async {
-                    setState(() => isSubmitting = true);
-                    try {
-                      await onAdd(counterpartyId: selected.id, role: selectedRole);
-                      if (ctx.mounted) Navigator.of(ctx).pop(true);
-                    } catch (e) {
-                      setState(() => isSubmitting = false);
-                      if (!ctx.mounted) return;
-                      ScaffoldMessenger.of(ctx).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            e is ApiException ? e.message : 'Не удалось добавить участника',
+      builder: (ctx, setState) {
+        final l10n = ctx.l10n;
+        final roleLabels = {
+          'PARTNER': l10n.rolePartner,
+          'SUPERVISOR': l10n.roleSupervisor,
+          'EMPLOYEE': l10n.roleEmployee,
+        };
+        return AlertDialog(
+          title: Text(l10n.addParticipant),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l10n.participantCounterparty,
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 6),
+                DropdownButtonFormField<int>(
+                  initialValue: selected.id,
+                  isExpanded: true,
+                  decoration: const InputDecoration(
+                    isDense: true,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  ),
+                  items: allCounterparties
+                      .map(
+                        (c) => DropdownMenuItem<int>(
+                          value: c.id,
+                          child: Text(
+                            c.pickerDisplayLabel,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                      );
-                    }
-                  },
-            child: Text(isSubmitting ? 'Добавление...' : 'Добавить'),
+                      )
+                      .toList(),
+                  onChanged: isSubmitting
+                      ? null
+                      : (v) {
+                          if (v == null) return;
+                          setState(
+                            () => selected = allCounterparties.firstWhere((c) => c.id == v),
+                          );
+                        },
+                ),
+                const SizedBox(height: 16),
+                Text(l10n.participantRole,
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 6),
+                DropdownButtonFormField<String>(
+                  initialValue: selectedRole,
+                  decoration: const InputDecoration(
+                    isDense: true,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  ),
+                  items: allowedRoles
+                      .map(
+                        (r) => DropdownMenuItem<String>(
+                          value: r,
+                          child: Text(roleLabels[r] ?? r),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: isSubmitting
+                      ? null
+                      : (v) => setState(() => selectedRole = v ?? selectedRole),
+                ),
+              ],
+            ),
           ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: isSubmitting ? null : () => Navigator.of(ctx).pop(false),
+              child: Text(l10n.cancel),
+            ),
+            TextButton(
+              onPressed: isSubmitting
+                  ? null
+                  : () async {
+                      setState(() => isSubmitting = true);
+                      try {
+                        await onAdd(counterpartyId: selected.id, role: selectedRole);
+                        if (ctx.mounted) Navigator.of(ctx).pop(true);
+                      } catch (e) {
+                        setState(() => isSubmitting = false);
+                        if (!ctx.mounted) return;
+                        ScaffoldMessenger.of(ctx).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              e is ApiException ? e.message : l10n.participantErrorAdd,
+                            ),
+                          ),
+                        );
+                      }
+                    },
+              child: Text(isSubmitting ? '...' : l10n.add),
+            ),
+          ],
+        );
+      },
     ),
   );
 }

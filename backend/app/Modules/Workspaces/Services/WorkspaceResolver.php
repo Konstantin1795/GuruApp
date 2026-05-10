@@ -38,15 +38,17 @@ final class WorkspaceResolver
             ->all();
 
         $personalRoles = Counterparty::query()
-            ->where('user_id', $userId)
-            ->where('is_active', true)
-            ->whereIn('company_role_code', [
+            ->join('project_participants', 'project_participants.counterparty_id', '=', 'counterparties.id')
+            ->where('counterparties.user_id', $userId)
+            ->where('counterparties.is_active', true)
+            ->where('project_participants.is_active', true)
+            ->whereIn('counterparties.company_role_code', [
                 CompanyRoleCode::EMPLOYEE->value,
                 CompanyRoleCode::CONTRACTOR->value,
                 CompanyRoleCode::SUPPLIER->value,
                 CompanyRoleCode::CUSTOMER->value,
             ])
-            ->pluck('company_role_code')
+            ->pluck('counterparties.company_role_code')
             ->unique()
             ->values()
             ->all();
@@ -55,22 +57,61 @@ final class WorkspaceResolver
 
         $companiesCount = $personalAvailable
             ? Counterparty::query()
-                ->where('user_id', $userId)
-                ->where('is_active', true)
-                ->whereIn('company_role_code', $personalRoles)
-                ->pluck('company_id')
+                ->join('project_participants', 'project_participants.counterparty_id', '=', 'counterparties.id')
+                ->where('counterparties.user_id', $userId)
+                ->where('counterparties.is_active', true)
+                ->where('project_participants.is_active', true)
+                ->whereIn('counterparties.company_role_code', $personalRoles)
+                ->pluck('counterparties.company_id')
                 ->unique()
                 ->count()
             : 0;
 
         $projectsCount = $personalAvailable
             ? ProjectParticipant::query()
-                ->whereHas('counterparty', fn ($q) => $q->where('user_id', $userId)->where('is_active', true))
+                ->whereHas('counterparty', fn ($q) => $q
+                    ->where('user_id', $userId)
+                    ->where('is_active', true)
+                    ->whereIn('company_role_code', $personalRoles))
                 ->where('is_active', true)
                 ->pluck('project_id')
                 ->unique()
                 ->count()
             : 0;
+
+        $items = [];
+        foreach ($companyWorkspaces as $workspace) {
+            $items[] = [
+                'type' => 'company',
+                'company' => $workspace['company'],
+                'company_role' => $workspace['role'],
+                'label' => $workspace['role'],
+            ];
+        }
+
+        if (in_array(CompanyRoleCode::CUSTOMER->value, $personalRoles, true)) {
+            $items[] = [
+                'type' => 'customer',
+                'label' => 'CUSTOMER',
+                'companies_count' => (int) $companiesCount,
+                'projects_count' => (int) $projectsCount,
+            ];
+        }
+
+        $workerRoles = array_values(array_intersect($personalRoles, [
+            CompanyRoleCode::EMPLOYEE->value,
+            CompanyRoleCode::SUPPLIER->value,
+            CompanyRoleCode::CONTRACTOR->value,
+        ]));
+        if ($workerRoles !== []) {
+            $items[] = [
+                'type' => 'worker',
+                'label' => 'WORKER',
+                'company_roles' => $workerRoles,
+                'companies_count' => (int) $companiesCount,
+                'projects_count' => (int) $projectsCount,
+            ];
+        }
 
         return [
             'company_workspaces' => $companyWorkspaces,
@@ -80,6 +121,8 @@ final class WorkspaceResolver
                 'companies_count' => (int) $companiesCount,
                 'projects_count' => (int) $projectsCount,
             ],
+            'items' => $items,
+            'can_create_company' => true,
         ];
     }
 }
