@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/api/api_exception.dart';
 import '../../core/providers.dart';
 import 'data/participant_wallet_api.dart';
 import 'data/participant_wallet_repository.dart';
@@ -7,6 +8,9 @@ import 'data/project_participants_api.dart';
 import 'data/project_participants_repository.dart';
 import 'data/projects_api.dart';
 import 'data/projects_repository.dart';
+import 'domain/project_internal_metrics.dart';
+import 'domain/project_summary.dart';
+import 'domain/project_workspace_scope.dart';
 
 final projectsApiProvider = Provider<ProjectsApi>((ref) => ProjectsApi(ref.watch(apiClientProvider)));
 
@@ -28,4 +32,19 @@ final participantWalletApiProvider = Provider<ParticipantWalletApi>(
 final participantWalletRepositoryProvider = Provider<ParticipantWalletRepository>(
   (ref) => ParticipantWalletRepository(ref.watch(participantWalletApiProvider)),
 );
+
+final projectSummaryProvider =
+    FutureProvider.family<ProjectSummary, ProjectWorkspaceKey>((ref, key) async {
+  return ref.read(projectsRepositoryProvider).getProjectSummary(key);
+});
+
+final projectInternalMetricsProvider =
+    FutureProvider.family<ProjectInternalMetrics?, ProjectWorkspaceKey>((ref, key) async {
+  try {
+    return await ref.read(projectsRepositoryProvider).getProjectInternalMetrics(key);
+  } on ApiException catch (e) {
+    if (e.statusCode == 403) return null;
+    rethrow;
+  }
+});
 

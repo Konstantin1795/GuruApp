@@ -43,4 +43,22 @@ class ProjectsApi {
     }
     return _api.getJson('/personal-workspace/projects', query: query);
   }
+
+  Future<Map<String, dynamic>> getProjectSummaryCompany({
+    required int companyId,
+    required int projectId,
+  }) =>
+      _api.getJson('/company-workspace/$companyId/projects/$projectId/summary');
+
+  Future<Map<String, dynamic>> getProjectSummaryPersonal({required int projectId}) =>
+      _api.getJson('/personal-workspace/projects/$projectId/summary');
+
+  Future<Map<String, dynamic>> getProjectInternalMetricsCompany({
+    required int companyId,
+    required int projectId,
+  }) =>
+      _api.getJson('/company-workspace/$companyId/projects/$projectId/internal-metrics');
+
+  Future<Map<String, dynamic>> getProjectInternalMetricsPersonal({required int projectId}) =>
+      _api.getJson('/personal-workspace/projects/$projectId/internal-metrics');
 }

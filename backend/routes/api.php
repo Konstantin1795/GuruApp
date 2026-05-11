@@ -34,6 +34,8 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/companies/current', \App\Modules\Companies\Http\Controllers\CompanyWorkspace\CurrentCompanyController::class);
             Route::get('/projects', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\ListProjectsController::class);
             Route::post('/projects', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\CreateProjectController::class);
+            Route::get('/projects/{projectId}/summary', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\GetProjectSummaryController::class);
+            Route::get('/projects/{projectId}/internal-metrics', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\GetProjectInternalMetricsController::class);
             Route::get('/projects/{projectId}/operations/transfers/recipients', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ListTransferRecipientsController::class);
             Route::get('/projects/{projectId}/operations/transfers', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ListTransfersController::class);
             Route::post('/projects/{projectId}/operations/transfers', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\CreateTransferController::class);
@@ -80,6 +82,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
             Route::get('/companies', \App\Modules\Companies\Http\Controllers\PersonalWorkspace\ListCompaniesController::class);
             Route::get('/projects', \App\Modules\Projects\Http\Controllers\PersonalWorkspace\ListProjectsController::class);
+            Route::get('/projects/{projectId}/summary', \App\Modules\Projects\Http\Controllers\PersonalWorkspace\GetProjectSummaryController::class);
+            Route::get('/projects/{projectId}/internal-metrics', \App\Modules\Projects\Http\Controllers\PersonalWorkspace\GetProjectInternalMetricsController::class);
             Route::get('/income-by-month', \App\Modules\Projects\Http\Controllers\PersonalWorkspace\ListPersonalIncomeByMonthController::class);
 
             Route::get('/projects/{projectId}/operations/transfers/recipients', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\ListTransferRecipientsController::class);

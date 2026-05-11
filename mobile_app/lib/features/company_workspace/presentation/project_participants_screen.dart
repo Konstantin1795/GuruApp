@@ -17,6 +17,8 @@ import '../../projects/domain/project.dart';
 import '../../projects/domain/project_participant.dart';
 import 'participant_wallet_screen.dart';
 import 'transfers_screen.dart';
+import '../../projects/domain/project_workspace_scope.dart';
+import '../../projects/presentation/project_internal_metrics_section.dart';
 import '../../projects/providers.dart';
 
 // ─────────────────────────── State / Controller ────────────────────────────
@@ -112,10 +114,14 @@ class ProjectParticipantsScreen extends ConsumerWidget {
   final Project project;
   final int companyId;
 
+  /// Если задан — загружаются внутренние метрики проекта (ТЗ-07).
+  final ProjectWorkspaceKey? metricsWorkspaceKey;
+
   const ProjectParticipantsScreen({
     super.key,
     required this.project,
     required this.companyId,
+    this.metricsWorkspaceKey,
   });
 
   @override
@@ -153,34 +159,15 @@ class ProjectParticipantsScreen extends ConsumerWidget {
           onPressed: () => _showAddDialog(context, ref, key, state.valueOrNull?.items ?? []),
         ),
       ],
-      body: state.when(
-        loading: () => const AppLoader(),
-        error: (e, _) => _ErrorBody(
-          message: e is ApiException ? e.message : l10n.participantsErrorLoad,
-          onRetry: () =>
-              ref.read(projectParticipantsControllerProvider(key).notifier).refresh(),
-        ),
-        data: (data) => RefreshIndicator(
-          onRefresh: () =>
-              ref.read(projectParticipantsControllerProvider(key).notifier).refresh(),
-          child: data.items.isEmpty
-              ? LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                        child: const _EmptyBody(),
-                      ),
-                    );
-                  },
-                )
-              : _ParticipantsList(
-                  companyId: companyId,
-                  projectId: project.id,
-                  items: data.items,
-                ),
-        ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (metricsWorkspaceKey != null)
+            ProjectInternalMetricsSection(workspaceKey: metricsWorkspaceKey!),
+          Expanded(
+            child: _participantsBody(context, ref, key, state, metricsWorkspaceKey),
+          ),
+        ],
       ),
     );
   }
@@ -208,6 +195,49 @@ class ProjectParticipantsScreen extends ConsumerWidget {
           .showSnackBar(SnackBar(content: Text(context.l10n.participantAdded)));
     }
   }
+}
+
+Widget _participantsBody(
+  BuildContext context,
+  WidgetRef ref,
+  _ParticipantsKey key,
+  AsyncValue<ProjectParticipantsState> state,
+  ProjectWorkspaceKey? metricsWorkspaceKey,
+) {
+  final l10n = context.l10n;
+
+  return state.when(
+    loading: () => const AppLoader(),
+    error: (e, _) => _ErrorBody(
+      message: e is ApiException ? e.message : l10n.participantsErrorLoad,
+      onRetry: () => ref.read(projectParticipantsControllerProvider(key).notifier).refresh(),
+    ),
+    data: (data) => RefreshIndicator(
+      onRefresh: () async {
+        await ref.read(projectParticipantsControllerProvider(key).notifier).refresh();
+        if (metricsWorkspaceKey != null) {
+          ref.invalidate(projectInternalMetricsProvider(metricsWorkspaceKey));
+        }
+      },
+      child: data.items.isEmpty
+          ? LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: const _EmptyBody(),
+                  ),
+                );
+              },
+            )
+          : _ParticipantsList(
+              companyId: key.companyId,
+              projectId: key.projectId,
+              items: data.items,
+            ),
+    ),
+  );
 }
 
 // ─────────────────────────── Sort / labels ─────────────────────────────────

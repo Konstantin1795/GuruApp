@@ -12,6 +12,8 @@ import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_loader.dart';
 import '../../../features/auth/presentation/login_screen.dart';
 import '../../auth/providers.dart';
+import '../../projects/domain/project_workspace_scope.dart';
+import '../../projects/presentation/project_detail_screen.dart';
 import '../providers.dart';
 import 'money_format.dart';
 
@@ -183,6 +185,17 @@ class _CustomerCompanyProjectsScreenState extends ConsumerState<CustomerCompanyP
                         final isNeg = bal < 0;
                         final badge = formatMoneyDisplay(row.wallet.personalBalance, localeName);
                         return AppCard(
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => ProjectDetailScreen(
+                                workspaceKey: ProjectWorkspaceKey(
+                                  projectId: row.projectId,
+                                  scope: ProjectWorkspaceScope.personal,
+                                ),
+                                titleFallback: row.projectName,
+                              ),
+                            ),
+                          ),
                           padding: const EdgeInsets.all(AppSpacing.lg),
                           radius: AppRadii.xxl,
                           child: Column(

@@ -1,6 +1,9 @@
 import '../../../core/api/api_models.dart';
 import '../../customer_workspace/domain/personal_workspace_project_row.dart';
 import '../domain/project.dart';
+import '../domain/project_internal_metrics.dart';
+import '../domain/project_summary.dart';
+import '../domain/project_workspace_scope.dart';
 import 'projects_api.dart';
 
 class ProjectsRepository {
@@ -94,6 +97,36 @@ class ProjectsRepository {
     final data = (json['data'] as Map).cast<String, dynamic>();
     final p = (data['project'] as Map).cast<String, dynamic>();
     return Project.fromJson(p);
+  }
+
+  Future<ProjectSummary> getProjectSummary(ProjectWorkspaceKey key) async {
+    final Map<String, dynamic> json;
+    switch (key.scope) {
+      case ProjectWorkspaceScope.company:
+        json = await _api.getProjectSummaryCompany(
+          companyId: key.companyId!,
+          projectId: key.projectId,
+        );
+      case ProjectWorkspaceScope.personal:
+        json = await _api.getProjectSummaryPersonal(projectId: key.projectId);
+    }
+    final data = (json['data'] as Map).cast<String, dynamic>();
+    return ProjectSummary.fromJson(data);
+  }
+
+  Future<ProjectInternalMetrics> getProjectInternalMetrics(ProjectWorkspaceKey key) async {
+    final Map<String, dynamic> json;
+    switch (key.scope) {
+      case ProjectWorkspaceScope.company:
+        json = await _api.getProjectInternalMetricsCompany(
+          companyId: key.companyId!,
+          projectId: key.projectId,
+        );
+      case ProjectWorkspaceScope.personal:
+        json = await _api.getProjectInternalMetricsPersonal(projectId: key.projectId);
+    }
+    final data = (json['data'] as Map).cast<String, dynamic>();
+    return ProjectInternalMetrics.fromJson(data);
   }
 }
 

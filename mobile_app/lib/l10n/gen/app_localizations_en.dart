@@ -699,6 +699,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customerErrorLoad => 'Failed to load data.';
 
   @override
+  String get projectDetailTitle => 'Project';
+
+  @override
+  String get projectMetricsSectionTitle => 'Project metrics';
+
+  @override
+  String get projectIncomeMetric => 'Income received';
+
+  @override
+  String get projectExpenseMetric => 'Expense';
+
+  @override
+  String get projectBalanceMetric => 'Balance';
+
+  @override
+  String get projectParticipants => 'Participants';
+
+  @override
+  String get projectOperations => 'Operations';
+
+  @override
+  String get projectExpenseArticles => 'Expense categories';
+
+  @override
+  String get projectDocuments => 'Documents';
+
+  @override
+  String get projectStatus => 'Project status';
+
+  @override
+  String get projectInternalDataTitle => 'Project internals';
+
+  @override
+  String get participantsAccountableBalance =>
+      'Participants accountable balance';
+
+  @override
+  String get projectDebtToCounterparties => 'Debt to counterparties';
+
+  @override
+  String get projectOverpaymentOrMissingReports =>
+      'Overpayment or missing reports';
+
+  @override
+  String get projectComingSoonSnippet =>
+      'This section will be available later.';
+
+  @override
+  String get projectHistoryOperations => 'Operation history';
+
+  @override
   String get navNotifications => 'Notifications';
 
   @override

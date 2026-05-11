@@ -10,8 +10,9 @@ import '../../../core/widgets/app_input.dart';
 import '../../../core/widgets/app_loader.dart';
 import '../../counterparties/providers.dart';
 import '../../projects/domain/project.dart';
+import '../../projects/domain/project_workspace_scope.dart';
+import '../../projects/presentation/project_detail_screen.dart';
 import '../../projects/providers.dart';
-import 'project_participants_screen.dart';
 
 class CompanyProjectsState {
   final List<Project> items;
@@ -298,9 +299,13 @@ class CompanyProjectsScreen extends ConsumerWidget {
                   child: AppCard(
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
-                        builder: (_) => ProjectParticipantsScreen(
-                          project: p,
-                          companyId: companyId,
+                        builder: (_) => ProjectDetailScreen(
+                          workspaceKey: ProjectWorkspaceKey(
+                            projectId: p.id,
+                            companyId: companyId,
+                            scope: ProjectWorkspaceScope.company,
+                          ),
+                          titleFallback: p.name,
                         ),
                       ),
                     ),

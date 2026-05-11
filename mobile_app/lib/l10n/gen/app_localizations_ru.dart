@@ -700,6 +700,55 @@ class AppLocalizationsRu extends AppLocalizations {
   String get customerErrorLoad => 'Не удалось загрузить данные.';
 
   @override
+  String get projectDetailTitle => 'Проект';
+
+  @override
+  String get projectMetricsSectionTitle => 'Показатели проекта';
+
+  @override
+  String get projectIncomeMetric => 'Поступление';
+
+  @override
+  String get projectExpenseMetric => 'Расход';
+
+  @override
+  String get projectBalanceMetric => 'Баланс';
+
+  @override
+  String get projectParticipants => 'Участники';
+
+  @override
+  String get projectOperations => 'Операции';
+
+  @override
+  String get projectExpenseArticles => 'Статьи расходов';
+
+  @override
+  String get projectDocuments => 'Документы';
+
+  @override
+  String get projectStatus => 'Статус проекта';
+
+  @override
+  String get projectInternalDataTitle => 'Данные по проекту';
+
+  @override
+  String get participantsAccountableBalance => 'Подотчётный баланс участников';
+
+  @override
+  String get projectDebtToCounterparties => 'Проект должен контрагентам';
+
+  @override
+  String get projectOverpaymentOrMissingReports =>
+      'Переплата или не созданные отчёты';
+
+  @override
+  String get projectComingSoonSnippet => 'Раздел появится позже.';
+
+  @override
+  String get projectHistoryOperations => 'История операций';
+
+  @override
   String get navNotifications => 'Уведомления';
 
   @override

@@ -1430,6 +1430,102 @@ abstract class AppLocalizations {
   /// **'Failed to load data.'**
   String get customerErrorLoad;
 
+  /// No description provided for @projectDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Project'**
+  String get projectDetailTitle;
+
+  /// No description provided for @projectMetricsSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Project metrics'**
+  String get projectMetricsSectionTitle;
+
+  /// No description provided for @projectIncomeMetric.
+  ///
+  /// In en, this message translates to:
+  /// **'Income received'**
+  String get projectIncomeMetric;
+
+  /// No description provided for @projectExpenseMetric.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get projectExpenseMetric;
+
+  /// No description provided for @projectBalanceMetric.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get projectBalanceMetric;
+
+  /// No description provided for @projectParticipants.
+  ///
+  /// In en, this message translates to:
+  /// **'Participants'**
+  String get projectParticipants;
+
+  /// No description provided for @projectOperations.
+  ///
+  /// In en, this message translates to:
+  /// **'Operations'**
+  String get projectOperations;
+
+  /// No description provided for @projectExpenseArticles.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense categories'**
+  String get projectExpenseArticles;
+
+  /// No description provided for @projectDocuments.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents'**
+  String get projectDocuments;
+
+  /// No description provided for @projectStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Project status'**
+  String get projectStatus;
+
+  /// No description provided for @projectInternalDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Project internals'**
+  String get projectInternalDataTitle;
+
+  /// No description provided for @participantsAccountableBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Participants accountable balance'**
+  String get participantsAccountableBalance;
+
+  /// No description provided for @projectDebtToCounterparties.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt to counterparties'**
+  String get projectDebtToCounterparties;
+
+  /// No description provided for @projectOverpaymentOrMissingReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Overpayment or missing reports'**
+  String get projectOverpaymentOrMissingReports;
+
+  /// No description provided for @projectComingSoonSnippet.
+  ///
+  /// In en, this message translates to:
+  /// **'This section will be available later.'**
+  String get projectComingSoonSnippet;
+
+  /// No description provided for @projectHistoryOperations.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation history'**
+  String get projectHistoryOperations;
+
   /// No description provided for @navNotifications.
   ///
   /// In en, this message translates to:
