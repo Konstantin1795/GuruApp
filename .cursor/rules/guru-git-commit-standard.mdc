@@ -35,7 +35,17 @@ When the user asks to commit, save version, or push changes:
    - Flutter: `flutter gen-l10n`, `flutter analyze`
 10. Be honest if checks were not run.
 11. Push only if the user explicitly asked to push.
-12. After commit, show:
+12. Before commit, check whether modular documentation must be updated:
+   - API routes
+   - lifecycle/business logic
+   - wallet math
+   - Flutter screens/navigation
+   - providers
+   - access rules
+   - current project state
+13. Update relevant docs before commit, or explicitly state why docs do not need updates.
+14. Do not update `docs/OldDocs/` as canonical documentation unless explicitly requested.
+15. After commit, show:
    - commit hash
    - commit message
    - whether push was done

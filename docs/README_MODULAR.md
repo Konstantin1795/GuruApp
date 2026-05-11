@@ -7,7 +7,7 @@
 
 **Единая точка входа:** этот файл — `docs/README_MODULAR.md`. Часто достаточно приложить его вместе с **`docs/90_current/90_GURU_CURRENT_STATE.md`**.
 
-**Git и коммиты:** **`docs/90_current/93_GURU_GIT_COMMIT_STANDARD.md`** (в Cursor дублируется правилом `.cursor/rules/guru-git-commit-standard.mdc`).
+**Git и коммиты:** **`docs/90_current/93_GURU_GIT_COMMIT_STANDARD.md`** — в том числе обязательная проверка актуализации модульной документации перед коммитом изменений в коде; в Cursor то же задаётся правилом `.cursor/rules/guru-git-commit-standard.mdc`.
 
 | Папка под `docs/` | Содержание | Как часто меняется |
 |-------------------|------------|---------------------|
