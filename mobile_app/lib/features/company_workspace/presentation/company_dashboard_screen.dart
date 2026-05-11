@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/localization/app_localizations_extension.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../operations/data/transfers_api.dart';
-import '../../operations/presentation/aggregated_transfers_history_screen.dart';
+import '../../operations/presentation/aggregated_operations_history_screen.dart';
 import '../../operations/providers.dart';
 import '../domain/company_dashboard_stats.dart';
 import '../providers/company_dashboard_stats_provider.dart';
@@ -119,7 +119,7 @@ class CompanyDashboardScreen extends ConsumerWidget {
               Navigator.of(context)
                   .push(
                 MaterialPageRoute<void>(
-                  builder: (_) => AggregatedTransfersHistoryScreen(
+                  builder: (_) => AggregatedOperationsHistoryScreen(
                     apiScope: TransferApiScope.company,
                     companyId: companyId,
                   ),

@@ -21,23 +21,23 @@ import '../providers.dart';
 import 'income_detail_screen.dart';
 import 'transfer_detail_screen.dart';
 
-/// Объединённая история переводов и поступлений (ТЗ-06.1).
-class AggregatedTransfersHistoryScreen extends ConsumerStatefulWidget {
+/// Объединённая история операций TRANSFER + INCOME (`GET …/operations/history`, ТЗ-06.1).
+class AggregatedOperationsHistoryScreen extends ConsumerStatefulWidget {
   final TransferApiScope apiScope;
   final int companyId;
 
-  const AggregatedTransfersHistoryScreen({
+  const AggregatedOperationsHistoryScreen({
     super.key,
     required this.apiScope,
     required this.companyId,
   });
 
   @override
-  ConsumerState<AggregatedTransfersHistoryScreen> createState() =>
-      _AggregatedTransfersHistoryScreenState();
+  ConsumerState<AggregatedOperationsHistoryScreen> createState() =>
+      _AggregatedOperationsHistoryScreenState();
 }
 
-class _AggregatedTransfersHistoryScreenState extends ConsumerState<AggregatedTransfersHistoryScreen> {
+class _AggregatedOperationsHistoryScreenState extends ConsumerState<AggregatedOperationsHistoryScreen> {
   static const _perPage = 20;
   List<AggregatedHistoryItem> _items = const [];
   PaginationInfo? _pagination;

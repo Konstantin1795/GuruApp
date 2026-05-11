@@ -1,1 +1,15 @@
 .vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE (подпроекты могут иметь свои правила)
+.idea/
+
+# Временные и локальные артефакты
+*.tmp
+*.bak
+*~
+*.swp

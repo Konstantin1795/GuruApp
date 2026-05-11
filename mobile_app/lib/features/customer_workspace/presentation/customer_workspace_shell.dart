@@ -13,7 +13,7 @@ import '../../../core/widgets/app_loader.dart';
 import '../../../features/auth/presentation/login_screen.dart';
 import '../../auth/providers.dart';
 import '../../operations/data/transfers_api.dart';
-import '../../operations/presentation/aggregated_transfers_history_screen.dart';
+import '../../operations/presentation/aggregated_operations_history_screen.dart';
 import '../../operations/data/incomes_api.dart';
 import '../../operations/providers.dart';
 import '../domain/personal_workspace_project_row.dart';
@@ -340,7 +340,7 @@ class _HomeScrollContentState extends State<_HomeScrollContent> {
                       Navigator.of(context)
                           .push(
                             MaterialPageRoute<void>(
-                              builder: (_) => const AggregatedTransfersHistoryScreen(
+                              builder: (_) => const AggregatedOperationsHistoryScreen(
                                 apiScope: TransferApiScope.personal,
                                 companyId: 0,
                               ),
@@ -573,11 +573,11 @@ class _MenuButton extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: AppTextStyles.bodyStrong),
-                if (subtitleWidget != null) subtitleWidget!,
+                ?subtitleWidget,
               ],
             ),
           ),
-          if (trailing != null) trailing!,
+          ?trailing,
         ],
       ),
     );
