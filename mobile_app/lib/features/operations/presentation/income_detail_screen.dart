@@ -14,6 +14,7 @@ import '../domain/income_detail_view.dart';
 import '../domain/operation_status.dart';
 import '../domain/operation_status_history_entry.dart';
 import '../providers.dart';
+import 'operation_comment_dialog.dart';
 
 class IncomeDetailScreen extends ConsumerStatefulWidget {
   final IncomeApiScope apiScope;
@@ -136,28 +137,10 @@ class _IncomeDetailScreenState extends ConsumerState<IncomeDetailScreen> {
   }
 
   Future<String?> _promptComment() async {
-    final ctrl = TextEditingController();
-    final l10n = context.l10n;
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.transferActionCommentTitle),
-        content: TextField(
-          controller: ctrl,
-          maxLines: 4,
-          decoration: InputDecoration(hintText: l10n.transferCommentHint),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.confirm)),
-        ],
-      ),
-    );
-    if (ok != true) return null;
-    final text = ctrl.text.trim();
-    ctrl.dispose();
-    return text.isEmpty ? null : text;
+    final text = await showOperationCommentDialog(context, context.l10n);
+    if (text == null) return null;
+    final t = text.trim();
+    return t.isEmpty ? null : t;
   }
 
   String _actionLabel(BuildContext context, String key) {

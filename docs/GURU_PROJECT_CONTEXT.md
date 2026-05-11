@@ -1,6 +1,6 @@
 # GURU — контекст проекта (единый handoff)
 
-**Последнее обновление:** 2026-05-11  
+**Последнее обновление:** 2026-05-11 (синхронизация с текущим кодом: единая история операций, объединённый pending, диалог комментария к действиям)  
 **Репозиторий:** GuruApp (монорепозиторий: `backend/` Laravel API, `mobile_app/` Flutter).
 
 Чтобы **снизить расход контекста** в чате, сначала прикрепляйте **`docs/GURU_CONTEXT_INDEX.md`**; этот файл — расширенный handoff, когда нужны детали ниже.
@@ -91,6 +91,7 @@ docs/
 ### 5.2 Personal workspace (важное)
 
 - `GET /context`, `GET /companies`, `GET /projects`, `GET /income-by-month`
+- **Единая лента:** `GET /operations/history`
 - Те же агрегированные эндпоинты: **transfers** и **incomes** (`history`, `pending-count`)
 - Переводы в проекте: создание и действия сотрудника — только участник **first** + роль **EMPLOYEE** (`PersonalWorkspaceTransferGuard`)
 - **Поступления:** `GET` список/деталь; действия заказчика: `approve-customer`, `reject-customer`, `return-to-customer-approval` (создание поступлений — в company-контуре)
@@ -141,7 +142,7 @@ docs/
 
 - Плитки Проекты / Контрагенты — из API.
 - Квартальная аналитика — плейсхолдеры до отчётов.
-- Плитка **«История операций»** → **`AggregatedTransfersHistoryScreen`** — сейчас загружает **только переводы** (`GET …/operations/transfers/history`). Бейдж **`pending_action_count`** на дашборде берётся из **`transferPendingActionCountProvider`** (только TRANSFER); отдельный счётчик поступлений на backend есть (`…/operations/incomes/pending-count`), в UI объединения пока нет.
+- Плитка **«История операций»** → **`AggregatedTransfersHistoryScreen`** — объединённая лента переводов и поступлений через **`TransfersRepository.listUnifiedOperationsHistory`** → `GET …/operations/history`. Бейдж на плитке истории — **`combinedOperationsPendingCountProvider`** (сумма ожидающих действий по TRANSFER и INCOME).
 
 ### 7.4 Участники проекта
 
@@ -149,10 +150,11 @@ docs/
 
 ### 7.5 Переводы и поступления
 
-- **Переводы:** `TransfersScreen`, `CreateTransferScreen`, **`TransferDetailScreen`**, **`AggregatedTransfersHistoryScreen`**; `TransfersApi` / **`TransfersRepository`**; **`transferPendingActionCountProvider`**.
+- **Переводы:** `TransfersScreen`, `CreateTransferScreen`, **`TransferDetailScreen`**, **`AggregatedTransfersHistoryScreen`**; `TransfersApi` / **`TransfersRepository`**; для узкого счётчика только переводов — **`transferPendingActionCountProvider`**.
 - **Поступления:** **`CreateIncomeScreen`**, **`IncomeDetailScreen`**; `IncomesApi` / **`IncomesRepository`** (`income_operation.dart`, `income_detail_view.dart`).
+- Действия с обязательным комментарием (откат перевода, отклонение поступления и др.): диалог **`showOperationCommentDialog`** в **`operation_comment_dialog.dart`** — контроллер текста живёт в `State` диалога (жизненный цикл без «dispose до снятия route»).
 
-Провайдер **`transferPendingActionCountProvider`** — только для переводов.
+Дашборд компании и кабинет заказчика используют **`combinedOperationsPendingCountProvider`** для суммарного бейджа ожидающих действий.
 
 ### 7.6 Локализация
 
@@ -186,10 +188,8 @@ cd mobile_app && flutter analyze
 
 ## 10. Явные пробелы / долг
 
-- **Единая лента «История операций»** в приложении: backend отдаёт отдельно `transfers/history` и `incomes/history`; клиентский экран истории пока только трансферы.
-- **Объединённый бейдж** «ожидают действия» (TRANSFER + INCOME) на дашборде — не подключён (есть два API счётчика).
-- Операция **REPORT**; полные отчётные суммы на дашборде компании.
-- Вкладка «Операции» внизу компании — частично плейсхолдер.
+- Операция **REPORT**; полные отчётные суммы на дашборде компании (квартальная карточка — плейсхолдер).
+- Вкладка «Операции» в нижнем меню компании — частично плейсхолдер (основные сценарии — через центральную кнопку «Операции» и участников проекта).
 - Push, realtime, offline; отдельный API документов.
 
 ---

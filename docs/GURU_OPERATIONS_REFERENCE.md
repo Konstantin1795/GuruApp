@@ -15,7 +15,7 @@
 
 **Поступления (INCOME):** см. раздел [INCOME](#income) в этом же файле.
 
-**Последнее обновление документа:** 2026-05-09 — §3.1–3.4 (перетекание финансов); сверка с `backend/app/Modules/Operations`, `backend/routes/api.php`, `mobile_app/lib/features/operations`.
+**Последнее обновление документа:** 2026-05-11 — сверка с `backend/app/Modules/Operations`, `backend/routes/api.php`, `mobile_app/lib/features/operations`.
 
 **Связанные файлы:** `docs/GURU_PROJECT_CONTEXT.md`, `docs/GURU_ARCHITECTURE_AND_STANDARDS.md`, `docs/GURU_FULL_PROJECT_BLUEPRINT.md`.
 
@@ -263,7 +263,8 @@
 
 | Метод | Путь | Назначение |
 |-------|------|------------|
-| GET | `.../operations/transfers/history` | Агрегированная история по видимым проектам компании (пагинация) |
+| GET | `.../operations/history` | Объединённая лента **TRANSFER** + **INCOME** (`AggregatedOperationsHistoryService`; клиент: `listUnifiedOperationsHistory`) |
+| GET | `.../operations/transfers/history` | Только переводы (альтернатива узкому списку) |
 | GET | `.../operations/transfers/pending-count` | `{ pending_action_count }` |
 | GET | `.../projects/{projectId}/operations/transfers/recipients` | Список получателей для типа |
 | GET | `.../projects/{projectId}/operations/transfers` | Список переводов проекта |
@@ -282,7 +283,7 @@
 
 ### 10.3 Personal workspace — переводы
 
-Реализован **поднабор** (создание и «черновой» цикл сотрудника):
+Реализован **поднабор** (создание и «черновой» цикл сотрудника). Объединённая лента **TRANSFER** + **INCOME**: **`GET /personal-workspace/operations/history`** (см. также company-workspace **`GET …/operations/history`**).
 
 | Метод | Путь |
 |-------|------|
@@ -331,8 +332,8 @@
 ### 13. Клиент Flutter (кратко)
 
 - Модуль: **`mobile_app/lib/features/operations/`**.
-- **`TransfersApi`**: базовый путь для company — `/company-workspace/{companyId}/projects/{projectId}/operations/transfers`, для personal — `/personal-workspace/projects/{projectId}/operations/transfers`; история и счётчик — без `projectId` в пути.
-- Действия: POST на `{base}/{transferId}/{actionSegment}` (kebab-case как в Laravel routes).
+- **`TransfersApi`**: базовый путь для company — `/company-workspace/{companyId}/projects/{projectId}/operations/transfers`, для personal — `/personal-workspace/projects/{projectId}/operations/transfers`; история и счётчик — без `projectId` в пути; **единая лента** — **`GET …/operations/history`** через **`TransfersRepository.listUnifiedOperationsHistory`** (`AggregatedTransfersHistoryScreen`).
+- Действия: POST на `{base}/{transferId}/{actionSegment}` (kebab-case как в Laravel routes). Обязательный комментарий — диалог **`showOperationCommentDialog`** (`operation_comment_dialog.dart`): контроллер текста не должен **`dispose`**-иться до снятия route диалога.
 - Модель **`TransferOperation`**, статусы **`OperationStatus`** зеркалят строковые enum backend.
 - Детальный экран парсит **`TransferDetailView.fromShowJson`**: `transfer`, `available_actions`, вложенная `status_history`.
 
@@ -368,7 +369,7 @@
 ## INCOME (поступление)
 **Назначение:** точка правды по домену **INCOME** в актуальном коде (ТЗ-06). Для переводов см. раздел [TRANSFER](#transfer) в этом же файле.
 
-**Последнее обновление:** 2026-05-09
+**Последнее обновление:** 2026-05-11
 
 **Ключевые пути:** `backend/app/Modules/Operations/Services/Income*.php`, `Models/IncomeOperation.php`, `routes/api.php`, `mobile_app/lib/features/operations/` (`incomes_api.dart`, `create_income_screen.dart`, `income_detail_screen.dart`).
 
@@ -452,7 +453,7 @@
 - **`CreateIncomeScreen`** — создание из picker «Операции» (выбор проекта при необходимости).
 - **`IncomeDetailScreen`** — деталь, действия по **`available_actions`**.
 
-**Замечание по продукту:** экран **`AggregatedTransfersHistoryScreen`** запрашивает только **`…/operations/transfers/history`**; объединённая лента TRANSFER+INCOME на клиенте описана в `docs/GURU_PROJECT_CONTEXT.md` как долг.
+**Замечание по продукту:** экран **`AggregatedTransfersHistoryScreen`** загружает объединённую ленту через **`GET …/operations/history`**; элементы поступлений открывают **`IncomeDetailScreen`**, переводов — **`TransferDetailScreen`**. Для действий с обязательным комментарием используется **`showOperationCommentDialog`**.
 
 ---
 

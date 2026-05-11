@@ -19,4 +19,4 @@ alwaysApply: true
 
 **Не опираться на** `docs/OldDocs/` без явного запроса пользователя.
 
-**Инвариант:** не смешивать company-workspace и personal-workspace (разные префиксы и middleware). Финансы и переходы операций — только в сервисах Operations, не в контроллерах/UI.
+**Инвариант:** не смешивать company-workspace и personal-workspace (разные префиксы и middleware). Финансы и переходы операций — только в сервисах Operations, не в контроллерах/UI. Диалог обязательного комментария к действию — только через **`showOperationCommentDialog`** (контроллер в `State` диалога).

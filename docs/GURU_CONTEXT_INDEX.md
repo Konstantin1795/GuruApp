@@ -19,4 +19,4 @@
 
 ## Инварианты на одну строку
 
-Два API-контура: **`/api/company-workspace/{companyId}`** (OWNER/PARTNER) и **`/api/personal-workspace`** (личные роли). Кошелёк — у **`ProjectParticipant`**, не у пользователя напрямую.
+Два API-контура: **`/api/company-workspace/{companyId}`** (OWNER/PARTNER) и **`/api/personal-workspace`** (личные роли). Кошелёк — у **`ProjectParticipant`**, не у пользователя напрямую. Объединённая история операций на клиенте: **`GET …/operations/history`** (TRANSFER + INCOME).

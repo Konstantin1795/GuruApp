@@ -1,6 +1,6 @@
 # GURU — полный архитектурный blueprint проекта
 
-Версия документа: 2026-05-09 (операция **INCOME** (ТЗ-06): backend lifecycle, кошельки заказчика и РП, два планировщика в `bootstrap/app.php`; Flutter — создание и деталь поступления; **единая лента** истории TRANSFER+INCOME в клиенте и **объединённый pending-бейдж** — в долге); минимальный индекс доков — **`docs/GURU_CONTEXT_INDEX.md`**; полный handoff — **`docs/GURU_PROJECT_CONTEXT.md`** (указатель в корне — **`PROJECT_CONTEXT_GURU.md`**)  
+Версия документа: 2026-05-11 (INCOME + TRANSFER: объединённая **`GET …/operations/history`**, **`AggregatedOperationsHistoryService`**; Flutter — **`AggregatedTransfersHistoryScreen`**, **`combinedOperationsPendingCountProvider`**, диалог комментария **`showOperationCommentDialog`**); минимальный индекс доков — **`docs/GURU_CONTEXT_INDEX.md`**; полный handoff — **`docs/GURU_PROJECT_CONTEXT.md`** (указатель в корне — **`PROJECT_CONTEXT_GURU.md`**)  
 Репозиторий: `C:\GuruApp`  
 Назначение: дать максимально подробное описание текущего проекта GURU, чтобы по этому документу можно было восстановить архитектуру, стандарты, основные модули, бизнес-инварианты и реализованное состояние приложения с нуля.
 
@@ -425,6 +425,7 @@ Scoped routes:
 | ------ | --------------------------------------------------------------------------------------------- | ------------------------- |
 | GET    | `/api/company-workspace/{companyId}/context`                                                  | Контекст компании         |
 | GET    | `/api/company-workspace/{companyId}/operations/transfers/history`                             | Все видимые переводы по проектам компании (пагинация; при необходимости `project_name` в элементе) |
+| GET    | `/api/company-workspace/{companyId}/operations/history`                                       | Объединённая лента **TRANSFER** и **INCOME** (`AggregatedOperationsHistoryService`) |
 | GET    | `/api/company-workspace/{companyId}/operations/transfers/pending-count`                       | `{ pending_action_count }` — whitelist шагов подтверждения для пользователя |
 | GET    | `/api/company-workspace/{companyId}/companies/current`                                        | Текущая компания          |
 | GET    | `/api/company-workspace/{companyId}/projects`                                                 | Список проектов           |
@@ -464,6 +465,7 @@ Scoped routes:
 | GET    | `/api/personal-workspace/projects`  | Проекты                       |
 | GET    | `/api/personal-workspace/income-by-month` | Доход по месяцам (исполнитель) |
 | GET    | `/api/personal-workspace/operations/transfers/history` | Лента переводов по всем проектам с участием пользователя |
+| GET    | `/api/personal-workspace/operations/history` | Объединённая лента **TRANSFER** и **INCOME** |
 | GET    | `/api/personal-workspace/operations/transfers/pending-count` | `{ pending_action_count }` (те же правила whitelist, что и в company-workspace) |
 | GET    | `/api/personal-workspace/projects/{projectId}/operations/transfers/recipients` | Получатели перевода (ТЗ-05.3) |
 | GET    | `/api/personal-workspace/projects/{projectId}/operations/transfers` | Список переводов |
@@ -815,6 +817,7 @@ erDiagram
 - `IncomeLifecycleService` — переходы поступления после создания (ТЗ-06).
 - `TransferRecipientListService` — выдача списка получателей для UI.
 - `IncomeVisibilityService`, `IncomeAvailableActionsService`, `IncomePendingActionCountService`, `IncomeProjectParticipantsResolver` — контур INCOME.
+- `AggregatedOperationsHistoryService` — объединённая лента TRANSFER + INCOME для `GET .../operations/history`.
 - `OperationVisibilityService` — видимость операций:
   - `PROJECT_HEAD` видит все transfer operations своего проекта;
   - обычный участник видит только операции, где он initiator/sender/receiver;
@@ -1187,14 +1190,8 @@ context.l10n.someKey
 - создание перевода (шаг: тип цели → выбор получателя с API `recipients`);
 - успешный ответ создания — HTTP **201**, тело `ok` + `data.transfer`; на клиенте проверка **`ok`**, устойчивый разбор **`TransferOperation.fromJson`** (строковые поля без небезопасных `as String?`), чтобы не показывать ошибку при уже созданном на сервере переводе;
 - комментарий и отображение статуса;
-- **экран детали** (`TransferDetailScreen`): таймлайн **`status_history`**, кнопки lifecycle по **`available_actions`** из API; POST через тот же контур, что и в §6 маршрутов;
-- **агрегированная история переводов** (`AggregatedTransfersHistoryScreen`): `GET …/operations/transfers/history`; на главной компании и у заказчика — вход с бейджем **`pending_action_count`** из `GET …/operations/transfers/pending-count` (whitelist обязательных подтверждений).
-
-**Поступления (INCOME, ТЗ-06):**
-
-- создание в company-workspace: **`CreateIncomeScreen`** → POST `…/operations/incomes`;
-- деталь: **`IncomeDetailScreen`**, `available_actions`, PATCH черновика в `CREATED` (инициатор);
-- агрегированные эндпоинты: `GET …/operations/incomes/history`, `GET …/operations/incomes/pending-count` (на дашборде компании **отдельный** счётчик поступлений в UI пока **не** суммируется с переводами — см. §16).
+- **экран детали** (`TransferDetailScreen`): таймлайн **`status_history`**, кнопки lifecycle по **`available_actions`** из API; POST через тот же контур; действия с обязательным комментарием — через **`showOperationCommentDialog`** (`operation_comment_dialog.dart`);
+- **история операций на дашборде и у заказчика** (`AggregatedTransfersHistoryScreen`): объединённая лента **`GET …/operations/history`** (TRANSFER + INCOME); бейдж на плитке — **`combinedOperationsPendingCountProvider`** (сумма ожиданий по переводам и поступлениям). Отдельные эндпоинты `…/transfers/history` и `…/incomes/history` по-прежнему доступны для узких сценариев.
 
 ### 15.9. Operation entry point
 
@@ -1217,7 +1214,7 @@ context.l10n.someKey
 - **Все проекты:** экран списка компаний с поиском, счётчиком проектов и агрегатами по кошелькам (суммирование по проектам компании); **без сегментации активные/неактивные компании** до появления управления статусом у руководителя компании.
 - **Проекты компании:** список проектов, где пользователь — заказчик; **без фильтрации по `is_active`** (все проекты отображаются); крупное наименование проекта, бейдж баланса.
 - Переключатель языка: `LocaleSwitchButton` в верхней панели главного экрана заказчика.
-- Кнопка **«История операций»** на главной — переход в **`AggregatedTransfersHistoryScreen`** (пока загружает **только переводы**); бейдж на плитке использует **`transferPendingActionCountProvider`**; отдельный API **`…/operations/incomes/pending-count`** для поступлений на клиенте в бейдж **не** объединён. **«Документы»** — по-прежнему заглушка (SnackBar), отдельного API документов нет.
+- Кнопка **«История операций»** на главной — переход в **`AggregatedTransfersHistoryScreen`** (объединённая лента **`GET …/operations/history`**); бейдж на плитке — **`combinedOperationsPendingCountProvider`**. **«Документы»** — по-прежнему заглушка (SnackBar), отдельного API документов нет.
 
 Инвалидация при смене сессии: в `AuthController` инвалидируются **`workspacesProvider`** и **`customerWorkspaceDataProvider`**.
 
@@ -1230,21 +1227,14 @@ context.l10n.someKey
 Не реализовано:
 
 - операция **`REPORT`**;
-- **единый** экран истории «все операции» в приложении (backend отдаёт отдельно `transfers/history` и `incomes/history`; клиентская **`AggregatedTransfersHistoryScreen`** — только TRANSFER);
-- **объединённый** бейдж pending (TRANSFER + INCOME) на дашбордах;
-- realtime;
-- websocket;
-- offline sync;
-- push notifications;
-- отдельные экраны/API **документов** для кабинета заказчика (заглушка); **история переводов** для заказчика подключена через общий personal-workspace контур;
+- realtime / websocket / offline sync / push notifications;
+- отдельные экраны/API **документов** для кабинета заказчика (заглушка SnackBar);
 - управление **статусами компании и проекта** (активен / архив и т.д.) в company workspace — для последующей синхронизации с фильтрами в UI заказчика;
 - полноценная аналитика на дашборде компании (цифры дохода/задолженности из отчётов); сейчас — плейсхолдеры и столбики активных проектов по упрощённой модели;
 - графики;
 - production-grade тестовый набор.
 
-**Переводы (TRANSFER):** backend и Flutter: lifecycle, recipients, планировщик `complete-expired-transfer-waiting`, show с **`available_actions`**, агрегированная история переводов и счётчик «ожидают подтверждения», экран детали с действиями.
-
-**Поступления (INCOME):** backend — `IncomeLifecycleService`, `IncomeBalanceService`, personal-workspace действия заказчика, планировщик `complete-expired-income-waiting`; Flutter — создание и деталь; объединение с лентой переводов и общим бейджем — в долге (см. выше).
+**Реализовано по операциям:** объединённая лента **`GET …/operations/history`**, **`AggregatedOperationsHistoryService`**; Flutter — **`AggregatedTransfersHistoryScreen`**, **`combinedOperationsPendingCountProvider`**; диалог комментария к действиям с обязательным текстом — **`showOperationCommentDialog`**. Отдельные списки **`…/transfers/history`** и **`…/incomes/history`** сохранены на backend для совместимости.
 
 ---
 
@@ -1359,7 +1349,7 @@ http://10.0.2.2:8000/api
 23. Реализовать auth screens.
 24. Реализовать workspace screens.
 25. Реализовать company workspace shell.
-26. Реализовать projects/counterparties/participants/wallet/transfers UI (список/создание, **экран детали** с действиями по `available_actions`, **агрегированная история** и бейдж на главных company/customer).
+26. Реализовать projects/counterparties/participants/wallet/transfers UI (список/создание, **экран детали** с действиями по `available_actions` и диалогом комментария при необходимости, **объединённая история** `GET …/operations/history`, **combined** pending-бейдж на главных company/customer).
 27. Реализовать **кабинет заказчика** (Flutter: `customer_workspace`, маршруты `/customer/...`) и расширить personal-workspace API (`workspace_role`, `projects_count`, `my_wallet`, `my_participation` в ресурсах).
 28. Реализовать вкладку **«Операции»** в `PersonalWorkspaceShell` (`personal_operations_tab.dart`), `TransferApiScope.personal` в `transfers_api.dart`.
 29. Поддерживать **`docs/GURU_CONTEXT_INDEX.md`**, **`docs/GURU_PROJECT_CONTEXT.md`** и короткий вход **`PROJECT_CONTEXT_GURU.md`** при крупных изменениях API/домена.
@@ -1455,7 +1445,6 @@ receiver.accountable_received = 200
 ### 21.2. Следующий operations этап
 
 - расширить whitelist бейджа и **`available_actions`** под новые сценарии;
-- **единая** клиентская лента TRANSFER + INCOME и **один** счётчик pending на дашбордах;
 - операция **`REPORT`**;
 - при необходимости — уведомления о смене статуса перевода (продуктовая фича поверх API).
 
@@ -1465,7 +1454,7 @@ receiver.accountable_received = 200
 
 - подключить **реальные метрики** дохода / задолженности / переплаты на дашборде компании (источник — отчёты; сейчас плейсхолдеры «—» и столбики активных проектов по упрощённой модели);
 - убрать оставшиеся placeholder TODO;
-- реализовать **документы** для заказчика (сейчас SnackBar-заглушка); **история переводов** на главной заказчика и компании — пока только TRANSFER; **единая** история с INCOME — в долге;
+- реализовать **документы** для заказчика (сейчас SnackBar-заглушка);
 - при необходимости — углубление **operation center** и вкладки «Операции» в нижнем меню компании (сейчас плейсхолдер);
 - расширить operation center;
 - UI управления статусами компании/проекта для владельца/РП и связка с фильтрами заказчика.

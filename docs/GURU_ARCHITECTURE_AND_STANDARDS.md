@@ -166,6 +166,7 @@ Middleware: `EnsureCompanyWorkspaceAccess` — доступ есть у **акт
 | GET | `/operations/transfers/pending-count` | `{ pending_action_count }` — переводы, где от пользователя ожидается шаг подтверждения (whitelist действий, см. `TransferPendingActionCountService`) |
 | GET | `/operations/incomes/history` | Агрегированная лента поступлений (INCOME) по проектам с видимостью в компании |
 | GET | `/operations/incomes/pending-count` | `{ pending_action_count }` — поступления, где от пользователя ожидается шаг (см. `IncomePendingActionCountService`) |
+| GET | `/operations/history` | Объединённая лента **TRANSFER** и **INCOME** по видимости (`ListAggregatedOperationsHistoryController`, `AggregatedOperationsHistoryService`) |
 | GET | `/companies/current` | Текущая компания |
 | GET/POST | `/projects` | Список / создание проекта |
 | GET | `/projects/{projectId}/participants` | Участники (пагинация) |
@@ -213,6 +214,7 @@ Middleware: `EnsurePersonalWorkspaceAccess` — пользователь с ак
 | GET | `/operations/transfers/pending-count` | То же правило счётчика «ожидают подтверждения», что и в company-workspace |
 | GET | `/operations/incomes/history` | Агрегированная лента поступлений (личный контур) |
 | GET | `/operations/incomes/pending-count` | Счётчик ожидающих действий по поступлениям |
+| GET | `/operations/history` | Объединённая лента **TRANSFER** и **INCOME** (личный контур) |
 | GET | `/companies` | Компании пользователя (в личном кабинете) |
 | GET | `/projects` | Проекты пользователя (в ресурсе — `my_wallet`, **`my_participation`** с `level` и `project_role_code` для клиента) |
 | GET | `/income-by-month` | Доход по месяцам (исполнительский контур) |
@@ -327,6 +329,7 @@ Middleware: `EnsurePersonalWorkspaceAccess` — пользователь с ак
 - **`TransferPendingActionCountService`** — число переводов с «обязательным» входящим шагом для пользователя (whitelist **`PENDING_BADGE_ACTION_KEYS`**, без опциональных действий вроде `complete_immediate`).
 - **`OperationVisibilityService::transferQueryForUserAcrossProjects`** — базовый запрос для агрегированной ленты переводов.
 - **`TransferRecipientListService`** + `ListTransferRecipientsController` — список получателей для UI.
+- **`AggregatedOperationsHistoryService`** — объединённая хронологическая лента **TRANSFER** и **INCOME** для **`GET …/operations/history`**.
 
 **ТЗ-05.2 v3 (сжато):** подотчётный перевод — получатели участники 1-го порядка (PROJECT_HEAD, PARTNER, EMPLOYEE); расчётный — контрагенты с автодобавлением 2-го уровня; 24 ч отсчитываются в UTC от `waiting_period_started_at`.
 
@@ -414,9 +417,9 @@ erDiagram
 
 - Базовые виджеты: `AppScaffold`, `AppCard`, `AppInput`, `AppButton`, тема `guru_theme.dart`.
 - **`AppScaffold`:** для заголовка с подзаголовком и блоком «имя / роль компании» задан увеличенный **`toolbarHeight`**, чтобы не обрезать название проекта и многострочную роль; подзаголовок до двух строк.
-- **Company workspace** (`CompanyWorkspaceShell`): нижняя навигация — «Главная», уведомления (заглушка), **«Операции»** — picker типа операции (**поступление** → `CreateIncomeScreen`, **перевод** → `CreateTransferScreen`, отчёт — заглушка); после успешного создания **перевода** — переход на вкладку **«Операции»**, snackbar успеха, обновление **`transferPendingActionCountProvider`**. На главной вкладке в шапке — **`LocaleSwitchButton`** (RU/EN), как на экранах авторизации.
-- **Главная компании** (`CompanyDashboardScreen`): реальные счётчики контрагентов и активных проектов (см. репозитории); карточка квартальной аналитики (метрики дохода/долга — плейсхолдеры до отчётов); столбики активных проектов по месяцам текущего квартала (`company_dashboard_stats.dart`). Плитка «История операций» → **`AggregatedTransfersHistoryScreen`** (пока только **переводы**); бейдж **`pending_action_count`** — из **`transferPendingActionCountProvider`** (только TRANSFER; для поступлений отдельный API `…/operations/incomes/pending-count`).
-- Живая работа с переводами также из **участников проекта** (⇄) → **`TransfersScreen`** / **`CreateTransferScreen`** / **`TransferDetailScreen`**: таймлайн **`status_history`**, кнопки по **`available_actions`**, при необходимости **`pushReplacement`** после POST; **`invalidate` pending** на возврате, не в момент нажатия на детали. **Поступления** — **`CreateIncomeScreen`**, **`IncomeDetailScreen`** (`IncomesRepository`).
+- **Company workspace** (`CompanyWorkspaceShell`): нижняя навигация — «Главная», уведомления (заглушка), **«Операции»** — picker типа операции (**поступление** → `CreateIncomeScreen`, **перевод** → `CreateTransferScreen`, отчёт — заглушка); после успешного создания **перевода** — переход на вкладку **«Операции»**, snackbar успеха, инвалидация провайдеров ожидания (в т.ч. **`combinedOperationsPendingCountProvider`**). На главной вкладке в шапке — **`LocaleSwitchButton`** (RU/EN), как на экранах авторизации.
+- **Главная компании** (`CompanyDashboardScreen`): реальные счётчики контрагентов и активных проектов (см. репозитории); карточка квартальной аналитики (метрики дохода/долга — плейсхолдеры до отчётов); столбики активных проектов по месяцам текущего квартала (`company_dashboard_stats.dart`). Плитка «История операций» → **`AggregatedTransfersHistoryScreen`** — данные из **`GET …/operations/history`** (объединённая лента); бейдж на плитке — **`combinedOperationsPendingCountProvider`** (TRANSFER + INCOME).
+- Живая работа с переводами также из **участников проекта** (⇄) → **`TransfersScreen`** / **`CreateTransferScreen`** / **`TransferDetailScreen`**: таймлайн **`status_history`**, кнопки по **`available_actions`**, при необходимости **`pushReplacement`** после POST; **`invalidate` pending** на возврате, не в момент нажатия на детали. Для POST с обязательным комментарием — **`showOperationCommentDialog`** (`operation_comment_dialog.dart`). **Поступления** — **`CreateIncomeScreen`**, **`IncomeDetailScreen`** (`IncomesRepository`).
 - **Personal workspace (исполнитель)** — вкладка **«Операции»** (`personal_operations_tab.dart`): пункт «Перевод» (только проекты, где `my_participation` = first + EMPLOYEE), список проектов → **`TransfersScreen`** / **`CreateTransferScreen`** с **`TransferApiScope.personal`**; «Отчёт» — disabled. Поставщик/подрядчик/2-й уровень: просмотр без кнопки создания (`canCreateTransfer: false`).
 - **Проекты** → **Участники** (`ProjectParticipantsScreen`): кошелёк, переводы; без дублирующей кнопки «Добавить» в списке (только иконка в app bar).
 
@@ -446,8 +449,8 @@ Flutter дублирует коды в:
 | Wallet foundation (TZ-04) | Таблица балансов, фабрика, API баланса, экран в приложении |
 | Operation lifecycle foundation (TZ-05A) | operations + status history + transition service + исключение 422 |
 | Performance foundation | Индексы, кэш словарей, стандарты пагинации |
-| Transfer operation (ТЗ-05.2 v3) | Полный контур: lifecycle, recipients API, POST **201** / разбор ответа на клиенте; планировщик 24 ч UTC; **`available_actions`**, pending-count, агрегированная история переводов; Flutter: дашборд компании, список/создание/деталь/история |
-| Income operation (ТЗ-06) | Backend: `income_operations`, `IncomeService`, `IncomeLifecycleService`, `IncomeBalanceService`, агрегированная история и pending-count, заказчик personal-workspace; Flutter: создание и деталь поступления |
+| Transfer operation (ТЗ-05.2 v3) | Полный контур: lifecycle, recipients API, POST **201** / разбор ответа на клиенте; планировщик 24 ч UTC; **`available_actions`**, pending-count; **`GET …/operations/history`** (с поступлениями); Flutter: дашборд/история, список/создание/деталь, диалог комментария для откатов |
+| Income operation (ТЗ-06) | Backend: `income_operations`, `IncomeService`, `IncomeLifecycleService`, `IncomeBalanceService`, агрегированная история и pending-count, заказчик personal-workspace; Flutter: создание, деталь, объединённая история операций и combined pending на дашборде/кабинете заказчика |
 | Вкладка «Операции» в нижнем меню компании | Контент вкладки — **плейсхолдер**; сценарии — через **picker** «Операции» и через **участников проекта** |
 
 ---
@@ -476,4 +479,4 @@ Flutter дублирует коды в:
 
 ---
 
-*Версия документа: 2026-05-09 — добавлены маршруты и домен INCOME (ТЗ-06), второй планировщик `complete-expired-income-waiting`, раздел `income_operations`; обновлены Flutter-сценарии и чеклист. Отражает кодовую базу GuruApp на указанную дату.*
+*Версия документа: 2026-05-11 — объединённая лента `GET …/operations/history`, `AggregatedOperationsHistoryService`, Flutter: `combinedOperationsPendingCountProvider`, `showOperationCommentDialog`; домен INCOME и TRANSFER по актуальному коду.*
