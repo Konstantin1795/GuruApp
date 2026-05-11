@@ -7,7 +7,7 @@ alwaysApply: true
 
 # GURU Git Commit Safety Standard
 
-When the user asks to commit, save version, or push changes:
+When the user asks to commit, save version, store a checkpoint, or push changes:
 
 1. Always run and show:
    - `git status --short`
@@ -22,7 +22,7 @@ When the user asks to commit, save version, or push changes:
 6. Before commit, always show:
    - `git diff --cached --stat`
    - `git diff --cached --name-status`
-7. Do not commit unrelated changes, `.vscode/`, `.env`, build artifacts, logs, temporary files, or `docs/OldDocs/` unless explicitly requested.
+7. Do not commit unrelated changes. Do not stage `.vscode/`, `.env`, build output, `.dart_tool/`, `node_modules/`, `vendor/`, logs, temporary files, or `docs/OldDocs/` unless the user explicitly asked for those paths.
 8. Use commit messages:
    - `feat(scope): summary`
    - `fix(scope): summary`

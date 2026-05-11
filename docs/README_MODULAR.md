@@ -29,6 +29,17 @@ docs/90_current/90_GURU_CURRENT_STATE.md
 
 **Архив:** `docs/OldDocs/` (в т.ч. `docs/OldDocs/legacy_monolith/`) — не канон без явного запроса.
 
+### Операционные документы (регрессия и Git)
+
+Имеет смысл держать под рукой при релизах и при работе с Git:
+
+```text
+docs/90_current/92_GURU_SMOKE_CHECKLIST.md
+docs/90_current/93_GURU_GIT_COMMIT_STANDARD.md
+```
+
+Стандарт безопасных коммитов подробно описан в **`docs/90_current/93_GURU_GIT_COMMIT_STANDARD.md`**; в Cursor он усиливается правилом **`.cursor/rules/guru-git-commit-standard.mdc`** (`alwaysApply: true`).
+
 ---
 
 ## Зачем разбили документы
