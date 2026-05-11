@@ -1,5 +1,36 @@
 # GURU — модульная документация для Cursor
 
+## Быстрый вход
+
+**Репозиторий:** GuruApp — `backend/` (Laravel API), `mobile_app/` (Flutter).  
+**Стек:** PHP 8.3 / Laravel 13 / Sanctum / PostgreSQL; Flutter / Riverpod / go_router / Dio.
+
+**Единая точка входа:** этот файл — `docs/README_MODULAR.md`. Часто достаточно приложить его вместе с **`docs/90_current/90_GURU_CURRENT_STATE.md`**.
+
+**Git и коммиты:** **`docs/90_current/93_GURU_GIT_COMMIT_STANDARD.md`** (в Cursor дублируется правилом `.cursor/rules/guru-git-commit-standard.mdc`).
+
+| Папка под `docs/` | Содержание | Как часто меняется |
+|-------------------|------------|---------------------|
+| **`00_core/`** | Постулаты, стандарты архитектуры, воркспейсы, домен | Редко |
+| **`10_operations/`** | Общие правила операций, TRANSFER, INCOME, REPORT (черновик) | При смене бизнес-логики операций |
+| **`20_api/`** | Маршруты, контракт ответа API | При добавлении/смене маршрутов |
+| **`30_flutter/`** | Архитектура клиента, UI, экраны | При развитии UI |
+| **`90_current/`** | Текущий снимок, шаблон задачи, smoke checklist, стандарт Git | Постоянно / операционные редко |
+
+Дефолтный «широкий» минимум без выбора сценария:
+
+```text
+docs/00_core/00_GURU_CORE_PRINCIPLES.md
+docs/00_core/02_GURU_WORKSPACES_AND_ACCESS.md
+docs/90_current/90_GURU_CURRENT_STATE.md
+```
+
+**Инвариант (одна строка):** два API-контура — `**/api/company-workspace/{companyId}/**` и `**/api/personal-workspace/**`; кошелёк у **`ProjectParticipant`**; объединённая история на клиенте — **`GET …/operations/history`** (TRANSFER + INCOME).
+
+**Архив:** `docs/OldDocs/` (в т.ч. `docs/OldDocs/legacy_monolith/`) — не канон без явного запроса.
+
+---
+
 ## Зачем разбили документы
 
 Раньше каноном были большие файлы с теми же именами; они перенесены в **`docs/OldDocs/legacy_monolith/`** и заменены модульными файлами ниже — так проще прикладывать в Cursor только нужное.
@@ -77,6 +108,7 @@
 30_flutter/32_FLUTTER_SCREENS_CURRENT.md
 90_current/90_GURU_CURRENT_STATE.md
 90_current/91_GURU_NEXT_TASK_TEMPLATE.md
+90_current/92_GURU_SMOKE_CHECKLIST.md
 ```
 
 ## Что менять редко
@@ -84,6 +116,7 @@
 Редко меняются:
 
 ```text
+90_current/93_GURU_GIT_COMMIT_STANDARD.md
 00_core/00_GURU_CORE_PRINCIPLES.md
 00_core/01_GURU_ARCHITECTURE_STANDARDS.md
 00_core/02_GURU_WORKSPACES_AND_ACCESS.md

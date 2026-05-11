@@ -1,0 +1,42 @@
+---
+description: GURU git commit safety standard
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# GURU Git Commit Safety Standard
+
+When the user asks to commit, save version, or push changes:
+
+1. Always run and show:
+   - `git status --short`
+   - current branch
+2. Never use `git add .` blindly.
+3. Split files into:
+   - related to current task
+   - unrelated
+   - unclear / needs user decision
+4. Use targeted `git add <path>` whenever possible.
+5. Handle deleted files with `git add -u <path>` or `git rm <path>`.
+6. Before commit, always show:
+   - `git diff --cached --stat`
+   - `git diff --cached --name-status`
+7. Do not commit unrelated changes, `.vscode/`, `.env`, build artifacts, logs, temporary files, or `docs/OldDocs/` unless explicitly requested.
+8. Use commit messages:
+   - `feat(scope): summary`
+   - `fix(scope): summary`
+   - `refactor(scope): summary`
+   - `docs: summary`
+   - `test(scope): summary`
+   - `chore(scope): summary`
+9. Run relevant checks when code changed:
+   - backend: `php artisan test`, `route:list`, `schedule:list`
+   - Flutter: `flutter gen-l10n`, `flutter analyze`
+10. Be honest if checks were not run.
+11. Push only if the user explicitly asked to push.
+12. After commit, show:
+   - commit hash
+   - commit message
+   - whether push was done
+   - remaining `git status --short`.
