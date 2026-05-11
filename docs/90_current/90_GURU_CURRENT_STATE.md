@@ -1,6 +1,8 @@
 # 90 — Current State
 
-**Обновлено:** 2026-02-09. Короткий снимок; детали — в `docs/README_MODULAR.md` и файлах `00_core` … `30_flutter`. Монолиты в `docs/OldDocs/legacy_monolith/` не канон.
+**Обновлено:** 2026-05-11. Короткий снимок; детали — в `docs/README_MODULAR.md` и файлах `00_core` … `30_flutter`. Монолиты в `docs/OldDocs/legacy_monolith/` не канон.
+
+**Документация:** каноничный вход — **`docs/README_MODULAR.md`** и модульные файлы под `docs/` (в т.ч. **`docs/90_current/90_GURU_CURRENT_STATE.md`**). Корневые **`PROJECT_CONTEXT_GURU.md`** и **`docs/GURU_CONTEXT_INDEX.md`** из репозитория **удалены** — отдельных «индексов» в корне больше нет.
 
 **Проверка статусов (факт кода):** TRANSFER и INCOME на backend + Flutter; единая лента `GET …/operations/history`; суммарный бейдж — `combinedOperationsPendingCountProvider`; операция REPORT, realtime и документы в продукте **не** реализованы.
 
@@ -54,5 +56,6 @@
 
 ## 6. Следующий крупный этап
 
-- Дальнейшее развитие **ТЗ-07** (UX проекта, аналитика, заказчик) поверх уже существующего detail/summary/internal-metrics.
-- После стабилизации операций — приоритетно обсуждаем **REPORT**, затем **документы** и **realtime** по отдельным ТЗ.
+- **ТЗ-10** — операция **REPORT** (опорный черновик: `docs/10_operations/13_OPERATION_REPORT_DRAFT.md`): проектирование и реализация по отдельному ТЗ.
+- Доработки **ТЗ-07** (UX проекта, заказчик, аналитика) поверх уже существующего detail / summary / internal-metrics — по приоритету продукта.
+- После REPORT — **документы** и **realtime** по отдельным ТЗ.
