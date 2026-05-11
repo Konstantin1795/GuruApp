@@ -60,6 +60,7 @@ docs/10_operations/10_OPERATION_COMMON_RULES.md
 docs/10_operations/11_OPERATION_TRANSFER.md
 docs/10_operations/12_OPERATION_INCOME.md
 docs/10_operations/13_OPERATION_REPORT_DRAFT.md
+docs/10_operations/14_PROJECT_EXPENSE_ITEMS.md
 docs/20_api/20_API_ROUTES_CURRENT.md
 docs/30_flutter/32_FLUTTER_SCREENS_CURRENT.md
 docs/90_current/90_GURU_CURRENT_STATE.md

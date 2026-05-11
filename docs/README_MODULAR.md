@@ -14,7 +14,7 @@
 | Папка под `docs/` | Содержание | Как часто меняется |
 |-------------------|------------|---------------------|
 | **`00_core/`** | Постулаты, стандарты архитектуры, воркспейсы, домен | Редко |
-| **`10_operations/`** | Общие правила операций, TRANSFER, INCOME, REPORT (черновик) | При смене бизнес-логики операций |
+| **`10_operations/`** | Общие правила операций, TRANSFER, INCOME, REPORT (черновик), статьи расходов проекта | При смене бизнес-логики операций |
 | **`20_api/`** | Маршруты, контракт ответа API | При добавлении/смене маршрутов |
 | **`30_flutter/`** | Архитектура клиента, UI, экраны | При развитии UI |
 | **`90_current/`** | Текущий снимок, шаблон задачи, smoke checklist, стандарт Git | Постоянно / операционные редко |
@@ -41,6 +41,7 @@ docs/90_current/93_GURU_GIT_COMMIT_STANDARD.md
 ```
 
 - `docs/90_current/91_GURU_NEXT_TASK_REPORT.md` — краткий контекст для нового Cursor-чата по ТЗ-10 «Отчёт» / REPORT.
+- `docs/10_operations/14_PROJECT_EXPENSE_ITEMS.md` — ТЗ-10A: статьи расходов проекта и уточнения к реализации (перед REPORT).
 
 Стандарт безопасных коммитов подробно описан в **`docs/90_current/93_GURU_GIT_COMMIT_STANDARD.md`**; в Cursor он усиливается правилом **`.cursor/rules/guru-git-commit-standard.mdc`** (`alwaysApply: true`).
 
@@ -111,6 +112,7 @@ docs/90_current/93_GURU_GIT_COMMIT_STANDARD.md
 10_operations/11_OPERATION_TRANSFER.md
 10_operations/12_OPERATION_INCOME.md
 10_operations/13_OPERATION_REPORT_DRAFT.md
+10_operations/14_PROJECT_EXPENSE_ITEMS.md
 90_current/91_GURU_NEXT_TASK_TEMPLATE.md
 ```
 
