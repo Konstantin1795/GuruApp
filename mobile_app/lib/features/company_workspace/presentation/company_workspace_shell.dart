@@ -4,11 +4,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/localization/app_localizations_extension.dart';
-import '../../../core/localization/locale_provider.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_input.dart';
 import '../../../core/widgets/app_scaffold.dart';
+import '../../auth/presentation/login_screen.dart' show LocaleSwitchButton;
 import '../../auth/providers.dart';
 import '../../counterparties/domain/counterparty.dart';
 import '../../projects/domain/project.dart';
@@ -19,7 +19,9 @@ import 'company_dashboard_screen.dart';
 import 'company_operations_placeholder_screen.dart';
 import 'company_projects_screen.dart';
 import 'company_workspace_identity.dart';
-import 'transfers_screen.dart';
+import '../../operations/data/transfers_api.dart';
+import '../../operations/providers.dart';
+import 'transfers_screen.dart' show CreateTransferScreen;
 
 class CompanyWorkspaceShell extends ConsumerStatefulWidget {
   final int companyId;
@@ -268,37 +270,30 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
     }
 
     if (selectedProject == null || !mounted) return;
+    final project = selectedProject;
 
-    await Navigator.of(context).push<bool>(
+    final created = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (_) => CreateTransferScreen(
           companyId: widget.companyId,
-          projectId: selectedProject!.id,
-          projectName: selectedProject.name,
+          projectId: project.id,
+          projectName: project.name,
         ),
       ),
     );
+
+    if (created == true && mounted) {
+      setState(() => _index = 3);
+      ref.invalidate(
+        transferPendingActionCountProvider(
+          (scope: TransferApiScope.company, companyId: widget.companyId),
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.transferCreated)),
+      );
+    }
   }
-
-  // ─── Language picker ──────────────────────────────────────────────────────
-
-  Future<void> _showLanguagePicker() async {
-    await showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) => _LanguagePickerSheet(
-        onSelect: (locale) {
-          Navigator.of(ctx).pop();
-          ref.read(localeProvider.notifier).setLocale(locale);
-        },
-      ),
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -314,7 +309,7 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
         ? nameFromApi
         : (nameFromWs != null && nameFromWs.isNotEmpty)
             ? nameFromWs
-            : 'Company #$companyId';
+            : l10n.companyWorkspaceFallbackName(companyId);
 
     final headerRole = companyWorkspaceHeaderRoleLabel(ref, companyId, l10n);
     final userName = ref.watch(currentUserProvider).valueOrNull?.name.trim() ?? '';
@@ -324,22 +319,11 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
       headerRoleLabel: headerRole,
       title: companyName,
       actions: [
-        if (_index == 0)
-          IconButton(
-            onPressed: _showLanguagePicker,
-            tooltip: l10n.changeLanguage,
-            icon: const Icon(Icons.translate_outlined),
-          ),
+        if (_index == 0) const LocaleSwitchButton(),
         IconButton(
           onPressed: () => context.go('/workspaces'),
           icon: const Icon(Icons.apps),
         ),
-        if (_index == 0)
-          IconButton(
-            onPressed: () => ScaffoldMessenger.of(context)
-                .showSnackBar(const SnackBar(content: Text('TODO: more'))),
-            icon: const Icon(Icons.more_vert),
-          ),
       ],
       body: IndexedStack(
         index: _index,
@@ -360,90 +344,6 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
         activeIndex: _index,
         onSelect: (i) => setState(() => _index = i),
         onOperations: _showOperationTypePicker,
-      ),
-    );
-  }
-}
-
-// ─── Language picker sheet ────────────────────────────────────────────────────
-
-class _LanguagePickerSheet extends ConsumerWidget {
-  final ValueChanged<Locale> onSelect;
-  const _LanguagePickerSheet({required this.onSelect});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final current = ref.watch(localeProvider);
-    final l10n = context.l10n;
-
-    Widget option(String flag, String label, Locale locale) {
-      final selected = current.languageCode == locale.languageCode;
-      return InkWell(
-        onTap: () => onSelect(locale),
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            color: selected ? AppColors.accentDim : Colors.white.withValues(alpha: 0.04),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: selected ? AppColors.accentBorder : AppColors.border,
-            ),
-          ),
-          child: Row(
-            children: [
-              Text(flag, style: const TextStyle(fontSize: 22)),
-              const SizedBox(width: 14),
-              Text(
-                label,
-                style: TextStyle(
-                  color: selected ? AppColors.accent : AppColors.textPrimary,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
-                  fontSize: 15,
-                ),
-              ),
-              if (selected) ...[
-                const Spacer(),
-                const Icon(Icons.check, color: AppColors.accent, size: 20),
-              ],
-            ],
-          ),
-        ),
-      );
-    }
-
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 20),
-                decoration: BoxDecoration(
-                  color: AppColors.textDisabled,
-                  borderRadius: BorderRadius.circular(99),
-                ),
-              ),
-            ),
-            Text(
-              l10n.language,
-              style: const TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 16),
-            option('🇷🇺', l10n.languageRu, const Locale('ru')),
-            option('🇬🇧', l10n.languageEn, const Locale('en')),
-          ],
-        ),
       ),
     );
   }

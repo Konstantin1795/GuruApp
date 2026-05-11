@@ -2,7 +2,7 @@ enum TransferTargetType {
   personalBalance,
   accountableBalance;
 
-  static TransferTargetType fromJson(String value) => switch (value) {
+  static TransferTargetType fromJson(String value) => switch (value.trim().toUpperCase()) {
         'PERSONAL_BALANCE' => personalBalance,
         'ACCOUNTABLE_BALANCE' => accountableBalance,
         _ => throw ArgumentError('Unknown TransferTargetType: $value'),

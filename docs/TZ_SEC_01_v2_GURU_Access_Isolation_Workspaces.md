@@ -94,6 +94,25 @@ Frontend:
 - localization foundation;
 - UI foundation.
 
+### 4.1 Дополнение — актуализация 2026-05-09
+
+Два backend-контура без смешения сохранены:
+
+- **`/api/company-workspace/{companyId}/…`** — OWNER/PARTNER компании;
+- **`/api/personal-workspace/…`** — личные роли (EMPLOYEE, SUPPLIER, CONTRACTOR, CUSTOMER и др.).
+
+**Flutter (имена оболочек в коде могут отличаться от черновиков «Worker/Customer workspace» в тексте ТЗ):**
+
+- **`CompanyWorkspaceShell`** — главная компании (дашборд), проекты, контрагенты; нижняя навигация и picker «Операции» (перевод / заглушки); язык **`LocaleSwitchButton`** на главной вкладке.
+- **`PersonalWorkspaceShell`** — личный кабинет исполнителя (проекты, операции, доход и т.д.); отдельного класса с именем `WorkerWorkspaceShell` в репозитории может не быть — это один personal-контур API.
+- **`CustomerWorkspaceShell`** — маршруты `/customer`, те же personal-workspace endpoints с фильтром роли заказчика.
+
+Сервисы доступа и видимости (эталонные имена в коде): **`EnsureCompanyWorkspaceAccess`**, **`EnsurePersonalWorkspaceAccess`**, **`ProjectVisibilityService`**, **`OperationVisibilityService`**, при необходимости **`WorkspaceResolver`** и связывание пользователя с контрагентом.
+
+Полная таблица маршрутов, экранов и сценариев перевода — **`PROJECT_CONTEXT_GURU.md`**, **`docs/GURU_FULL_PROJECT_BLUEPRINT.md`**.
+
+Сценарии изоляции **§24–§25** этого документа рекомендуется прогонять при изменениях доступа и списков workspace.
+
 ---
 
 ## 5. Главные архитектурные инварианты

@@ -266,6 +266,29 @@ class AppLocalizationsRu extends AppLocalizations {
   String get companyWorkspaceRoleHead => 'Руководитель компании';
 
   @override
+  String get dashboardQuarterAnalytics => 'Аналитика за квартал';
+
+  @override
+  String get dashboardMetricsPending => 'Данные отчёта — позже';
+
+  @override
+  String get dashboardProjectsTile => 'Проекты';
+
+  @override
+  String get dashboardCounterpartiesTile => 'Контрагенты';
+
+  @override
+  String get dashboardDocumentsSoon => 'Документы — скоро';
+
+  @override
+  String get dashboardAnalyticsSettingsSoon => 'Настройки аналитики — скоро';
+
+  @override
+  String companyWorkspaceFallbackName(int id) {
+    return 'Компания №$id';
+  }
+
+  @override
   String get roleEmployee => 'Сотрудник';
 
   @override
@@ -297,6 +320,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get participantsEmpty => 'Участников пока нет.';
+
+  @override
+  String get participantsEmptyHint =>
+      'Нажмите значок добавления участника вверху справа.';
 
   @override
   String get participantsErrorLoad => 'Не удалось загрузить участников.';

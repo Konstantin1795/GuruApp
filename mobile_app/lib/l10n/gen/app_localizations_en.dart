@@ -266,6 +266,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get companyWorkspaceRoleHead => 'Company head';
 
   @override
+  String get dashboardQuarterAnalytics => 'Quarter analytics';
+
+  @override
+  String get dashboardMetricsPending => 'From reports — coming soon';
+
+  @override
+  String get dashboardProjectsTile => 'Projects';
+
+  @override
+  String get dashboardCounterpartiesTile => 'Counterparties';
+
+  @override
+  String get dashboardDocumentsSoon => 'Documents — coming soon';
+
+  @override
+  String get dashboardAnalyticsSettingsSoon =>
+      'Analytics settings — coming soon';
+
+  @override
+  String companyWorkspaceFallbackName(int id) {
+    return 'Company #$id';
+  }
+
+  @override
   String get roleEmployee => 'Employee';
 
   @override
@@ -297,6 +321,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get participantsEmpty => 'No participants yet.';
+
+  @override
+  String get participantsEmptyHint => 'Tap the add icon in the top bar.';
 
   @override
   String get participantsErrorLoad => 'Failed to load participants.';

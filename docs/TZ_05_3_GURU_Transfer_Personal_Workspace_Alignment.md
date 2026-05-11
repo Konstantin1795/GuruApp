@@ -1,5 +1,21 @@
 # ТЗ-05.3 — Transfer Access & Personal Workspace Alignment GURU
 
+### Дополнение — состояние репозитория (2026-05-09)
+
+Актуальная архитектура и разнесение по файлам — в **`PROJECT_CONTEXT_GURU.md`** и **`docs/GURU_ARCHITECTURE_AND_STANDARDS.md`** (§6 маршруты, домен TRANSFER).
+
+| Тема ТЗ | В коде GuruApp |
+|---------|----------------|
+| Маршруты перевода в personal-workspace | `POST/GET … /api/personal-workspace/projects/{projectId}/operations/transfers…` и действия сотрудника по ТЗ |
+| Один домен transfer, без дублирования математики | Общие `TransferService`, `TransferLifecycleService`, `TransferBalanceService`, `PersonalWorkspaceTransferGuard` для контура доступа |
+| Агрегированная лента и «ожидают подтверждения» | Дополнительно: `GET …/operations/transfers/history`, `GET …/operations/transfers/pending-count` (company и personal) — не меняют правил ТЗ-05.3, расширяют UX |
+| Flutter (исполнитель) | `TransferApiScope.personal`, `PersonalWorkspaceShell`, создание/списки переводов |
+| Ответ `POST` создания перевода | HTTP **201**, тело `ok` + `data.transfer`; клиент проверяет `ok` и разбирает модель без небезопасных приведений строк (ложная ошибка при успешном создании исключена) |
+
+Разделы **§16–§21** ниже по-прежнему используются как чек-лист проверок и ревью.
+
+---
+
 ## 1. Цель
 
 Проверить и скорректировать реализацию операции **«Перевод»** после ТЗ-05.2 v3, чтобы она соответствовала архитектуре GURU по workspace-доступам, ролям, получателям и видимости операций.

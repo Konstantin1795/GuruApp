@@ -596,6 +596,48 @@ abstract class AppLocalizations {
   /// **'Company head'**
   String get companyWorkspaceRoleHead;
 
+  /// No description provided for @dashboardQuarterAnalytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Quarter analytics'**
+  String get dashboardQuarterAnalytics;
+
+  /// No description provided for @dashboardMetricsPending.
+  ///
+  /// In en, this message translates to:
+  /// **'From reports — coming soon'**
+  String get dashboardMetricsPending;
+
+  /// No description provided for @dashboardProjectsTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Projects'**
+  String get dashboardProjectsTile;
+
+  /// No description provided for @dashboardCounterpartiesTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Counterparties'**
+  String get dashboardCounterpartiesTile;
+
+  /// No description provided for @dashboardDocumentsSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents — coming soon'**
+  String get dashboardDocumentsSoon;
+
+  /// No description provided for @dashboardAnalyticsSettingsSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics settings — coming soon'**
+  String get dashboardAnalyticsSettingsSoon;
+
+  /// No description provided for @companyWorkspaceFallbackName.
+  ///
+  /// In en, this message translates to:
+  /// **'Company #{id}'**
+  String companyWorkspaceFallbackName(int id);
+
   /// No description provided for @roleEmployee.
   ///
   /// In en, this message translates to:
@@ -661,6 +703,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No participants yet.'**
   String get participantsEmpty;
+
+  /// No description provided for @participantsEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the add icon in the top bar.'**
+  String get participantsEmptyHint;
 
   /// No description provided for @participantsErrorLoad.
   ///

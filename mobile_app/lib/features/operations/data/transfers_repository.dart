@@ -75,9 +75,19 @@ class TransfersRepository {
       amount: amount,
       comment: comment,
     );
-    final data = (json['data'] as Map).cast<String, dynamic>();
-    final transfer = (data['transfer'] as Map).cast<String, dynamic>();
-    return TransferOperation.fromJson(transfer);
+    if (json['ok'] != true) {
+      throw StateError('create transfer: ok != true');
+    }
+    final rawData = json['data'];
+    if (rawData is! Map) {
+      throw StateError('create transfer: missing data');
+    }
+    final data = Map<String, dynamic>.from(rawData);
+    final rawTransfer = data['transfer'];
+    if (rawTransfer is! Map) {
+      throw StateError('create transfer: missing transfer');
+    }
+    return TransferOperation.fromJson(Map<String, dynamic>.from(rawTransfer));
   }
 
   Future<TransferDetailView> showDetail({

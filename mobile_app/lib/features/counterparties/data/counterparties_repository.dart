@@ -6,6 +6,16 @@ class CounterpartiesRepository {
   final CounterpartiesApi _api;
   CounterpartiesRepository(this._api);
 
+  /// Общее число контрагентов компании (без фильтров `q` / `company_role`).
+  Future<int> countCompany({required int companyId}) async {
+    final page = await listCompany(
+      companyId: companyId,
+      page: 1,
+      perPage: 1,
+    );
+    return page.pagination.total;
+  }
+
   Future<Paginated<Counterparty>> listCompany({
     required int companyId,
     required int page,

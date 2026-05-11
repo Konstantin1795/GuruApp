@@ -5,6 +5,18 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
+double _appBarToolbarHeight({
+  required bool hasIdentity,
+  required bool hasSubtitle,
+}) {
+  if (!hasIdentity) {
+    if (hasSubtitle) return 76;
+    return kToolbarHeight;
+  }
+  if (hasSubtitle) return 142;
+  return 108;
+}
+
 /// Standard screen wrapper for GURU.
 ///
 /// Provides a blurred AppBar with optional identity row ([headerUserName] /
@@ -37,47 +49,43 @@ class AppScaffold extends StatelessWidget {
     final role = headerRoleLabel?.trim() ?? '';
     final hasIdentity = name.isNotEmpty || role.isNotEmpty;
     final sub = subtitle?.trim();
+    final subStyle = AppTextStyles.label.copyWith(
+      color: AppColors.textSecondary,
+      fontSize: 13,
+      height: 1.25,
+    );
 
     if (hasIdentity) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (name.isNotEmpty)
-                Expanded(
-                  child: Text(
-                    name,
-                    style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                )
-              else
-                const Spacer(),
-              if (role.isNotEmpty) ...[
-                if (name.isNotEmpty) const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    role,
-                    style: AppTextStyles.label.copyWith(color: AppColors.textSecondary),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.end,
-                  ),
-                ),
-              ],
-            ],
-          ),
-          const SizedBox(height: 4),
+          if (name.isNotEmpty)
+            Text(
+              name,
+              style: AppTextStyles.bodyStrong,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          if (role.isNotEmpty) ...[
+            if (name.isNotEmpty) const SizedBox(height: 2),
+            Text(
+              role,
+              style: AppTextStyles.label.copyWith(color: AppColors.textSecondary),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+          const SizedBox(height: 6),
           Text(title, style: AppTextStyles.screenTitle),
           if (sub != null && sub.isNotEmpty) ...[
-            const SizedBox(height: 2),
+            const SizedBox(height: 4),
             Text(
               sub,
-              style: AppTextStyles.label.copyWith(color: AppColors.textSecondary),
+              style: subStyle,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              softWrap: true,
             ),
           ],
         ],
@@ -89,8 +97,14 @@ class AppScaffold extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(sub, style: AppTextStyles.label),
-          const SizedBox(height: 1),
+          Text(
+            sub,
+            style: subStyle,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            softWrap: true,
+          ),
+          const SizedBox(height: 2),
           Text(title, style: AppTextStyles.screenTitle),
         ],
       );
@@ -99,12 +113,24 @@ class AppScaffold extends StatelessWidget {
     return Text(title, style: AppTextStyles.screenTitle);
   }
 
+  double _toolbarHeight() {
+    final name = headerUserName?.trim() ?? '';
+    final role = headerRoleLabel?.trim() ?? '';
+    final hasIdentity = name.isNotEmpty || role.isNotEmpty;
+    final sub = subtitle?.trim();
+    return _appBarToolbarHeight(
+      hasIdentity: hasIdentity,
+      hasSubtitle: sub != null && sub.isNotEmpty,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: floatingActionButton,
       bottomNavigationBar: bottomNavigationBar,
       appBar: AppBar(
+        toolbarHeight: _toolbarHeight(),
         title: _appBarTitle(),
         actions: actions,
         flexibleSpace: ClipRect(

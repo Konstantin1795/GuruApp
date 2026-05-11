@@ -10,7 +10,8 @@ enum OperationStatus {
   rolledBack;
 
   static OperationStatus fromJson(String value) {
-    return switch (value.toUpperCase()) {
+    final v = value.trim().toUpperCase();
+    return switch (v) {
       'CREATED'                => created,
       'PROJECT_HEAD_APPROVAL'  => projectHeadApproval,
       'CUSTOMER_APPROVAL'      => customerApproval,

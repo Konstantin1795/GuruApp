@@ -170,9 +170,7 @@ class ProjectParticipantsScreen extends ConsumerWidget {
                       physics: const AlwaysScrollableScrollPhysics(),
                       child: ConstrainedBox(
                         constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                        child: _EmptyBody(
-                          onAdd: () => _showAddDialog(context, ref, key, []),
-                        ),
+                        child: const _EmptyBody(),
                       ),
                     );
                   },
@@ -181,8 +179,6 @@ class ProjectParticipantsScreen extends ConsumerWidget {
                   companyId: companyId,
                   projectId: project.id,
                   items: data.items,
-                  onAdd: () =>
-                      _showAddDialog(context, ref, key, data.items),
                 ),
         ),
       ),
@@ -260,13 +256,11 @@ class _ParticipantsList extends StatelessWidget {
   final int companyId;
   final int projectId;
   final List<ProjectParticipant> items;
-  final VoidCallback onAdd;
 
   const _ParticipantsList({
     required this.companyId,
     required this.projectId,
     required this.items,
-    required this.onAdd,
   });
 
   @override
@@ -276,25 +270,9 @@ class _ParticipantsList extends StatelessWidget {
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                '${items.length} ${_participantWord(items.length)}',
-                style: TextStyle(color: Colors.white.withValues(alpha: 0.55), fontSize: 13),
-              ),
-            ),
-            const SizedBox(width: 10),
-            // AppButton — full width через infinity; в Row нужна фикс. ширина (как на экране контрагентов).
-            SizedBox(
-              width: 132,
-              child: AppButton(
-                label: context.l10n.addParticipant,
-                icon: Icons.person_add_alt_1_outlined,
-                onPressed: onAdd,
-              ),
-            ),
-          ],
+        Text(
+          '${items.length} ${_participantWord(items.length)}',
+          style: TextStyle(color: Colors.white.withValues(alpha: 0.55), fontSize: 13),
         ),
         const SizedBox(height: 12),
         ...sorted.map(
@@ -619,8 +597,7 @@ Future<bool?> _showEditRoleDialog({
 // ─────────────────────────── Empty / Error ────────────────────────────────
 
 class _EmptyBody extends StatelessWidget {
-  final VoidCallback onAdd;
-  const _EmptyBody({required this.onAdd});
+  const _EmptyBody();
 
   @override
   Widget build(BuildContext context) {
@@ -639,12 +616,17 @@ class _EmptyBody extends StatelessWidget {
                 fontWeight: FontWeight.w700,
                 color: Colors.white.withValues(alpha: 0.8),
               ),
+              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
-            AppButton(
-              label: context.l10n.addParticipant,
-              icon: Icons.person_add_alt_1_outlined,
-              onPressed: onAdd,
+            const SizedBox(height: 16),
+            Text(
+              context.l10n.participantsEmptyHint,
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.35,
+                color: Colors.white.withValues(alpha: 0.5),
+              ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),

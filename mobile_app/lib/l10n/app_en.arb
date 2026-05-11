@@ -113,6 +113,19 @@
   "roleOwner": "Owner",
   "rolePartner": "Partner",
   "companyWorkspaceRoleHead": "Company head",
+
+  "dashboardQuarterAnalytics": "Quarter analytics",
+  "dashboardMetricsPending": "From reports — coming soon",
+  "dashboardProjectsTile": "Projects",
+  "dashboardCounterpartiesTile": "Counterparties",
+  "dashboardDocumentsSoon": "Documents — coming soon",
+  "dashboardAnalyticsSettingsSoon": "Analytics settings — coming soon",
+  "companyWorkspaceFallbackName": "Company #{id}",
+  "@companyWorkspaceFallbackName": {
+    "placeholders": {
+      "id": { "type": "int" }
+    }
+  },
   "roleEmployee": "Employee",
   "roleContractor": "Contractor",
   "roleSupplier": "Supplier",
@@ -125,6 +138,7 @@
   "participantCounterparty": "Counterparty",
   "participantRole": "Role",
   "participantsEmpty": "No participants yet.",
+  "participantsEmptyHint": "Tap the add icon in the top bar.",
   "participantsErrorLoad": "Failed to load participants.",
   "participantAdded": "Participant added",
   "participantRemoved": "Participant removed",

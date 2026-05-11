@@ -93,6 +93,19 @@
   "roleOwner": "Владелец",
   "rolePartner": "Партнёр",
   "companyWorkspaceRoleHead": "Руководитель компании",
+
+  "dashboardQuarterAnalytics": "Аналитика за квартал",
+  "dashboardMetricsPending": "Данные отчёта — позже",
+  "dashboardProjectsTile": "Проекты",
+  "dashboardCounterpartiesTile": "Контрагенты",
+  "dashboardDocumentsSoon": "Документы — скоро",
+  "dashboardAnalyticsSettingsSoon": "Настройки аналитики — скоро",
+  "companyWorkspaceFallbackName": "Компания №{id}",
+  "@companyWorkspaceFallbackName": {
+    "placeholders": {
+      "id": { "type": "int" }
+    }
+  },
   "roleEmployee": "Сотрудник",
   "roleContractor": "Подрядчик",
   "roleSupplier": "Поставщик",
@@ -105,6 +118,7 @@
   "participantCounterparty": "Контрагент",
   "participantRole": "Роль",
   "participantsEmpty": "Участников пока нет.",
+  "participantsEmptyHint": "Нажмите значок добавления участника вверху справа.",
   "participantsErrorLoad": "Не удалось загрузить участников.",
   "participantAdded": "Участник добавлен",
   "participantRemoved": "Участник удалён",

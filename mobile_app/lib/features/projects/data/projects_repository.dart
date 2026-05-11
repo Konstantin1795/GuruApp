@@ -17,6 +17,25 @@ class ProjectsRepository {
     return Paginated<Project>.fromJson(data, parseItem: Project.fromJson);
   }
 
+  Future<List<Project>> listAllCompany({
+    required int companyId,
+    int perPage = 50,
+  }) async {
+    final out = <Project>[];
+    var page = 1;
+    while (true) {
+      final batch = await listCompany(
+        companyId: companyId,
+        page: page,
+        perPage: perPage,
+      );
+      out.addAll(batch.items);
+      if (!batch.pagination.hasMore) break;
+      page++;
+    }
+    return out;
+  }
+
   Future<Paginated<Project>> listPersonal({
     required int page,
     required int perPage,

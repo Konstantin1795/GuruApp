@@ -1,11 +1,16 @@
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/localization/app_localizations_extension.dart';
+import '../../../l10n/gen/app_localizations.dart';
 import '../../operations/data/transfers_api.dart';
 import '../../operations/presentation/aggregated_transfers_history_screen.dart';
 import '../../operations/providers.dart';
+import '../domain/company_dashboard_stats.dart';
+import '../providers/company_dashboard_stats_provider.dart';
 
 class CompanyDashboardScreen extends ConsumerWidget {
   final int companyId;
@@ -24,9 +29,13 @@ class CompanyDashboardScreen extends ConsumerWidget {
   });
 
   static const _accent = Color(0xFF00D6C9);
+  static const _barLabelInside = Color(0xFF0A1E1C);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final statsAsync = ref.watch(companyDashboardStatsProvider(companyId));
+
     final pendingAsync = ref.watch(
       transferPendingActionCountProvider((scope: TransferApiScope.company, companyId: companyId)),
     );
@@ -35,69 +44,91 @@ class CompanyDashboardScreen extends ConsumerWidget {
 
     final pendingKey = (scope: TransferApiScope.company, companyId: companyId);
 
-    Future<void> refreshPendingCount() async {
+    Future<void> refreshAll() async {
+      ref.invalidate(companyDashboardStatsProvider(companyId));
       ref.invalidate(transferPendingActionCountProvider(pendingKey));
-      await ref.read(transferPendingActionCountProvider(pendingKey).future);
+      await Future.wait<void>([
+        ref.read(companyDashboardStatsProvider(companyId).future),
+        ref.read(transferPendingActionCountProvider(pendingKey).future),
+      ]);
     }
+
+    final cpValue = statsAsync.when(
+      data: (s) => '${s.counterpartiesTotal}',
+      loading: () => '…',
+      error: (_, _) => '—',
+    );
+    final projValue = statsAsync.when(
+      data: (s) => '${s.activeProjectsTotal}',
+      loading: () => '…',
+      error: (_, _) => '—',
+    );
 
     return RefreshIndicator(
       color: CompanyDashboardScreen._accent,
-      onRefresh: refreshPendingCount,
+      onRefresh: refreshAll,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
         children: [
-        _AnalyticsCard(),
-        const SizedBox(height: 14),
-        Row(
-          children: [
-            Expanded(
-              child: _MiniStatCard(
-                icon: Icons.work_outline,
-                title: 'Проекты',
-                value: '5',
-                onTap: onOpenProjects,
-                onAdd: onQuickCreateProject,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _MiniStatCard(
-                icon: Icons.group_outlined,
-                title: 'Контрагенты',
-                value: '5',
-                onTap: onOpenCounterparties,
-                onAdd: onQuickCreateCounterparty,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 14),
-        _WideNavTileGlass(
-          icon: Icons.folder_outlined,
-          title: 'Документы',
-          onTap: () => _toast(context, 'TODO: документы'),
-        ),
-        const SizedBox(height: 12),
-        _WideNavTileGlass(
-          icon: Icons.history,
-          title: 'История операций',
-          subtitle: 'Ожидают подтверждения',
-          badgeText: historyBadge,
-          onTap: () {
-            Navigator.of(context)
-                .push(
-              MaterialPageRoute<void>(
-                builder: (_) => AggregatedTransfersHistoryScreen(
-                  apiScope: TransferApiScope.company,
-                  companyId: companyId,
+          _AnalyticsCard(
+            accent: _accent,
+            barNumberColor: _barLabelInside,
+            l10n: l10n,
+            stats: statsAsync.valueOrNull,
+            loading: statsAsync.isLoading && statsAsync.valueOrNull == null,
+            statsError: statsAsync.hasError,
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: _MiniStatCard(
+                  icon: Icons.work_outline,
+                  title: l10n.dashboardProjectsTile,
+                  value: projValue,
+                  onTap: onOpenProjects,
+                  onAdd: onQuickCreateProject,
                 ),
               ),
-            )
-                .then((_) => refreshPendingCount());
-          },
-        ),
-      ],
+              const SizedBox(width: 12),
+              Expanded(
+                child: _MiniStatCard(
+                  icon: Icons.group_outlined,
+                  title: l10n.dashboardCounterpartiesTile,
+                  value: cpValue,
+                  onTap: onOpenCounterparties,
+                  onAdd: onQuickCreateCounterparty,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          _WideNavTileGlass(
+            icon: Icons.folder_outlined,
+            title: l10n.dashboardDocuments,
+            onTap: () => _toast(context, l10n.dashboardDocumentsSoon),
+          ),
+          const SizedBox(height: 12),
+          _WideNavTileGlass(
+            icon: Icons.history,
+            title: l10n.dashboardHistory,
+            subtitle: l10n.dashboardAwaitingConfirmation,
+            badgeText: historyBadge,
+            onTap: () {
+              Navigator.of(context)
+                  .push(
+                MaterialPageRoute<void>(
+                  builder: (_) => AggregatedTransfersHistoryScreen(
+                    apiScope: TransferApiScope.company,
+                    companyId: companyId,
+                  ),
+                ),
+              )
+                  .then((_) => refreshAll());
+            },
+          ),
+        ],
       ),
     );
   }
@@ -146,6 +177,22 @@ class _GlassCard extends StatelessWidget {
 }
 
 class _AnalyticsCard extends StatelessWidget {
+  final Color accent;
+  final Color barNumberColor;
+  final AppLocalizations l10n;
+  final CompanyDashboardStats? stats;
+  final bool loading;
+  final bool statsError;
+
+  const _AnalyticsCard({
+    required this.accent,
+    required this.barNumberColor,
+    required this.l10n,
+    required this.stats,
+    required this.loading,
+    required this.statsError,
+  });
+
   @override
   Widget build(BuildContext context) {
     return _GlassCard(
@@ -155,10 +202,10 @@ class _AnalyticsCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Аналитика за квартал',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  l10n.dashboardQuarterAnalytics,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
               IconButton(
@@ -176,28 +223,48 @@ class _AnalyticsCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Доход', style: TextStyle(color: Colors.white.withValues(alpha: 0.65))),
+                    Text(
+                      l10n.dashboardIncome,
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.65)),
+                    ),
                     const SizedBox(height: 4),
-                    const Text(
-                      '350 000,00',
+                    Text(
+                      '—',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: CompanyDashboardScreen._accent,
+                        color: accent,
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Text('Задолженность',
-                        style: TextStyle(color: Colors.white.withValues(alpha: 0.65))),
+                    Text(
+                      l10n.dashboardDebt,
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.65)),
+                    ),
                     const SizedBox(height: 4),
-                    const Text('57 456,00',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                    const Text(
+                      '—',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                    ),
                     const SizedBox(height: 10),
-                    Text('Переплата',
-                        style: TextStyle(color: Colors.white.withValues(alpha: 0.65))),
+                    Text(
+                      l10n.dashboardOverpayment,
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.65)),
+                    ),
                     const SizedBox(height: 4),
-                    const Text('745,00',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                    const Text(
+                      '—',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.dashboardMetricsPending,
+                      style: TextStyle(
+                        fontSize: 11,
+                        height: 1.3,
+                        color: Colors.white.withValues(alpha: 0.45),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -206,10 +273,18 @@ class _AnalyticsCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Активные проекты',
-                        style: TextStyle(color: Colors.white.withValues(alpha: 0.65))),
+                    Text(
+                      l10n.dashboardActiveProjects,
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.65)),
+                    ),
                     const SizedBox(height: 8),
-                    _Bars(),
+                    _QuarterProjectBars(
+                      accent: accent,
+                      numberColor: barNumberColor,
+                      bars: stats?.quarterBars,
+                      loading: loading,
+                      statsError: statsError,
+                    ),
                   ],
                 ),
               ),
@@ -221,37 +296,138 @@ class _AnalyticsCard extends StatelessWidget {
   }
 }
 
-class _Bars extends StatelessWidget {
+/// Столбики выровнены по нижнему краю (подписи месяцев на одной линии).
+class _QuarterProjectBars extends StatelessWidget {
+  final Color accent;
+  final Color numberColor;
+  final List<QuarterMonthBarData>? bars;
+  final bool loading;
+  final bool statsError;
+
+  static const double _chartHeight = 118;
+  static const double _maxBarPx = 86;
+  static const double _minBarPx = 6;
+
+  const _QuarterProjectBars({
+    required this.accent,
+    required this.numberColor,
+    required this.bars,
+    required this.loading,
+    required this.statsError,
+  });
+
   @override
   Widget build(BuildContext context) {
-    Widget bar(double h, {required String label, required String value, bool tiny = false}) {
-      return Column(
-        children: [
-          Container(
-            width: 44,
-            height: h,
-            alignment: Alignment.topCenter,
-            decoration: BoxDecoration(
-              color: CompanyDashboardScreen._accent,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
+    if (statsError && bars == null) {
+      return SizedBox(
+        height: _chartHeight,
+        child: Center(
+          child: Text(
+            '—',
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 20),
+          ),
+        ),
+      );
+    }
+    if (loading || bars == null || bars!.isEmpty) {
+      return SizedBox(
+        height: _chartHeight,
+        child: Center(
+          child: SizedBox(
+            width: 22,
+            height: 22,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: accent.withValues(alpha: 0.85),
             ),
           ),
-          const SizedBox(height: 6),
-          Text(label, style: TextStyle(color: Colors.white.withValues(alpha: 0.65), fontSize: 12)),
-        ],
+        ),
       );
     }
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final list = bars!;
+    final maxCount = list.map((e) => e.activeProjectsCount).reduce(math.max);
+    double barHeight(int count) {
+      if (maxCount == 0) return _minBarPx;
+      final r = count / maxCount;
+      return math.max(_minBarPx, r * _maxBarPx);
+    }
+
+    return SizedBox(
+      height: _chartHeight,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < list.length; i++) ...[
+            if (i > 0) const SizedBox(width: 8),
+            Expanded(
+              child: _BarColumn(
+                accent: accent,
+                numberColor: numberColor,
+                label: list[i].label,
+                count: list[i].activeProjectsCount,
+                barHeight: barHeight(list[i].activeProjectsCount),
+                maxBarPx: _maxBarPx,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _BarColumn extends StatelessWidget {
+  final Color accent;
+  final Color numberColor;
+  final String label;
+  final int count;
+  final double barHeight;
+  final double maxBarPx;
+
+  const _BarColumn({
+    required this.accent,
+    required this.numberColor,
+    required this.label,
+    required this.count,
+    required this.barHeight,
+    required this.maxBarPx,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        bar(92, label: 'фев', value: '7'),
-                      bar(24, label: 'мар', value: ''),
-        bar(84, label: 'апр', value: '6'),
+        Expanded(
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              width: 40,
+              height: barHeight.clamp(0, maxBarPx + 8),
+              alignment: Alignment.topCenter,
+              padding: const EdgeInsets.only(top: 5),
+              decoration: BoxDecoration(
+                color: accent,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '$count',
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                  color: numberColor,
+                  height: 1,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          label,
+          style: TextStyle(color: Colors.white.withValues(alpha: 0.65), fontSize: 12),
+        ),
       ],
     );
   }
@@ -395,4 +571,3 @@ class _WideNavTileGlass extends StatelessWidget {
     );
   }
 }
-

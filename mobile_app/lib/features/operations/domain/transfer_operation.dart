@@ -54,6 +54,13 @@ class TransferOperation {
       return v.toString();
     }
 
+    /// API может отличаться по типам полей (null / число / другой тип); строгие `as String?` давали падение после успешного POST.
+    String? readOptString(dynamic v) {
+      if (v == null) return null;
+      if (v is String) return v;
+      return v.toString();
+    }
+
     return TransferOperation(
       id: readInt(json['id']),
       operationId: readInt(json['operation_id']),
@@ -61,15 +68,15 @@ class TransferOperation {
       initiatorProjectParticipantId: readInt(json['initiator_project_participant_id']),
       senderProjectParticipantId: readInt(json['sender_project_participant_id']),
       receiverProjectParticipantId: readInt(json['receiver_project_participant_id']),
-      senderName: json['sender_name'] as String?,
-      receiverName: json['receiver_name'] as String?,
+      senderName: readOptString(json['sender_name']),
+      receiverName: readOptString(json['receiver_name']),
       targetType: TransferTargetType.fromJson((json['transfer_target_type'] ?? '').toString()),
       amount: readAmount(json['amount']),
-      comment: json['comment'] as String?,
+      comment: readOptString(json['comment']),
       status: OperationStatus.fromJson((json['operation_status'] ?? '').toString()),
       createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) : null,
       updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at'].toString()) : null,
-      projectName: json['project_name'] as String?,
+      projectName: readOptString(json['project_name']),
     );
   }
 
