@@ -113,7 +113,23 @@ combinedOperationsPendingCountProvider
 ```text
 CompanyProjectsScreen
 CreateProject flow
+ProjectDetailScreen
+ProjectParticipantsScreen
+ProjectInternalMetricsSection (на экране участников, если API разрешил can_view_internal_metrics)
 ```
+
+Навигация к деталям проекта из списка компании / личного кабинета.
+
+**ProjectDetailScreen** (`project_detail_screen.dart`):
+
+```text
+projectSummaryProvider → GET …/projects/{id}/summary
+карточка метрик (доход / расход / баланс из summary)
+кнопка истории операций → AggregatedOperationsHistoryScreen (company)
+меню: участники, переводы (company), заглушки статей/документов/статуса
+```
+
+**Внутренние метрики** (`internal-metrics`): данные через `projectInternalMetricsProvider` / **`GET …/projects/{id}/internal-metrics`**; виджет **`ProjectInternalMetricsSection`** подключается на **`ProjectParticipantsScreen`**, если в summary **`can_view_internal_metrics`**.
 
 Проект создаётся с:
 
@@ -146,6 +162,7 @@ create
 ```text
 ProjectParticipantsScreen
 ParticipantWalletScreen
+ProjectInternalMetricsSection (условно, см. §5 Projects)
 ```
 
 Сценарии:
@@ -157,6 +174,7 @@ edit role
 delete participant
 open wallet
 open transfers
+просмотр внутренних метрик проекта (если есть право)
 ```
 
 ---
@@ -206,7 +224,7 @@ IncomeDetailScreen
 Текущий экран:
 
 ```text
-AggregatedTransfersHistoryScreen
+AggregatedOperationsHistoryScreen
 ```
 
 Фактически показывает:
@@ -219,12 +237,6 @@ TRANSFER + INCOME
 
 ```text
 GET .../operations/history
-```
-
-Примечание:
-
-```text
-Название экрана устарело. Позже лучше переименовать в AggregatedOperationsHistoryScreen.
 ```
 
 ---

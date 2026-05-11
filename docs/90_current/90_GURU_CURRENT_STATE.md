@@ -1,6 +1,6 @@
 # 90 — Current State
 
-**Обновлено:** 2026-05-09. Короткий снимок; детали — в `docs/README_MODULAR.md` и файлах `00_core` … `30_flutter`. Монолиты в `docs/OldDocs/legacy_monolith/` не канон.
+**Обновлено:** 2026-02-09. Короткий снимок; детали — в `docs/README_MODULAR.md` и файлах `00_core` … `30_flutter`. Монолиты в `docs/OldDocs/legacy_monolith/` не канон.
 
 **Проверка статусов (факт кода):** TRANSFER и INCOME на backend + Flutter; единая лента `GET …/operations/history`; суммарный бейдж — `combinedOperationsPendingCountProvider`; операция REPORT, realtime и документы в продукте **не** реализованы.
 
@@ -11,7 +11,7 @@
 - **Auth:** register, token, me, logout (Sanctum).
 - **Workspaces:** список, company / personal / customer UX; создание компании.
 - **Companies / counterparties:** текущая компания, список и создание контрагента, привязка по email (invite-first).
-- **Projects:** список/создание; автосоздание PROJECT_HEAD и CUSTOMER; участники; кошельки участников (`ProjectParticipantWallet`, фабрика/баланс).
+- **Projects:** список/создание; автосоздание PROJECT_HEAD и CUSTOMER; участники; кошельки участников (`ProjectParticipantWallet`, фабрика/баланс); API **`GET …/projects/{id}/summary`** и **`GET …/projects/{id}/internal-metrics`** (company + personal); Flutter **`ProjectDetailScreen`** (карточка метрик из summary, переход к истории операций, разделы); при **`can_view_internal_metrics`** — блок внутренних метрик на **`ProjectParticipantsScreen`** (`ProjectInternalMetricsSection`).
 - **TRANSFER:** полный lifecycle в сервисах Operations, маршруты company + personal, Flutter create / list / detail, `available_actions`, pending-count.
 - **INCOME:** lifecycle, маршруты, Flutter create / detail, действия заказчика, pending-count.
 - **Unified operations:** `GET …/operations/history` (TRANSFER + INCOME); на клиенте объединённая лента и **`combinedOperationsPendingCountProvider`** (сумма pending по TRANSFER и INCOME для scope).
@@ -23,8 +23,8 @@
 ## 2. Частично реализовано
 
 - Вкладка **«Операции»** в нижнем меню компании — оболочка / точки входа; не полноценный «операционный центр».
-- **Дашборд компании:** часть блоков (квартальная аналитика и т.п.) — заглушки до REPORT и ТЗ-07.
-- **Статистика проекта** у исполнителя — базово; расширенная аналитика — позже.
+- **Дашборд компании:** часть блоков (квартальная аналитика и т.п.) — заглушки до REPORT и полной ТЗ-07 по аналитике.
+- **Метрики проекта:** сводка и внутренний блок метрик по API есть; часть полей internal-metrics — осмысленные суммы из кошельков, часть — плейсхолдеры до REPORT (см. сервисы Projects).
 
 ---
 
@@ -40,8 +40,7 @@
 
 ## 4. Текущий технический долг
 
-- Виджет **`AggregatedTransfersHistoryScreen`** по смыслу уже «операции», имя файла/класса историческое — при желании переименовать без смены поведения.
-- Дашборд/метрики ждут ТЗ-07; до этого не раздувать placeholder-логику.
+- Дашборд компании и «полная» финансовая аналитика без REPORT; не раздувать placeholder-логику до отдельного ТЗ.
 
 ---
 
@@ -55,5 +54,5 @@
 
 ## 6. Следующий крупный этап
 
-- **ТЗ-07:** UI проекта и метрики (детальный экран проекта, показатели для исполнителя/заказчика в рамках согласованного объёма).
+- Дальнейшее развитие **ТЗ-07** (UX проекта, аналитика, заказчик) поверх уже существующего detail/summary/internal-metrics.
 - После стабилизации операций — приоритетно обсуждаем **REPORT**, затем **документы** и **realtime** по отдельным ТЗ.

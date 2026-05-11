@@ -44,6 +44,8 @@ GET /companies/current
 ```http
 GET  /projects
 POST /projects
+GET  /projects/{projectId}/summary
+GET  /projects/{projectId}/internal-metrics
 ```
 
 ### Counterparties
@@ -144,6 +146,8 @@ POST /projects/{projectId}/operations/incomes/{incomeId}/rollback-completed
 GET /context
 GET /companies
 GET /projects
+GET /projects/{projectId}/summary
+GET /projects/{projectId}/internal-metrics
 GET /income-by-month
 ```
 
