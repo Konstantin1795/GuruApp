@@ -36,6 +36,16 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/projects', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\CreateProjectController::class);
             Route::get('/projects/{projectId}/summary', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\GetProjectSummaryController::class);
             Route::get('/projects/{projectId}/internal-metrics', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\GetProjectInternalMetricsController::class);
+
+            Route::get('/projects/{projectId}/expense-items/recipients', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\ListProjectExpenseItemRecipientsController::class);
+            Route::get('/projects/{projectId}/expense-items', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\ListProjectExpenseItemsController::class);
+            Route::post('/projects/{projectId}/expense-items', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\CreateProjectExpenseItemController::class);
+            Route::get('/projects/{projectId}/expense-items/{expenseItemId}', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\ShowProjectExpenseItemController::class)
+                ->whereNumber('expenseItemId');
+            Route::patch('/projects/{projectId}/expense-items/{expenseItemId}', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\PatchProjectExpenseItemController::class)
+                ->whereNumber('expenseItemId');
+            Route::delete('/projects/{projectId}/expense-items/{expenseItemId}', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\DeleteProjectExpenseItemController::class)
+                ->whereNumber('expenseItemId');
             Route::get('/projects/{projectId}/operations/transfers/recipients', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ListTransferRecipientsController::class);
             Route::get('/projects/{projectId}/operations/transfers', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ListTransfersController::class);
             Route::post('/projects/{projectId}/operations/transfers', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\CreateTransferController::class);

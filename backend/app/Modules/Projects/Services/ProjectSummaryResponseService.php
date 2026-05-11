@@ -13,6 +13,7 @@ final class ProjectSummaryResponseService
     public function __construct(
         private readonly ProjectSummaryMetricsService $metrics,
         private readonly ProjectSummaryVisibilityService $visibility,
+        private readonly ProjectExpenseItemAccessService $expenseItemAccess,
     ) {}
 
     /**
@@ -29,6 +30,16 @@ final class ProjectSummaryResponseService
         $visibility = $companyId !== null
             ? $this->visibility->flagsForCompanyWorkspace($user, $companyId, $project)
             : $this->visibility->flagsForPersonalWorkspace($user, $project);
+
+        $visibility = array_merge(
+            $visibility,
+            $companyId !== null
+                ? $this->expenseItemAccess->visibilityFlagsForSummary($user, $companyId, $project)
+                : [
+                    'can_view_expense_items' => false,
+                    'can_manage_expense_items' => false,
+                ],
+        );
 
         return [
             'project' => [

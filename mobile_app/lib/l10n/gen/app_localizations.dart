@@ -1549,6 +1549,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No projects where you can create a transfer.'**
   String get personalOperationsNoTransferProjects;
+
+  /// No description provided for @expenseItemsEmptyState.
+  ///
+  /// In en, this message translates to:
+  /// **'No expense categories yet.'**
+  String get expenseItemsEmptyState;
+
+  /// No description provided for @createExpenseItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Create expense category'**
+  String get createExpenseItem;
+
+  /// No description provided for @editExpenseItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit expense category'**
+  String get editExpenseItem;
+
+  /// No description provided for @expenseItemName.
+  ///
+  /// In en, this message translates to:
+  /// **'Category name'**
+  String get expenseItemName;
+
+  /// No description provided for @profitShares.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit shares'**
+  String get profitShares;
+
+  /// No description provided for @addProfitRecipient.
+  ///
+  /// In en, this message translates to:
+  /// **'Add recipients'**
+  String get addProfitRecipient;
+
+  /// No description provided for @markupOnExpenseItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Markup on category'**
+  String get markupOnExpenseItem;
+
+  /// No description provided for @markupPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'Markup percent'**
+  String get markupPercent;
+
+  /// No description provided for @markupShares.
+  ///
+  /// In en, this message translates to:
+  /// **'Markup shares'**
+  String get markupShares;
+
+  /// No description provided for @addMarkupRecipient.
+  ///
+  /// In en, this message translates to:
+  /// **'Add markup recipients'**
+  String get addMarkupRecipient;
+
+  /// No description provided for @recipients.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipients'**
+  String get recipients;
+
+  /// No description provided for @companyCounterpartiesTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Company counterparties'**
+  String get companyCounterpartiesTab;
+
+  /// No description provided for @markupDisabledLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Markup off'**
+  String get markupDisabledLabel;
+
+  /// No description provided for @expenseItemNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a category name.'**
+  String get expenseItemNameRequired;
+
+  /// No description provided for @profitRecipientsRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one profit recipient.'**
+  String get profitRecipientsRequired;
+
+  /// No description provided for @markupRecipientsRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one markup recipient.'**
+  String get markupRecipientsRequired;
+
+  /// No description provided for @markupPercentInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter markup percent with two decimal places (step 0.01%).'**
+  String get markupPercentInvalid;
+
+  /// No description provided for @percentFormatHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Use two decimal places for shares (e.g. 33.33).'**
+  String get percentFormatHint;
+
+  /// No description provided for @percentHintShort.
+  ///
+  /// In en, this message translates to:
+  /// **'0.00'**
+  String get percentHintShort;
+
+  /// No description provided for @deleteExpenseItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete category'**
+  String get deleteExpenseItem;
+
+  /// No description provided for @deleteExpenseItemConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this expense category? This cannot be undone in the app.'**
+  String get deleteExpenseItemConfirm;
+
+  /// No description provided for @profitSharesMustEqualHundred.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit shares must total exactly 100.00%.'**
+  String get profitSharesMustEqualHundred;
+
+  /// No description provided for @markupSharesMustEqualHundred.
+  ///
+  /// In en, this message translates to:
+  /// **'Markup shares must total exactly 100.00%.'**
+  String get markupSharesMustEqualHundred;
+
+  /// No description provided for @expenseItemDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense category deleted.'**
+  String get expenseItemDeleted;
 }
 
 class _AppLocalizationsDelegate

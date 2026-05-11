@@ -56,12 +56,16 @@ class ProjectSummaryVisibility {
   final bool canViewParticipants;
   final bool canCreateIncome;
   final bool canCreateTransfer;
+  final bool canViewExpenseItems;
+  final bool canManageExpenseItems;
 
   const ProjectSummaryVisibility({
     required this.canViewInternalMetrics,
     required this.canViewParticipants,
     required this.canCreateIncome,
     required this.canCreateTransfer,
+    required this.canViewExpenseItems,
+    required this.canManageExpenseItems,
   });
 
   factory ProjectSummaryVisibility.fromJson(Map<String, dynamic> json) => ProjectSummaryVisibility(
@@ -69,6 +73,8 @@ class ProjectSummaryVisibility {
         canViewParticipants: json['can_view_participants'] as bool? ?? false,
         canCreateIncome: json['can_create_income'] as bool? ?? false,
         canCreateTransfer: json['can_create_transfer'] as bool? ?? false,
+        canViewExpenseItems: json['can_view_expense_items'] as bool? ?? false,
+        canManageExpenseItems: json['can_manage_expense_items'] as bool? ?? false,
       );
 }
 

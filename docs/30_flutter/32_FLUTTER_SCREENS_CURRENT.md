@@ -114,6 +114,9 @@ combinedOperationsPendingCountProvider
 CompanyProjectsScreen
 CreateProject flow
 ProjectDetailScreen
+ProjectExpenseItemsScreen
+CreateEditProjectExpenseItemScreen
+ExpenseItemRecipientPickerSheet (bottom sheet)
 ProjectParticipantsScreen
 ProjectInternalMetricsSection (на экране участников, если API разрешил can_view_internal_metrics)
 ```
@@ -126,8 +129,12 @@ ProjectInternalMetricsSection (на экране участников, если 
 projectSummaryProvider → GET …/projects/{id}/summary
 карточка метрик (доход / расход / баланс из summary)
 кнопка истории операций → AggregatedOperationsHistoryScreen (company)
-меню: участники, переводы (company), заглушки статей/документов/статуса
+меню: при can_view_expense_items → статьи расходов (список); участники; переводы (company); заглушки документов/статуса
 ```
+
+Флаги **`can_view_expense_items`** и **`can_manage_expense_items`** приходят в **`visibility`** ответа summary (company workspace). Пункт «Статьи расходов» не показывается, если **`can_view_expense_items`** = false.
+
+**Статьи расходов проекта** (ТЗ-10A): провайдеры **`projectExpenseItemsProvider`**, **`projectExpenseItemDetailProvider`**, **`projectExpenseItemRecipientsProvider`**; API префикс **`…/projects/{projectId}/expense-items`** (см. `20_API_ROUTES_CURRENT.md`). Выбор получателей долей — **`ExpenseItemRecipientPickerSheet`**: один список **контрагентов компании**, поиск и множественный выбор (без вкладок «участники / контрагенты» в MVP).
 
 **Внутренние метрики** (`internal-metrics`): данные через `projectInternalMetricsProvider` / **`GET …/projects/{id}/internal-metrics`**; виджет **`ProjectInternalMetricsSection`** подключается на **`ProjectParticipantsScreen`**, если в summary **`can_view_internal_metrics`**.
 

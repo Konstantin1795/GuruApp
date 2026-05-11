@@ -761,4 +761,81 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get personalOperationsNoTransferProjects =>
       'No projects where you can create a transfer.';
+
+  @override
+  String get expenseItemsEmptyState => 'No expense categories yet.';
+
+  @override
+  String get createExpenseItem => 'Create expense category';
+
+  @override
+  String get editExpenseItem => 'Edit expense category';
+
+  @override
+  String get expenseItemName => 'Category name';
+
+  @override
+  String get profitShares => 'Profit shares';
+
+  @override
+  String get addProfitRecipient => 'Add recipients';
+
+  @override
+  String get markupOnExpenseItem => 'Markup on category';
+
+  @override
+  String get markupPercent => 'Markup percent';
+
+  @override
+  String get markupShares => 'Markup shares';
+
+  @override
+  String get addMarkupRecipient => 'Add markup recipients';
+
+  @override
+  String get recipients => 'Recipients';
+
+  @override
+  String get companyCounterpartiesTab => 'Company counterparties';
+
+  @override
+  String get markupDisabledLabel => 'Markup off';
+
+  @override
+  String get expenseItemNameRequired => 'Enter a category name.';
+
+  @override
+  String get profitRecipientsRequired => 'Add at least one profit recipient.';
+
+  @override
+  String get markupRecipientsRequired => 'Add at least one markup recipient.';
+
+  @override
+  String get markupPercentInvalid =>
+      'Enter markup percent with two decimal places (step 0.01%).';
+
+  @override
+  String get percentFormatHint =>
+      'Use two decimal places for shares (e.g. 33.33).';
+
+  @override
+  String get percentHintShort => '0.00';
+
+  @override
+  String get deleteExpenseItem => 'Delete category';
+
+  @override
+  String get deleteExpenseItemConfirm =>
+      'Delete this expense category? This cannot be undone in the app.';
+
+  @override
+  String get profitSharesMustEqualHundred =>
+      'Profit shares must total exactly 100.00%.';
+
+  @override
+  String get markupSharesMustEqualHundred =>
+      'Markup shares must total exactly 100.00%.';
+
+  @override
+  String get expenseItemDeleted => 'Expense category deleted.';
 }

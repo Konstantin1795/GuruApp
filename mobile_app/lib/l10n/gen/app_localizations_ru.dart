@@ -760,4 +760,83 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get personalOperationsNoTransferProjects =>
       'Нет проектов, где доступно создание перевода.';
+
+  @override
+  String get expenseItemsEmptyState => 'Пока нет статей расходов.';
+
+  @override
+  String get createExpenseItem => 'Создать статью';
+
+  @override
+  String get editExpenseItem => 'Редактировать статью';
+
+  @override
+  String get expenseItemName => 'Название статьи расходов';
+
+  @override
+  String get profitShares => 'Доли прибыли';
+
+  @override
+  String get addProfitRecipient => 'Добавить получателей';
+
+  @override
+  String get markupOnExpenseItem => 'Наценка на статью';
+
+  @override
+  String get markupPercent => 'Процент наценки';
+
+  @override
+  String get markupShares => 'Доли наценки';
+
+  @override
+  String get addMarkupRecipient => 'Добавить получателей наценки';
+
+  @override
+  String get recipients => 'Получатели';
+
+  @override
+  String get companyCounterpartiesTab => 'Контрагенты компании';
+
+  @override
+  String get markupDisabledLabel => 'Наценка выключена';
+
+  @override
+  String get expenseItemNameRequired => 'Укажите название статьи.';
+
+  @override
+  String get profitRecipientsRequired =>
+      'Добавьте хотя бы одного получателя прибыли.';
+
+  @override
+  String get markupRecipientsRequired =>
+      'Добавьте хотя бы одного получателя наценки.';
+
+  @override
+  String get markupPercentInvalid =>
+      'Укажите процент наценки с двумя знаками после запятой (шаг 0,01%).';
+
+  @override
+  String get percentFormatHint =>
+      'Используйте два знака после запятой для долей (например 33,33).';
+
+  @override
+  String get percentHintShort => '0,00';
+
+  @override
+  String get deleteExpenseItem => 'Удалить статью';
+
+  @override
+  String get deleteExpenseItemConfirm =>
+      'Удалить эту статью расходов? В приложении восстановление недоступно.';
+
+  @override
+  String get profitSharesMustEqualHundred =>
+      'Сумма долей прибыли должна быть ровно 100,00%.';
+
+  @override
+  String get markupSharesMustEqualHundred =>
+      'Сумма долей наценки должна быть ровно 100,00%.';
+
+  @override
+  String get expenseItemDeleted => 'Статья расходов удалена.';
 }

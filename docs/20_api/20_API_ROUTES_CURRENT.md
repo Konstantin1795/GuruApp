@@ -46,7 +46,16 @@ GET  /projects
 POST /projects
 GET  /projects/{projectId}/summary
 GET  /projects/{projectId}/internal-metrics
+
+GET    /projects/{projectId}/expense-items/recipients?search=
+GET    /projects/{projectId}/expense-items
+POST   /projects/{projectId}/expense-items
+GET    /projects/{projectId}/expense-items/{expenseItemId}
+PATCH  /projects/{projectId}/expense-items/{expenseItemId}
+DELETE /projects/{projectId}/expense-items/{expenseItemId}
 ```
+
+`expenseItemId` — только числовой сегмент; маршрут `…/recipients` объявлен выше параметрического `…/{expenseItemId}`.
 
 ### Counterparties
 

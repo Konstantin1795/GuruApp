@@ -19,6 +19,7 @@ import '../../operations/presentation/aggregated_operations_history_screen.dart'
 import '../domain/project.dart';
 import '../domain/project_summary.dart';
 import '../domain/project_workspace_scope.dart';
+import '../presentation/project_expense_items_screen.dart';
 import '../providers.dart';
 
 /// Экран проекта (ТЗ-07): метрики, разделы, переход к участникам и операциям.
@@ -277,15 +278,26 @@ class _SectionMenu extends StatelessWidget {
           },
         ),
       );
-      tiles.add(
-        _MenuTile(
-          icon: Icons.category_outlined,
-          label: l10n.projectExpenseArticles,
-          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.projectComingSoonSnippet)),
+      if (v.canViewExpenseItems) {
+        tiles.add(
+          _MenuTile(
+            icon: Icons.receipt_long_rounded,
+            label: l10n.projectExpenseArticles,
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => ProjectExpenseItemsScreen(
+                    companyId: summary.project.companyId,
+                    projectId: summary.project.id,
+                    projectName: summary.project.name,
+                    canManage: v.canManageExpenseItems,
+                  ),
+                ),
+              );
+            },
           ),
-        ),
-      );
+        );
+      }
       tiles.add(
         _MenuTile(
           icon: Icons.description_outlined,
