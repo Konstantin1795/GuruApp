@@ -7,9 +7,8 @@ alwaysApply: true
 
 Монорепозиторий: `backend/` (Laravel), `mobile_app/` (Flutter).
 
-**Минимальная точка входа:** `docs/GURU_CONTEXT_INDEX.md`.  
-**Какие файлы прикладывать под задачу:** `docs/README_MODULAR.md`.  
-Корень репозитория: `PROJECT_CONTEXT_GURU.md` — указатель на `docs/`.
+**Точка входа:** `docs/README_MODULAR.md` (карта модулей + сценарии вложений в Cursor).  
+**Текущий снимок:** `docs/90_current/90_GURU_CURRENT_STATE.md`.
 
 | Папка | Назначение |
 |------|------------|
@@ -19,6 +18,6 @@ alwaysApply: true
 | `docs/30_flutter/` | Архитектура Flutter, UI, экраны |
 | `docs/90_current/` | Текущее состояние и шаблон следующей задачи |
 
-**Не опираться на** `docs/OldDocs/` без явного запроса пользователя.
+**`docs/OldDocs/`** — архив для сверки, **не канон**; не опираться без явного запроса пользователя.
 
 **Инвариант:** не смешивать company-workspace и personal-workspace (разные префиксы и middleware). Финансы и переходы операций — только в сервисах Operations, не в контроллерах/UI. Диалог обязательного комментария к действию — только через **`showOperationCommentDialog`** (контроллер в `State` диалога).
