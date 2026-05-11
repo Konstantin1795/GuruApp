@@ -1,4 +1,5 @@
 import '../../../core/api/api_models.dart';
+import '../domain/aggregated_history_item.dart';
 import '../domain/transfer_detail_view.dart';
 import '../domain/transfer_operation.dart';
 import '../domain/transfer_recipient_pick.dart';
@@ -132,6 +133,23 @@ class TransfersRepository {
     );
     final data = (json['data'] as Map).cast<String, dynamic>();
     return Paginated<TransferOperation>.fromJson(data, parseItem: TransferOperation.fromJson);
+  }
+
+  /// TRANSFER + INCOME (ТЗ-06.1).
+  Future<Paginated<AggregatedHistoryItem>> listUnifiedOperationsHistory({
+    required TransferApiScope scope,
+    required int companyId,
+    required int page,
+    required int perPage,
+  }) async {
+    final json = await _api.listUnifiedOperationsHistory(
+      scope: scope,
+      companyId: companyId,
+      page: page,
+      perPage: perPage,
+    );
+    final data = (json['data'] as Map).cast<String, dynamic>();
+    return Paginated<AggregatedHistoryItem>.fromJson(data, parseItem: AggregatedHistoryItem.fromJson);
   }
 
   /// Выполняет переход по ключу из [TransferDetailView.availableActions] (snake_case).

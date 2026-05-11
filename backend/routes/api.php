@@ -26,6 +26,11 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/operations/transfers/history', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ListAggregatedTransfersController::class);
             Route::get('/operations/transfers/pending-count', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\TransferPendingCountController::class);
 
+            Route::get('/operations/history', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ListAggregatedOperationsHistoryController::class);
+
+            Route::get('/operations/incomes/history', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ListAggregatedIncomesController::class);
+            Route::get('/operations/incomes/pending-count', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\IncomePendingCountController::class);
+
             Route::get('/companies/current', \App\Modules\Companies\Http\Controllers\CompanyWorkspace\CurrentCompanyController::class);
             Route::get('/projects', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\ListProjectsController::class);
             Route::post('/projects', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\CreateProjectController::class);
@@ -50,6 +55,14 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/projects/{projectId}/participants/{participantId}/wallet', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\GetParticipantWalletController::class);
             Route::get('/counterparties', \App\Modules\Companies\Http\Controllers\CompanyWorkspace\ListCounterpartiesController::class);
             Route::post('/counterparties', \App\Modules\Companies\Http\Controllers\CompanyWorkspace\CreateCounterpartyController::class);
+
+            Route::get('/projects/{projectId}/operations/incomes', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ListIncomesController::class);
+            Route::post('/projects/{projectId}/operations/incomes', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\CreateIncomeController::class);
+            Route::get('/projects/{projectId}/operations/incomes/{incomeId}', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ShowIncomeController::class);
+            Route::patch('/projects/{projectId}/operations/incomes/{incomeId}', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\PatchIncomeController::class);
+            Route::post('/projects/{projectId}/operations/incomes/{incomeId}/submit-to-customer-approval', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\IncomeSubmitToCustomerApprovalController::class);
+            Route::post('/projects/{projectId}/operations/incomes/{incomeId}/complete-waiting', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\IncomeCompleteWaitingController::class);
+            Route::post('/projects/{projectId}/operations/incomes/{incomeId}/rollback-completed', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\IncomeRollbackCompletedController::class);
         });
 
     Route::prefix('personal-workspace')
@@ -59,6 +72,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
             Route::get('/operations/transfers/history', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\ListAggregatedTransfersController::class);
             Route::get('/operations/transfers/pending-count', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\TransferPendingCountController::class);
+
+            Route::get('/operations/history', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\ListAggregatedOperationsHistoryController::class);
+
+            Route::get('/operations/incomes/history', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\ListAggregatedIncomesController::class);
+            Route::get('/operations/incomes/pending-count', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\IncomePendingCountController::class);
 
             Route::get('/companies', \App\Modules\Companies\Http\Controllers\PersonalWorkspace\ListCompaniesController::class);
             Route::get('/projects', \App\Modules\Projects\Http\Controllers\PersonalWorkspace\ListProjectsController::class);
@@ -71,5 +89,11 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/projects/{projectId}/operations/transfers/{transferId}/submit-for-approval', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\TransferSubmitForApprovalController::class);
             Route::post('/projects/{projectId}/operations/transfers/{transferId}/reset-approval', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\TransferResetApprovalController::class);
             Route::post('/projects/{projectId}/operations/transfers/{transferId}/return-to-created', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\TransferReturnToCreatedController::class);
+
+            Route::get('/projects/{projectId}/operations/incomes', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\ListIncomesController::class);
+            Route::get('/projects/{projectId}/operations/incomes/{incomeId}', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\ShowIncomeController::class);
+            Route::post('/projects/{projectId}/operations/incomes/{incomeId}/approve-customer', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\IncomeApproveCustomerController::class);
+            Route::post('/projects/{projectId}/operations/incomes/{incomeId}/reject-customer', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\IncomeRejectCustomerController::class);
+            Route::post('/projects/{projectId}/operations/incomes/{incomeId}/return-to-customer-approval', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\IncomeReturnToCustomerApprovalController::class);
         });
-});
+}); 

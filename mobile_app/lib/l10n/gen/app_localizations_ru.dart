@@ -513,6 +513,52 @@ class AppLocalizationsRu extends AppLocalizations {
   String get operationIncomeSoon => 'Будет доступно на следующем этапе';
 
   @override
+  String get incomeDetailTitle => 'Поступление';
+
+  @override
+  String get incomeActionApprove => 'Подтвердить';
+
+  @override
+  String get incomeActionReject => 'Отклонить';
+
+  @override
+  String get incomeActionReturn => 'Вернуть на проверку';
+
+  @override
+  String get incomeActionCompleteWaiting => 'Завершить период ожидания';
+
+  @override
+  String get incomeActionRollback => 'Откатить поступление';
+
+  @override
+  String get incomeActionSubmit => 'Отправить заказчику';
+
+  @override
+  String get incomeActionResetApproval => 'Сбросить подтверждение';
+
+  @override
+  String get operationsHistorySubtitle =>
+      'Переводы и поступления по доступным проектам';
+
+  @override
+  String get operationsHistoryEmpty => 'Нет операций';
+
+  @override
+  String get incomeHistoryCardTitle => 'Поступление средств';
+
+  @override
+  String get incomeRoleInitiator => 'Инициатор';
+
+  @override
+  String get incomeRoleProjectHead => 'Руководитель проекта';
+
+  @override
+  String get incomeRoleCustomer => 'Заказчик';
+
+  @override
+  String get incomeCreated => 'Поступление создано';
+
+  @override
   String get operationReportSoon => 'Будет доступно позже';
 
   @override

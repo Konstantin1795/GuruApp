@@ -514,6 +514,52 @@ class AppLocalizationsEn extends AppLocalizations {
       'Income will be available at the next stage';
 
   @override
+  String get incomeDetailTitle => 'Income';
+
+  @override
+  String get incomeActionApprove => 'Confirm';
+
+  @override
+  String get incomeActionReject => 'Reject';
+
+  @override
+  String get incomeActionReturn => 'Return for review';
+
+  @override
+  String get incomeActionCompleteWaiting => 'Complete waiting period';
+
+  @override
+  String get incomeActionRollback => 'Rollback income';
+
+  @override
+  String get incomeActionSubmit => 'Send to customer';
+
+  @override
+  String get incomeActionResetApproval => 'Reset approval';
+
+  @override
+  String get operationsHistorySubtitle =>
+      'Transfers and income across your projects';
+
+  @override
+  String get operationsHistoryEmpty => 'No operations yet';
+
+  @override
+  String get incomeHistoryCardTitle => 'Project income';
+
+  @override
+  String get incomeRoleInitiator => 'Initiator';
+
+  @override
+  String get incomeRoleProjectHead => 'Project head';
+
+  @override
+  String get incomeRoleCustomer => 'Customer';
+
+  @override
+  String get incomeCreated => 'Income created';
+
+  @override
   String get operationReportSoon => 'Report will be available later';
 
   @override

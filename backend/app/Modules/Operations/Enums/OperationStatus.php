@@ -49,7 +49,11 @@ enum OperationStatus: string
                 self::COMPLETED, self::ROLLED_BACK => true,
                 default => false,
             },
-            OperationType::INCOME, OperationType::REPORT => $this->isTerminal(),
+            OperationType::INCOME => match ($this) {
+                self::COMPLETED => true,
+                default => false,
+            },
+            OperationType::REPORT => $this->isTerminal(),
         };
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Projects\Http\Controllers\PersonalWorkspace;
 
+use App\Modules\Operations\Enums\OperationStatus;
 use App\Modules\Projects\Http\Resources\PersonalProjectResource;
 use App\Modules\Workspaces\Support\PersonalWorkspaceRoleFilter;
 use App\Support\Http\ApiResponse;
@@ -19,6 +20,19 @@ final class ListProjectsController
 
         $roleFilter = PersonalWorkspaceRoleFilter::fromQuery($request->query('workspace_role'));
 
+        $incomeTotals = DB::table('income_operations')
+            ->select([
+                'customer_project_participant_id',
+                DB::raw('SUM(CAST(amount AS DECIMAL(18,2))) as income_received_total'),
+            ])
+            ->whereIn('operation_status', [
+                OperationStatus::CUSTOMER_APPROVAL->value,
+                OperationStatus::WAITING_24_HOURS->value,
+                OperationStatus::COMPLETED->value,
+            ])
+            ->whereNotNull('wallets_applied_at')
+            ->groupBy('customer_project_participant_id');
+
         $query = DB::table('project_participants')
             ->select([
                 'projects.id as project_id',
@@ -33,6 +47,8 @@ final class ListProjectsController
                 'project_participant_wallets.personal_received as wallet_personal_received',
                 'project_participant_wallets.personal_earned as wallet_personal_earned',
                 'project_participant_wallets.accountable_spent as wallet_accountable_spent',
+                'project_participant_wallets.accountable_balance as wallet_accountable_balance',
+                DB::raw('COALESCE(inc_tot.income_received_total, 0) as income_received_total'),
             ])
             ->join('counterparties', 'counterparties.id', '=', 'project_participants.counterparty_id')
             ->join('projects', 'projects.id', '=', 'project_participants.project_id')
@@ -43,6 +59,9 @@ final class ListProjectsController
                 '=',
                 'project_participants.id',
             )
+            ->leftJoinSub($incomeTotals, 'inc_tot', function ($join): void {
+                $join->on('inc_tot.customer_project_participant_id', '=', 'project_participants.id');
+            })
             ->where('counterparties.user_id', $userId)
             ->where('counterparties.is_active', true)
             ->whereIn('counterparties.company_role_code', $roleFilter)

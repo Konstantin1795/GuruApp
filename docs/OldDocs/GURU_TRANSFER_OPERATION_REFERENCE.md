@@ -1,6 +1,8 @@
 # GURU — операция «Перевод» (TRANSFER): полный справочник реализации
 
 **Назначение:** единая точка правды по домену перевода **в том виде, как он реализован в коде сейчас**. Используйте для поддержки, регрессии и согласования изменений.  
+**Поступления (INCOME):** см. **`docs/GURU_INCOME_OPERATION_REFERENCE.md`**.
+
 **Последнее обновление документа:** 2026-05-09 — §3.1–3.4 (перетекание финансов); сверка с `backend/app/Modules/Operations`, `backend/routes/api.php`, `mobile_app/lib/features/operations`.
 
 **Связанные файлы:** `PROJECT_CONTEXT_GURU.md`, `docs/GURU_ARCHITECTURE_AND_STANDARDS.md`, `docs/GURU_FULL_PROJECT_BLUEPRINT.md`.

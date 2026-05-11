@@ -93,6 +93,24 @@ class TransfersApi {
     };
   }
 
+  String _unifiedHistoryPath({required TransferApiScope scope, required int companyId}) {
+    return switch (scope) {
+      TransferApiScope.company => '/company-workspace/$companyId/operations/history',
+      TransferApiScope.personal => '/personal-workspace/operations/history',
+    };
+  }
+
+  Future<Map<String, dynamic>> listUnifiedOperationsHistory({
+    required TransferApiScope scope,
+    required int companyId,
+    required int page,
+    required int perPage,
+  }) =>
+      _api.getJson(
+        _unifiedHistoryPath(scope: scope, companyId: companyId),
+        query: {'page': page, 'per_page': perPage},
+      );
+
   Future<Map<String, dynamic>> listHistoryAggregated({
     required TransferApiScope scope,
     required int companyId,

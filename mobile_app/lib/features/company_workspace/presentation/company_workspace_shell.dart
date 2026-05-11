@@ -19,7 +19,9 @@ import 'company_dashboard_screen.dart';
 import 'company_operations_placeholder_screen.dart';
 import 'company_projects_screen.dart';
 import 'company_workspace_identity.dart';
+import '../../operations/presentation/create_income_screen.dart';
 import '../../operations/data/transfers_api.dart';
+import '../../operations/data/incomes_api.dart';
 import '../../operations/providers.dart';
 import 'transfers_screen.dart' show CreateTransferScreen;
 
@@ -191,9 +193,12 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
                 _OperationTypeItem(
                   icon: Icons.arrow_downward_rounded,
                   label: l10n.operationIncome,
-                  description: l10n.operationIncomeSoon,
-                  enabled: false,
-                  onTap: () {},
+                  description: l10n.operationIncomeDescription,
+                  enabled: true,
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+                    _openCreateIncomeFlow();
+                  },
                 ),
                 const SizedBox(height: 12),
                 _OperationTypeItem(
@@ -285,14 +290,85 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
     if (created == true && mounted) {
       setState(() => _index = 3);
       ref.invalidate(
+        combinedOperationsPendingCountProvider(
+          (scope: TransferApiScope.company, companyId: widget.companyId),
+        ),
+      );
+      ref.invalidate(
         transferPendingActionCountProvider(
           (scope: TransferApiScope.company, companyId: widget.companyId),
+        ),
+      );
+      ref.invalidate(
+        incomePendingActionCountProvider(
+          (scope: IncomeApiScope.company, companyId: widget.companyId),
         ),
       );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.l10n.transferCreated)),
       );
     }
+  }
+
+  Future<void> _openCreateIncomeFlow() async {
+    final l10n = context.l10n;
+    final projectsState =
+        ref.read(companyProjectsControllerProvider(widget.companyId)).valueOrNull;
+
+    if (projectsState == null || projectsState.items.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.noProjects)));
+      return;
+    }
+
+    Project? selectedProject;
+
+    if (projectsState.items.length == 1) {
+      selectedProject = projectsState.items.first;
+    } else {
+      if (!mounted) return;
+      selectedProject = await showDialog<Project>(
+        context: context,
+        builder: (ctx) => SimpleDialog(
+          backgroundColor: const Color(0xFF0B1B2A),
+          title: Text(
+            ctx.l10n.selectProject,
+            style: const TextStyle(color: Colors.white),
+          ),
+          children: projectsState.items
+              .map(
+                (p) => SimpleDialogOption(
+                  onPressed: () => Navigator.of(ctx).pop(p),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Text(
+                      p.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+      );
+    }
+
+    if (selectedProject == null || !mounted) return;
+    final project = selectedProject;
+
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => CreateIncomeScreen(
+          companyId: widget.companyId,
+          projectId: project.id,
+          projectName: project.name,
+        ),
+      ),
+    );
   }
 
   @override

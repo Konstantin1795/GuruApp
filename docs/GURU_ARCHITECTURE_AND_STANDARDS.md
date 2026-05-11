@@ -1,6 +1,6 @@
 # GURU — архитектура, реализованный функционал и стандарты разработки
 
-**Быстрый handoff одним файлом (прикреплять в новый чат):** корень репозитория — **`PROJECT_CONTEXT_GURU.md`**. В нём сводно: воркспейсы, домен переводов, полные таблицы маршрутов, пути к коду, Flutter, команды и типичные сбои. Этот документ — расширенная справка по модулям, стандартам и диаграммам.
+**Быстрый handoff одним файлом (прикреплять в новый чат):** для минимума контекста — **`docs/GURU_CONTEXT_INDEX.md`**; развёрнуто — **`docs/GURU_PROJECT_CONTEXT.md`**. В нём сводно: воркспейсы, домен операций (**TRANSFER**, **INCOME**), таблицы маршрутов (в т.ч. в §6 ниже), пути к коду, Flutter, команды и типичные сбои. Этот документ — расширенная справка по модулям, стандартам и диаграммам.
 
 Документ описывает текущее состояние монорепозитория **GuruApp**: доменную модель, разбиение на backend (Laravel) и мобильный клиент (Flutter), связи сущностей, уже реализованные модули и договорённости по разработке, зафиксированные в проекте и в технических заданиях (TZ).
 
@@ -8,7 +8,7 @@
 
 ## 1. Цель продукта и домен (high level)
 
-**GURU** — платформа для совместной работы вокруг **компаний** и **проектов** с разделением контекстов **Company workspace** и **Personal workspace**, учётом **контрагентов**, **участников проекта**, **кошельков** на уровне участника и **операций** (в т.ч. **переводов**) с формализованным жизненным циклом статусов.
+**GURU** — платформа для совместной работы вокруг **компаний** и **проектов** с разделением контекстов **Company workspace** и **Personal workspace**, учётом **контрагентов**, **участников проекта**, **кошельков** на уровне участника и **операций** (**переводы TRANSFER**, **поступления INCOME**) с формализованным жизненным циклом статусов.
 
 Ключевые принципы домена:
 
@@ -44,7 +44,12 @@ GuruApp/
 │   └── lib/
 │       ├── core/            # API-клиент, тема, роутинг, общие виджеты
 │       └── features/        # auth, workspaces, company_workspace, personal_workspace, customer_workspace, operations, …
-└── docs/                    # Документация (этот файл)
+└── docs/
+    ├── GURU_PROJECT_CONTEXT.md
+    ├── GURU_ARCHITECTURE_AND_STANDARDS.md
+    ├── GURU_FULL_PROJECT_BLUEPRINT.md
+    ├── GURU_OPERATIONS_REFERENCE.md
+    └── OldDocs/               # архив; не использовать без явной необходимости
 ```
 
 ---
@@ -125,7 +130,7 @@ Middleware `App\Support\Http\Middleware\RequestId`:
 - Не раздувать контроллеры — **Services** и отдельные классы для переходов статусов и финансовой математики.
 - Многошаговые изменения БД — **`DB::transaction`** в сервисах.
 - **Операции типа TRANSFER:** создание и начальные статусы — в **`TransferService::create`**; все последующие переходы и откаты кошельков — только через **`TransferLifecycleService`** и соответствующие HTTP-эндпоинты; аудит в `operation_status_histories` (в т.ч. `comment`, `author_user_id`, `author_full_name`).
-- **`OperationTransitionService`** — централизованная карта переходов для **прочих** типов операций (INCOME/REPORT и т.д., когда появятся); для TRANSFER по коду не вызывается.
+- **`OperationTransitionService`** — централизованная карта переходов для типов, где переходы описаны декларативно; **TRANSFER** и **INCOME** в коде идут через **`TransferLifecycleService`** и **`IncomeLifecycleService`** соответственно (не через этот сервис).
 
 ---
 
@@ -159,6 +164,8 @@ Middleware: `EnsureCompanyWorkspaceAccess` — доступ есть у **акт
 | GET | `/context` | Контекст воркспейса |
 | GET | `/operations/transfers/history` | Агрегированная лента переводов по всем проектам с видимостью для пользователя в компании |
 | GET | `/operations/transfers/pending-count` | `{ pending_action_count }` — переводы, где от пользователя ожидается шаг подтверждения (whitelist действий, см. `TransferPendingActionCountService`) |
+| GET | `/operations/incomes/history` | Агрегированная лента поступлений (INCOME) по проектам с видимостью в компании |
+| GET | `/operations/incomes/pending-count` | `{ pending_action_count }` — поступления, где от пользователя ожидается шаг (см. `IncomePendingActionCountService`) |
 | GET | `/companies/current` | Текущая компания |
 | GET/POST | `/projects` | Список / создание проекта |
 | GET | `/projects/{projectId}/participants` | Участники (пагинация) |
@@ -181,8 +188,18 @@ Middleware: `EnsureCompanyWorkspaceAccess` — доступ есть у **акт
 | POST | `/projects/{projectId}/operations/transfers/{transferId}/complete-waiting` | РП: `WAITING_24_HOURS` → `COMPLETED` (дельты уже применены) |
 | POST | `/projects/{projectId}/operations/transfers/{transferId}/rollback-completed` | Откат `COMPLETED` для сценария РП/партнёра (дельты снимаются) |
 | POST | `/projects/{projectId}/operations/transfers/{transferId}/return-completed-to-project-head-approval` | РП: из `COMPLETED` сценария сотрудника откат дельт → `PROJECT_HEAD_APPROVAL` |
+| GET | `/projects/{projectId}/operations/incomes` | Список поступлений в проекте (пагинация) |
+| POST | `/projects/{projectId}/operations/incomes` | Создать поступление (ТЗ-06) |
+| GET | `/projects/{projectId}/operations/incomes/{incomeId}` | Деталь: `income`, `available_actions` |
+| PATCH | `/projects/{projectId}/operations/incomes/{incomeId}` | Редактирование суммы/комментария в `CREATED` (только инициатор) |
+| POST | `/projects/{projectId}/operations/incomes/{incomeId}/submit-to-customer-approval` | Отправка на согласование заказчика (дельты на кошельки по сценарию ТЗ-06) |
+| POST | `/projects/{projectId}/operations/incomes/{incomeId}/complete-waiting` | Ручное завершение ожидания 24 ч (роль РП) |
+| POST | `/projects/{projectId}/operations/incomes/{incomeId}/rollback-completed` | Откат завершённого поступления (роль РП, по правилам сервиса) |
 
-Планировщик Laravel: команда **`operations:complete-expired-transfer-waiting`** (раз в минуту в `bootstrap/app.php`) — авто-перевод в `COMPLETED`, если с `waiting_period_started_at` в UTC прошло ≥ 24 ч.
+Планировщик Laravel (см. `bootstrap/app.php`):
+
+- **`operations:complete-expired-transfer-waiting`** (каждую минуту) — авто-`COMPLETED` для TRANSFER в `WAITING_24_HOURS` по UTC.
+- **`operations:complete-expired-income-waiting`** (каждую минуту) — авто-завершение ожидания по INCOME.
 
 ### 6.4. Personal workspace
 
@@ -194,6 +211,8 @@ Middleware: `EnsurePersonalWorkspaceAccess` — пользователь с ак
 | GET | `/context` | Контекст |
 | GET | `/operations/transfers/history` | Лента переводов по всем проектам с участием пользователя (видимость как в company-контуре на проект) |
 | GET | `/operations/transfers/pending-count` | То же правило счётчика «ожидают подтверждения», что и в company-workspace |
+| GET | `/operations/incomes/history` | Агрегированная лента поступлений (личный контур) |
+| GET | `/operations/incomes/pending-count` | Счётчик ожидающих действий по поступлениям |
 | GET | `/companies` | Компании пользователя (в личном кабинете) |
 | GET | `/projects` | Проекты пользователя (в ресурсе — `my_wallet`, **`my_participation`** с `level` и `project_role_code` для клиента) |
 | GET | `/income-by-month` | Доход по месяцам (исполнительский контур) |
@@ -209,10 +228,15 @@ Middleware: `EnsurePersonalWorkspaceAccess` — пользователь с ак
 | POST | `/projects/{projectId}/operations/transfers/{transferId}/submit-for-approval` | Сотрудник: отправка на согласование РП |
 | POST | `/projects/{projectId}/operations/transfers/{transferId}/reset-approval` | Сотрудник: сброс из `PROJECT_HEAD_APPROVAL` |
 | POST | `/projects/{projectId}/operations/transfers/{transferId}/return-to-created` | Сотрудник: откат из `WAITING_24_HOURS` → `CREATED` |
+| GET | `/projects/{projectId}/operations/incomes` | Список поступлений (заказчик / видимость по `IncomeVisibilityService`) |
+| GET | `/projects/{projectId}/operations/incomes/{incomeId}` | Деталь поступления |
+| POST | `/projects/{projectId}/operations/incomes/{incomeId}/approve-customer` | Заказчик: согласовать |
+| POST | `/projects/{projectId}/operations/incomes/{incomeId}/reject-customer` | Заказчик: отклонить |
+| POST | `/projects/{projectId}/operations/incomes/{incomeId}/return-to-customer-approval` | Заказчик: вернуть на согласование |
 
-Действия **только для РП/партнёра** остаются в **§6.3** (company-workspace). Доступ к проекту в personal-контуре: **`ProjectVisibilityService::assertCanAccessPersonalWorkspaceProject`**.
+Создание поступлений в текущем API — только в **company-workspace** (§6.3). Действия **только для РП/партнёра** по переводам остаются в **§6.3**. Доступ к проекту в personal-контуре: **`ProjectVisibilityService::assertCanAccessPersonalWorkspaceProject`**.
 
-Подробное ТЗ: `docs/TZ_05_3_GURU_Transfer_Personal_Workspace_Alignment.md`.
+Подробное ТЗ по переводам в ЛК: `docs/OldDocs/TZ_05_3_GURU_Transfer_Personal_Workspace_Alignment.md`.
 
 ---
 
@@ -276,11 +300,11 @@ Middleware: `EnsurePersonalWorkspaceAccess` — пользователь с ак
 
 Таблица **`operation_status_histories`** — журнал переходов: `from_status`, `to_status`, `changed_by_project_participant_id`, опционально **`comment`**, **`author_user_id`**, **`author_full_name`**, `created_at`.
 
-Для **TRANSFER** записи пишут **`TransferService`** и **`TransferLifecycleService`**. **`OperationTransitionService`** описывает карту для будущих типов операций и **не** участвует в смене статуса перевода.
+Для **TRANSFER** записи пишут **`TransferService`** и **`TransferLifecycleService`**. Для **INCOME** — **`IncomeService`** и **`IncomeLifecycleService`**. **`OperationTransitionService`** держит декларативную карту для типов, где она используется; жизненный цикл TRANSFER и INCOME реализован в специализированных lifecycle-сервисах.
 
 Статусы (подмножество жизненного цикла GURU): CREATED, PROJECT_HEAD_APPROVAL, CUSTOMER_APPROVAL, WAITING_24_HOURS, COMPLETED, REJECTED, ROLLED_BACK.
 
-**Терминальность:** метод enum **`isTerminal()`** сохраняет общий смысл (в т.ч. `REJECTED` — терминальный «в лоб»). Для бизнес-логики сервисов используется **`OperationStatus::isTerminalForOperationType(OperationType)`**: для **TRANSFER** переход с участием `REJECTED` не считается завершением операции (промежуточное отклонение с возвратом к редактированию); для будущих **INCOME**/**REPORT** — по умолчанию совпадает с `isTerminal()`, при необходимости расширяется. Кэш словаря статусов (`DictionaryCacheService`, ключ `guru:dict:operation_statuses:v2`) отдаёт и общий признак `terminal`, и карту **`is_terminal_by_operation_type`**.
+**Терминальность:** метод enum **`isTerminal()`** сохраняет общий смысл (в т.ч. `REJECTED` — терминальный «в лоб»). Для бизнес-логики сервисов используется **`OperationStatus::isTerminalForOperationType(OperationType)`**: для **TRANSFER** переход с участием `REJECTED` не считается завершением операции (промежуточное отклонение с возвратом к редактированию); для **INCOME** — см. правила в **`IncomeLifecycleService`** и enum; для будущих **REPORT** — по необходимости расширяется. Кэш словаря статусов (`DictionaryCacheService`, ключ `guru:dict:operation_statuses:v2`) отдаёт и общий признак `terminal`, и карту **`is_terminal_by_operation_type`**.
 
 ### 7.6. Перевод (`transfer_operations`)
 
@@ -310,6 +334,22 @@ Middleware: `EnsurePersonalWorkspaceAccess` — пользователь с ак
 
 **Уточнения реализации (2026-05):** перевод **на подотчёт самому себе** запрещён; **на расчётный себе** — разрешён. В выдаче списка для подотчётного получателя **текущий участник исключается**. Для расчётного списка в кандидатах контрагентов допускаются роли **`OWNER`**, **`CUSTOMER`** и остальные из ТЗ-05.3. При автосоздании участника второго порядка для **OWNER** задано согласованное отображение роли в проекте (`TransferParticipantResolver`).
 
+### 7.6.1. Поступление (`income_operations`)
+
+Таблица **`income_operations`** — детали операции типа **INCOME**:
+
+- связь с **`operations`** (`operation_id`), `project_id`, инициатор, **`project_head_project_participant_id`**, **`customer_project_participant_id`**
+- `amount`, `comment?`, **`operation_status`**, метки **`wallets_applied_at`**, **`wallets_reverted_at`**, **`waiting_period_started_at`**
+
+Сервисы:
+
+- **`IncomeBalanceService`** — начисление/откат на **подотчётные** поля кошельков заказчика и руководителя проекта (`accountable_balance`, `accountable_received`).
+- **`IncomeService`** — создание черновика в **`CREATED`**.
+- **`IncomeLifecycleService`** — все переходы (отправка на согласование заказчика, решение заказчика, ожидание 24 ч, завершение, откаты по правилам ТЗ-06).
+- **`IncomeAvailableActionsService`**, **`IncomePendingActionCountService`**, **`IncomeVisibilityService`**, **`IncomeProjectParticipantsResolver`**.
+
+Подробнее: `docs/GURU_OPERATIONS_REFERENCE.md#income`.
+
 ### 7.7. Диаграмма связей (обзор)
 
 ```mermaid
@@ -324,6 +364,7 @@ erDiagram
     ProjectParticipant ||--o{ Operation : initiates
     Operation ||--o{ OperationStatusHistory : has
     Operation ||--o| TransferOperation : typed_as
+    Operation ||--o| IncomeOperation : typed_as
     ProjectParticipant ||--o{ TransferOperation : sender_or_receiver
 ```
 
@@ -373,9 +414,9 @@ erDiagram
 
 - Базовые виджеты: `AppScaffold`, `AppCard`, `AppInput`, `AppButton`, тема `guru_theme.dart`.
 - **`AppScaffold`:** для заголовка с подзаголовком и блоком «имя / роль компании» задан увеличенный **`toolbarHeight`**, чтобы не обрезать название проекта и многострочную роль; подзаголовок до двух строк.
-- **Company workspace** (`CompanyWorkspaceShell`): нижняя навигация — «Главная», уведомления (заглушка), **«Операции»** — picker типа операции; **перевод** открывает **`CreateTransferScreen`** (выбор проекта при нескольких); после успешного создания — переход на вкладку **«Операции»**, snackbar успеха, обновление **`transferPendingActionCountProvider`**. На главной вкладке в шапке — **`LocaleSwitchButton`** (RU/EN), как на экранах авторизации.
-- **Главная компании** (`CompanyDashboardScreen`): реальные счётчики контрагентов и активных проектов (см. репозитории); карточка квартальной аналитики (метрики дохода/долга — плейсхолдеры до отчётов); столбики активных проектов по месяцам текущего квартала (`company_dashboard_stats.dart`). Плитка «История операций» → **`AggregatedTransfersHistoryScreen`**, бейдж **`pending_action_count`**.
-- Живая работа с переводами также из **участников проекта** (⇄) → **`TransfersScreen`** / **`CreateTransferScreen`** / деталь (**`TransferDetailScreen`**): таймлайн **`status_history`**, кнопки по **`available_actions`**; после успешного POST lifecycle — **`Navigator.pushReplacement`** при необходимости; **`invalidate` счётчика pending** не на экране детали во время действия.
+- **Company workspace** (`CompanyWorkspaceShell`): нижняя навигация — «Главная», уведомления (заглушка), **«Операции»** — picker типа операции (**поступление** → `CreateIncomeScreen`, **перевод** → `CreateTransferScreen`, отчёт — заглушка); после успешного создания **перевода** — переход на вкладку **«Операции»**, snackbar успеха, обновление **`transferPendingActionCountProvider`**. На главной вкладке в шапке — **`LocaleSwitchButton`** (RU/EN), как на экранах авторизации.
+- **Главная компании** (`CompanyDashboardScreen`): реальные счётчики контрагентов и активных проектов (см. репозитории); карточка квартальной аналитики (метрики дохода/долга — плейсхолдеры до отчётов); столбики активных проектов по месяцам текущего квартала (`company_dashboard_stats.dart`). Плитка «История операций» → **`AggregatedTransfersHistoryScreen`** (пока только **переводы**); бейдж **`pending_action_count`** — из **`transferPendingActionCountProvider`** (только TRANSFER; для поступлений отдельный API `…/operations/incomes/pending-count`).
+- Живая работа с переводами также из **участников проекта** (⇄) → **`TransfersScreen`** / **`CreateTransferScreen`** / **`TransferDetailScreen`**: таймлайн **`status_history`**, кнопки по **`available_actions`**, при необходимости **`pushReplacement`** после POST; **`invalidate` pending** на возврате, не в момент нажатия на детали. **Поступления** — **`CreateIncomeScreen`**, **`IncomeDetailScreen`** (`IncomesRepository`).
 - **Personal workspace (исполнитель)** — вкладка **«Операции»** (`personal_operations_tab.dart`): пункт «Перевод» (только проекты, где `my_participation` = first + EMPLOYEE), список проектов → **`TransfersScreen`** / **`CreateTransferScreen`** с **`TransferApiScope.personal`**; «Отчёт» — disabled. Поставщик/подрядчик/2-й уровень: просмотр без кнопки создания (`canCreateTransfer: false`).
 - **Проекты** → **Участники** (`ProjectParticipantsScreen`): кошелёк, переводы; без дублирующей кнопки «Добавить» в списке (только иконка в app bar).
 
@@ -386,7 +427,7 @@ Flutter дублирует коды в:
 - `features/operations/domain/operation_type.dart`
 - `operation_status.dart`
 - `transfer_target_type.dart`
-- модели `TransferOperation`, `Operation`, `OperationStatusHistory`
+- модели `TransferOperation`, `IncomeOperation`, `Operation`, `OperationStatusHistory`
 
 При добавлении новых значений — синхронизировать PHP enum и Dart.
 
@@ -405,8 +446,9 @@ Flutter дублирует коды в:
 | Wallet foundation (TZ-04) | Таблица балансов, фабрика, API баланса, экран в приложении |
 | Operation lifecycle foundation (TZ-05A) | operations + status history + transition service + исключение 422 |
 | Performance foundation | Индексы, кэш словарей, стандарты пагинации |
-| Transfer operation (ТЗ-05.2 v3) | Полный контур: lifecycle, recipients API, POST **201** / разбор ответа на клиенте (`TransferOperation.fromJson` устойчив к типам строк); планировщик 24 ч UTC; **`available_actions`**, pending-count, агрегированная история; Flutter: дашборд компании, список/создание/деталь/история |
-| Вкладка «Операции» в нижнем меню компании | Контент вкладки — **плейсхолдер**; сценарий перевода — через **picker** «Операции» и через **участников проекта** |
+| Transfer operation (ТЗ-05.2 v3) | Полный контур: lifecycle, recipients API, POST **201** / разбор ответа на клиенте; планировщик 24 ч UTC; **`available_actions`**, pending-count, агрегированная история переводов; Flutter: дашборд компании, список/создание/деталь/история |
+| Income operation (ТЗ-06) | Backend: `income_operations`, `IncomeService`, `IncomeLifecycleService`, `IncomeBalanceService`, агрегированная история и pending-count, заказчик personal-workspace; Flutter: создание и деталь поступления |
+| Вкладка «Операции» в нижнем меню компании | Контент вкладки — **плейсхолдер**; сценарии — через **picker** «Операции» и через **участников проекта** |
 
 ---
 
@@ -416,8 +458,8 @@ Flutter дублирует коды в:
 2. **Единый JSON-контракт** — `ok`, `data`, `meta.request_id`; ошибки — `ok: false`, `error`, `meta.request_id`.
 3. **Типы денег** — decimal в БД; не использовать float для денежной логики.
 4. **Контроллеры** — только координация; валидация в FormRequest; ответы через Resource и `ApiResponse`.
-5. **Операции TRANSFER** — после создания только `TransferLifecycleService`; история в `operation_status_histories` (комментарий + автор). Для прочих типов операций — карта в `OperationTransitionService`.
-6. **Переводы** — математика в `TransferBalanceService`; создание в `TransferService::create`; получатели — `TransferParticipantResolver` / API recipients.
+5. **Операции TRANSFER** — после создания только `TransferLifecycleService` (создание — `TransferService`); **INCOME** — `IncomeLifecycleService` (создание — `IncomeService`); история в `operation_status_histories`. Декларативная карта `OperationTransitionService` — для типов, где она подключена в коде (TRANSFER/INCOME идут через свои lifecycle-сервисы).
+6. **Переводы** — математика в `TransferBalanceService`; **поступления** — в `IncomeBalanceService`; создание трансфера в `TransferService::create`; получатели — `TransferParticipantResolver` / API recipients.
 7. **Пагинация** — `page`, `per_page`, `total`, `last_page`; default 20, max 50.
 8. **Мобильный клиент** — repository + typed models; следовать визуальным паттернам `AppScaffold` и существующих экранов компании.
 9. **Согласованность кодов** — строковые enum-коды в PHP и Dart должны совпадать.
@@ -434,4 +476,4 @@ Flutter дублирует коды в:
 
 ---
 
-*Версия документа: 2026-05-09 (дашборд компании: счётчики и квартальные столбики; шапка и язык в company shell; создание перевода и разбор JSON; уточнение сценария «Операции»). Отражает кодовую базу GuruApp на указанную дату.*
+*Версия документа: 2026-05-09 — добавлены маршруты и домен INCOME (ТЗ-06), второй планировщик `complete-expired-income-waiting`, раздел `income_operations`; обновлены Flutter-сценарии и чеклист. Отражает кодовую базу GuruApp на указанную дату.*

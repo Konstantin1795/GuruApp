@@ -55,6 +55,10 @@ enum OperationStatus {
             completed || rolledBack => true,
             _ => false,
           },
-        OperationType.income || OperationType.report => isTerminalDefault,
+        OperationType.income => switch (this) {
+            completed => true,
+            _ => false,
+          },
+        OperationType.report => isTerminalDefault,
       };
 }

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers.dart';
 import 'data/transfers_api.dart';
 import 'data/transfers_repository.dart';
+import 'data/incomes_api.dart';
+import 'data/incomes_repository.dart';
 
 final transfersApiProvider = Provider<TransfersApi>(
   (ref) => TransfersApi(ref.watch(apiClientProvider)),
@@ -10,6 +12,44 @@ final transfersApiProvider = Provider<TransfersApi>(
 
 final transfersRepositoryProvider = Provider<TransfersRepository>(
   (ref) => TransfersRepository(ref.watch(transfersApiProvider)),
+);
+
+final incomesApiProvider = Provider<IncomesApi>(
+  (ref) => IncomesApi(ref.watch(apiClientProvider)),
+);
+
+final incomesRepositoryProvider = Provider<IncomesRepository>(
+  (ref) => IncomesRepository(ref.watch(incomesApiProvider)),
+);
+
+typedef IncomePendingKey = ({IncomeApiScope scope, int companyId});
+
+final incomePendingActionCountProvider =
+    FutureProvider.autoDispose.family<int, IncomePendingKey>(
+  (ref, key) async {
+    return ref.read(incomesRepositoryProvider).pendingActionCount(
+          scope: key.scope,
+          companyId: key.companyId,
+        );
+  },
+);
+
+typedef CombinedPendingKey = ({TransferApiScope scope, int companyId});
+
+/// Сумма «ожидают действия» для переводов и поступлений (ТЗ-06.1).
+final combinedOperationsPendingCountProvider =
+    FutureProvider.autoDispose.family<int, CombinedPendingKey>(
+  (ref, key) async {
+    final transfers = await ref.watch(
+      transferPendingActionCountProvider((scope: key.scope, companyId: key.companyId)).future,
+    );
+    final incomeScope =
+        key.scope == TransferApiScope.company ? IncomeApiScope.company : IncomeApiScope.personal;
+    final incomes = await ref.watch(
+      incomePendingActionCountProvider((scope: incomeScope, companyId: key.companyId)).future,
+    );
+    return transfers + incomes;
+  },
 );
 
 typedef TransferPendingKey = ({TransferApiScope scope, int companyId});

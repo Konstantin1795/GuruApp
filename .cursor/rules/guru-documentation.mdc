@@ -1,0 +1,22 @@
+---
+description: Карта канонической документации GuruApp и экономия контекста
+alwaysApply: true
+---
+
+# Документация GURU
+
+Монорепозиторий: `backend/` (Laravel), `mobile_app/` (Flutter).
+
+**Минимальная точка входа (мало токенов):** `docs/GURU_CONTEXT_INDEX.md`.  
+**Расширенный handoff:** `docs/GURU_PROJECT_CONTEXT.md`.  
+Корень репозитория: `PROJECT_CONTEXT_GURU.md` — только указатель на `docs/`.
+
+| Файл | Назначение |
+|------|------------|
+| `docs/GURU_ARCHITECTURE_AND_STANDARDS.md` | Маршруты §6, модули, домен, стандарты API |
+| `docs/GURU_FULL_PROJECT_BLUEPRINT.md` | Подробный продуктовый/UX blueprint |
+| `docs/GURU_OPERATIONS_REFERENCE.md` | TRANSFER + INCOME (эндпойнты, деньги, lifecycle) |
+
+**Не опираться на** `docs/OldDocs/` без явного запроса пользователя.
+
+**Инвариант:** не смешивать company-workspace и personal-workspace (разные префиксы и middleware). Финансы и переходы операций — только в сервисах Operations, не в контроллерах/UI.

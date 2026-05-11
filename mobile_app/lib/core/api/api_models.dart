@@ -64,12 +64,20 @@ class PaginationInfo {
     required this.lastPage,
   });
 
-  factory PaginationInfo.fromJson(Map<String, dynamic> json) => PaginationInfo(
-        page: json['page'] as int,
-        perPage: json['per_page'] as int,
-        total: json['total'] as int,
-        lastPage: json['last_page'] as int,
-      );
+  factory PaginationInfo.fromJson(Map<String, dynamic> json) {
+    int read(dynamic v) {
+      if (v is int) return v;
+      if (v is num) return v.toInt();
+      return int.tryParse('$v') ?? 0;
+    }
+
+    return PaginationInfo(
+      page: read(json['page']),
+      perPage: read(json['per_page']),
+      total: read(json['total']),
+      lastPage: read(json['last_page']),
+    );
+  }
 
   bool get hasMore => page < lastPage;
 }

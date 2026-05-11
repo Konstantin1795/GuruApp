@@ -65,6 +65,8 @@ final class PersonalProjectResource extends JsonResource
                 'personal_received' => $dec(Arr::get($raw, 'wallet_personal_received')),
                 'personal_earned' => $dec(Arr::get($raw, 'wallet_personal_earned')),
                 'accountable_spent' => $dec(Arr::get($raw, 'wallet_accountable_spent')),
+                'accountable_balance' => $dec(Arr::get($raw, 'wallet_accountable_balance')),
+                'income_received_total' => $dec(Arr::get($raw, 'income_received_total')),
             ],
             'my_participation' => [
                 'level' => (string) Arr::get($raw, 'participant_level', ''),

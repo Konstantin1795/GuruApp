@@ -12,11 +12,16 @@ import '../../../core/widgets/app_loader.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../auth/providers.dart';
 import '../../company_workspace/presentation/company_workspace_identity.dart';
+import '../data/incomes_api.dart';
 import '../data/transfers_api.dart';
+import '../domain/aggregated_history_item.dart';
+import '../domain/income_operation.dart';
 import '../domain/transfer_operation.dart';
 import '../providers.dart';
+import 'income_detail_screen.dart';
 import 'transfer_detail_screen.dart';
 
+/// Объединённая история переводов и поступлений (ТЗ-06.1).
 class AggregatedTransfersHistoryScreen extends ConsumerStatefulWidget {
   final TransferApiScope apiScope;
   final int companyId;
@@ -34,11 +39,17 @@ class AggregatedTransfersHistoryScreen extends ConsumerStatefulWidget {
 
 class _AggregatedTransfersHistoryScreenState extends ConsumerState<AggregatedTransfersHistoryScreen> {
   static const _perPage = 20;
-  List<TransferOperation> _items = const [];
+  List<AggregatedHistoryItem> _items = const [];
   PaginationInfo? _pagination;
   bool _loading = true;
   bool _loadingMore = false;
   Object? _error;
+
+  IncomeApiScope get _incomeScope =>
+      widget.apiScope == TransferApiScope.company ? IncomeApiScope.company : IncomeApiScope.personal;
+
+  CombinedPendingKey get _pendingKey =>
+      (scope: widget.apiScope, companyId: widget.companyId);
 
   @override
   void initState() {
@@ -52,7 +63,7 @@ class _AggregatedTransfersHistoryScreenState extends ConsumerState<AggregatedTra
       _error = null;
     });
     try {
-      final page = await ref.read(transfersRepositoryProvider).listHistoryAggregated(
+      final page = await ref.read(transfersRepositoryProvider).listUnifiedOperationsHistory(
             scope: widget.apiScope,
             companyId: widget.companyId,
             page: 1,
@@ -78,7 +89,7 @@ class _AggregatedTransfersHistoryScreenState extends ConsumerState<AggregatedTra
     if (p == null || !p.hasMore || _loadingMore) return;
     setState(() => _loadingMore = true);
     try {
-      final page = await ref.read(transfersRepositoryProvider).listHistoryAggregated(
+      final page = await ref.read(transfersRepositoryProvider).listUnifiedOperationsHistory(
             scope: widget.apiScope,
             companyId: widget.companyId,
             page: p.page + 1,
@@ -95,8 +106,17 @@ class _AggregatedTransfersHistoryScreenState extends ConsumerState<AggregatedTra
     }
   }
 
-  void _openTransfer(TransferOperation t) {
-    Navigator.of(context).push(
+  void _invalidatePending() {
+    ref.invalidate(combinedOperationsPendingCountProvider(_pendingKey));
+    ref.invalidate(transferPendingActionCountProvider((scope: widget.apiScope, companyId: widget.companyId)));
+    ref.invalidate(incomePendingActionCountProvider((scope: _incomeScope, companyId: widget.companyId)));
+  }
+
+  void _openTransfer(AggregatedHistoryItem row) {
+    final t = row.transfer;
+    if (t == null) return;
+    Navigator.of(context)
+        .push<void>(
       MaterialPageRoute<void>(
         builder: (_) => TransferDetailScreen(
           apiScope: widget.apiScope,
@@ -105,10 +125,29 @@ class _AggregatedTransfersHistoryScreenState extends ConsumerState<AggregatedTra
           transferId: t.id,
         ),
       ),
-    ).then((_) {
-      ref.invalidate(transferPendingActionCountProvider(
-        (scope: widget.apiScope, companyId: widget.companyId),
-      ));
+    )
+        .then((_) {
+      _invalidatePending();
+      _loadFirst();
+    });
+  }
+
+  void _openIncome(AggregatedHistoryItem row) {
+    final inc = row.income;
+    if (inc == null) return;
+    Navigator.of(context)
+        .push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => IncomeDetailScreen(
+          apiScope: _incomeScope,
+          companyId: widget.companyId,
+          projectId: inc.projectId,
+          incomeId: inc.id,
+        ),
+      ),
+    )
+        .then((_) {
+      _invalidatePending();
       _loadFirst();
     });
   }
@@ -125,7 +164,7 @@ class _AggregatedTransfersHistoryScreenState extends ConsumerState<AggregatedTra
       headerUserName: userName.isEmpty ? null : userName,
       headerRoleLabel: roleLabel,
       title: l10n.dashboardHistory,
-      subtitle: l10n.transferHistoryAllProjects,
+      subtitle: l10n.operationsHistorySubtitle,
       body: _buildBody(context),
     );
   }
@@ -154,7 +193,7 @@ class _AggregatedTransfersHistoryScreenState extends ConsumerState<AggregatedTra
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
-          AppEmptyState(icon: Icons.swap_horiz, title: l10n.transfersEmpty),
+          AppEmptyState(icon: Icons.layers_outlined, title: l10n.operationsHistoryEmpty),
         ],
       );
     }
@@ -166,10 +205,27 @@ class _AggregatedTransfersHistoryScreenState extends ConsumerState<AggregatedTra
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
         children: [
           ..._items.map(
-            (t) => _AggregatedTransferCard(
-              transfer: t,
-              onTap: () => _openTransfer(t),
-            ),
+            (row) {
+              if (row.isTransfer && row.transfer != null) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: _AggregatedTransferCard(
+                    transfer: row.transfer!,
+                    onTap: () => _openTransfer(row),
+                  ),
+                );
+              }
+              if (row.isIncome && row.income != null) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: _AggregatedIncomeCard(
+                    income: row.income!,
+                    onTap: () => _openIncome(row),
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
           ),
           if (_pagination?.hasMore ?? false) ...[
             const SizedBox(height: 8),
@@ -197,9 +253,7 @@ class _AggregatedTransferCard extends StatelessWidget {
         ? transfer.projectName!
         : 'Проект #${transfer.projectId}';
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Material(
+    return Material(
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(22),
@@ -220,6 +274,10 @@ class _AggregatedTransferCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      context.l10n.operationTransfer,
+                      style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.45)),
+                    ),
                     Text(
                       projectLine,
                       style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.55)),
@@ -254,6 +312,80 @@ class _AggregatedTransferCard extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+            ),
+          ),
+        ),
+    );
+  }
+}
+
+class _AggregatedIncomeCard extends StatelessWidget {
+  final IncomeOperation income;
+  final VoidCallback onTap;
+  static const _accent = Color(0xFF00D6C9);
+
+  const _AggregatedIncomeCard({required this.income, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final projectLine = income.projectName?.trim().isNotEmpty == true
+        ? income.projectName!
+        : 'Проект #${income.projectId}';
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(22),
+        onTap: onTap,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(22),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+                gradient: LinearGradient(
+                  colors: [Colors.white.withValues(alpha: 0.09), _accent.withValues(alpha: 0.07)],
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.l10n.operationIncome,
+                    style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.45)),
+                  ),
+                  Text(
+                    projectLine,
+                    style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.55)),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          context.l10n.incomeHistoryCardTitle,
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                      Text(
+                        income.amount,
+                        style: const TextStyle(color: _accent, fontSize: 18, fontWeight: FontWeight.w900),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: [
+                      _Chip(label: income.status.label),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),

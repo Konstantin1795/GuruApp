@@ -1076,6 +1076,96 @@ abstract class AppLocalizations {
   /// **'Income will be available at the next stage'**
   String get operationIncomeSoon;
 
+  /// No description provided for @incomeDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get incomeDetailTitle;
+
+  /// No description provided for @incomeActionApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get incomeActionApprove;
+
+  /// No description provided for @incomeActionReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get incomeActionReject;
+
+  /// No description provided for @incomeActionReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'Return for review'**
+  String get incomeActionReturn;
+
+  /// No description provided for @incomeActionCompleteWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete waiting period'**
+  String get incomeActionCompleteWaiting;
+
+  /// No description provided for @incomeActionRollback.
+  ///
+  /// In en, this message translates to:
+  /// **'Rollback income'**
+  String get incomeActionRollback;
+
+  /// No description provided for @incomeActionSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to customer'**
+  String get incomeActionSubmit;
+
+  /// No description provided for @incomeActionResetApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset approval'**
+  String get incomeActionResetApproval;
+
+  /// No description provided for @operationsHistorySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfers and income across your projects'**
+  String get operationsHistorySubtitle;
+
+  /// No description provided for @operationsHistoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No operations yet'**
+  String get operationsHistoryEmpty;
+
+  /// No description provided for @incomeHistoryCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Project income'**
+  String get incomeHistoryCardTitle;
+
+  /// No description provided for @incomeRoleInitiator.
+  ///
+  /// In en, this message translates to:
+  /// **'Initiator'**
+  String get incomeRoleInitiator;
+
+  /// No description provided for @incomeRoleProjectHead.
+  ///
+  /// In en, this message translates to:
+  /// **'Project head'**
+  String get incomeRoleProjectHead;
+
+  /// No description provided for @incomeRoleCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get incomeRoleCustomer;
+
+  /// No description provided for @incomeCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Income created'**
+  String get incomeCreated;
+
   /// No description provided for @operationReportSoon.
   ///
   /// In en, this message translates to:

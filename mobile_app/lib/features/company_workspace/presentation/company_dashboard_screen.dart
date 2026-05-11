@@ -37,7 +37,7 @@ class CompanyDashboardScreen extends ConsumerWidget {
     final statsAsync = ref.watch(companyDashboardStatsProvider(companyId));
 
     final pendingAsync = ref.watch(
-      transferPendingActionCountProvider((scope: TransferApiScope.company, companyId: companyId)),
+      combinedOperationsPendingCountProvider((scope: TransferApiScope.company, companyId: companyId)),
     );
     final pending = pendingAsync.valueOrNull ?? 0;
     final historyBadge = pending > 0 ? '$pending' : null;
@@ -46,10 +46,10 @@ class CompanyDashboardScreen extends ConsumerWidget {
 
     Future<void> refreshAll() async {
       ref.invalidate(companyDashboardStatsProvider(companyId));
-      ref.invalidate(transferPendingActionCountProvider(pendingKey));
+      ref.invalidate(combinedOperationsPendingCountProvider(pendingKey));
       await Future.wait<void>([
         ref.read(companyDashboardStatsProvider(companyId).future),
-        ref.read(transferPendingActionCountProvider(pendingKey).future),
+        ref.read(combinedOperationsPendingCountProvider(pendingKey).future),
       ]);
     }
 

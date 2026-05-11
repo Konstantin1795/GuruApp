@@ -3,12 +3,18 @@ class CustomerWalletSnapshot {
   final String personalReceived;
   final String personalEarned;
   final String accountableSpent;
+  /// Подотчётный баланс заказчика в проекте (ТЗ-06.1).
+  final String accountableBalance;
+  /// Сумма поступлений по правилам MVP (сервер).
+  final String incomeReceivedTotal;
 
   const CustomerWalletSnapshot({
     required this.personalBalance,
     required this.personalReceived,
     required this.personalEarned,
     required this.accountableSpent,
+    required this.accountableBalance,
+    required this.incomeReceivedTotal,
   });
 
   factory CustomerWalletSnapshot.fromJson(Map<String, dynamic> json) => CustomerWalletSnapshot(
@@ -16,6 +22,8 @@ class CustomerWalletSnapshot {
         personalReceived: json['personal_received'] as String? ?? '0.00',
         personalEarned: json['personal_earned'] as String? ?? '0.00',
         accountableSpent: json['accountable_spent'] as String? ?? '0.00',
+        accountableBalance: json['accountable_balance'] as String? ?? '0.00',
+        incomeReceivedTotal: json['income_received_total'] as String? ?? '0.00',
       );
 }
 

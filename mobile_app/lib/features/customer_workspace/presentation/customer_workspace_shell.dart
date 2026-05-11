@@ -14,6 +14,7 @@ import '../../../features/auth/presentation/login_screen.dart';
 import '../../auth/providers.dart';
 import '../../operations/data/transfers_api.dart';
 import '../../operations/presentation/aggregated_transfers_history_screen.dart';
+import '../../operations/data/incomes_api.dart';
 import '../../operations/providers.dart';
 import '../domain/personal_workspace_project_row.dart';
 import '../providers.dart';
@@ -93,14 +94,16 @@ class _CustomerHomeBody extends ConsumerWidget {
     final localeName = Localizations.localeOf(context).toLanguageTag();
     final async = ref.watch(customerWorkspaceDataProvider);
 
-    final pendingKey = (scope: TransferApiScope.personal, companyId: 0);
-
     Future<void> reload() async {
       ref.invalidate(customerWorkspaceDataProvider);
-      ref.invalidate(transferPendingActionCountProvider(pendingKey));
+      ref.invalidate(
+        combinedOperationsPendingCountProvider((scope: TransferApiScope.personal, companyId: 0)),
+      );
+      ref.invalidate(incomePendingActionCountProvider((scope: IncomeApiScope.personal, companyId: 0)));
+      ref.invalidate(transferPendingActionCountProvider((scope: TransferApiScope.personal, companyId: 0)));
       await Future.wait([
         ref.read(customerWorkspaceDataProvider.future),
-        ref.read(transferPendingActionCountProvider(pendingKey).future),
+        ref.read(combinedOperationsPendingCountProvider((scope: TransferApiScope.personal, companyId: 0)).future),
       ]);
     }
 
@@ -127,7 +130,7 @@ class _CustomerHomeBody extends ConsumerWidget {
           );
         }
         final pendingAsync = ref.watch(
-          transferPendingActionCountProvider((scope: TransferApiScope.personal, companyId: 0)),
+          combinedOperationsPendingCountProvider((scope: TransferApiScope.personal, companyId: 0)),
         );
         final pendingTransfers = pendingAsync.valueOrNull ?? 0;
 
@@ -138,7 +141,7 @@ class _CustomerHomeBody extends ConsumerWidget {
           onRefresh: reload,
           pendingTransferActions: pendingTransfers,
           onOperationsHistoryClosed: () => ref.invalidate(
-                transferPendingActionCountProvider((scope: TransferApiScope.personal, companyId: 0)),
+                combinedOperationsPendingCountProvider((scope: TransferApiScope.personal, companyId: 0)),
               ),
         );
       },
@@ -400,9 +403,9 @@ class _FeaturedProjectCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final w = row.wallet;
-    final received = formatMoneyDisplay(w.personalReceived, localeName);
-    final spent = formatMoneyDisplay(w.accountableSpent, localeName);
-    final balance = formatMoneyDisplay(w.personalBalance, localeName);
+    final receivedTotal = formatMoneyDisplay(w.incomeReceivedTotal, localeName);
+    final spentPlaceholder = formatMoneyDisplay('0.00', localeName);
+    final accountableBal = formatMoneyDisplay(w.accountableBalance, localeName);
 
     return SizedBox(
       height: 252,
@@ -443,11 +446,11 @@ class _FeaturedProjectCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _moneyLine(l10n.customerReceived, received),
+                        _moneyLine(l10n.customerReceived, receivedTotal),
                         const SizedBox(height: 6),
-                        _moneyLine(l10n.customerSpentAccumulated, spent),
+                        _moneyLine(l10n.customerSpentAccumulated, spentPlaceholder),
                         const SizedBox(height: 6),
-                        _moneyLine(l10n.customerBalancePersonal, balance),
+                        _moneyLine(l10n.customerBalancePersonal, accountableBal),
                       ],
                     ),
                   ),
