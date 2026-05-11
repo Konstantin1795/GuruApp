@@ -1,9 +1,9 @@
 # GURU — контекст проекта
 
-Каноническая документация в `**docs/**`.
+Каноническая документация — **модульная**: каталоги **`docs/00_core/`**, **`docs/10_operations/`**, **`docs/20_api/`**, **`docs/30_flutter/`**, **`docs/90_current/`**.
 
-- **Минимум токенов в чате:** прикрепляйте `**docs/GURU_CONTEXT_INDEX.md`** (один экран).
-- **Полный handoff:** `**docs/GURU_PROJECT_CONTEXT.md`**.
-- Остальное по задаче: `**docs/GURU_ARCHITECTURE_AND_STANDARDS.md**`, `**docs/GURU_FULL_PROJECT_BLUEPRINT.md**`, `**docs/GURU_OPERATIONS_REFERENCE.md**` (TRANSFER + INCOME).
+- **Мало токенов:** прикрепляйте **`docs/GURU_CONTEXT_INDEX.md`**.
+- **Что и когда докладывать по задаче:** **`docs/README_MODULAR.md`**.
+- **Текущий снимок и задача:** **`docs/90_current/90_GURU_CURRENT_STATE.md`**, при необходимости **`docs/90_current/91_GURU_NEXT_TASK_TEMPLATE.md`**.
 
-Архив: `**docs/OldDocs/**` — не использовать как источник истины без явного запроса.
+Архив: **`docs/OldDocs/`** (в т.ч. **`docs/OldDocs/legacy_monolith/`** — прежние монолитные файлы) — не использовать как источник истины без явного запроса.

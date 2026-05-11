@@ -1,19 +1,21 @@
 # GURU — полный архитектурный blueprint проекта
 
-Версия документа: 2026-05-11 (INCOME + TRANSFER: объединённая **`GET …/operations/history`**, **`AggregatedOperationsHistoryService`**; Flutter — **`AggregatedTransfersHistoryScreen`**, **`combinedOperationsPendingCountProvider`**, диалог комментария **`showOperationCommentDialog`**); минимальный индекс доков — **`docs/GURU_CONTEXT_INDEX.md`**; полный handoff — **`docs/GURU_PROJECT_CONTEXT.md`** (указатель в корне — **`PROJECT_CONTEXT_GURU.md`**)  
+Версия документа: 2026-05-11 (INCOME + TRANSFER: объединённая `**GET …/operations/history**`, `**AggregatedOperationsHistoryService**`; Flutter — `**AggregatedTransfersHistoryScreen**`, `**combinedOperationsPendingCountProvider**`, диалог комментария `**showOperationCommentDialog**`); минимальный индекс доков — `**docs/GURU_CONTEXT_INDEX.md**`; полный handoff — `**docs/GURU_PROJECT_CONTEXT.md**` (указатель в корне — `**PROJECT_CONTEXT_GURU.md**`)  
 Репозиторий: `C:\GuruApp`  
 Назначение: дать максимально подробное описание текущего проекта GURU, чтобы по этому документу можно было восстановить архитектуру, стандарты, основные модули, бизнес-инварианты и реализованное состояние приложения с нуля.
 
 ### Связка документов (чтобы не дублировать контекст в чате)
 
-| Документ | Роль |
-|----------|------|
-| **`docs/GURU_CONTEXT_INDEX.md`** | Указатель на четыре канонических файла (минимум контекста для чата) |
-| **`docs/GURU_PROJECT_CONTEXT.md`** | **Главный** развёрнутый handout: воркспейсы, API, домен операций (**TRANSFER**, **INCOME**), пути к коду, Flutter, команды, сбои |
-| **`docs/GURU_ARCHITECTURE_AND_STANDARDS.md`** | Расширенная справка: модули, §6 маршруты, диаграммы, чеклист, стандарты |
-| **`docs/GURU_FULL_PROJECT_BLUEPRINT.md`** (этот файл) | Максимальная детализация, постулаты, UX кабинета заказчика, пошаговое «с нуля» |
-| **`docs/GURU_OPERATIONS_REFERENCE.md`** | Справочник по доменам **TRANSFER** и **INCOME** (математика, статусы, эндпойнты) |
-| **`docs/OldDocs/`** | Архив прежних версий и ТЗ; **не использовать** как источник истины без явного запроса |
+
+| Документ                                              | Роль                                                                                                                             |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `**docs/GURU_CONTEXT_INDEX.md**`                      | Указатель на четыре канонических файла (минимум контекста для чата)                                                              |
+| `**docs/GURU_PROJECT_CONTEXT.md**`                    | **Главный** развёрнутый handout: воркспейсы, API, домен операций (**TRANSFER**, **INCOME**), пути к коду, Flutter, команды, сбои |
+| `**docs/GURU_ARCHITECTURE_AND_STANDARDS.md`**         | Расширенная справка: модули, §6 маршруты, диаграммы, чеклист, стандарты                                                          |
+| `**docs/GURU_FULL_PROJECT_BLUEPRINT.md`** (этот файл) | Максимальная детализация, постулаты, UX кабинета заказчика, пошаговое «с нуля»                                                   |
+| `**docs/GURU_OPERATIONS_REFERENCE.md`**               | Справочник по доменам **TRANSFER** и **INCOME** (математика, статусы, эндпойнты)                                                 |
+| `**docs/OldDocs/`**                                   | Архив прежних версий и ТЗ; **не использовать** как источник истины без явного запроса                                            |
+
 
 ---
 
@@ -115,7 +117,7 @@ backend/app/Modules/Operations/Services/TransferService.php
 - статус операции;
 - историю статусов в `operation_status_histories`.
 
-Статусы нельзя менять произвольно. Для операций типа **TRANSFER** переходы после создания централизованы в **`TransferLifecycleService`** (создание и начальный статус — в **`TransferService::create`**). Для **INCOME** — в **`IncomeLifecycleService`** (создание — **`IncomeService`**). Карта в **`OperationTransitionService`** используется там, где подключена декларативно; **TRANSFER** и **INCOME** не меняют статус через этот сервис — только через свои lifecycle-сервисы.
+Статусы нельзя менять произвольно. Для операций типа **TRANSFER** переходы после создания централизованы в `**TransferLifecycleService`** (создание и начальный статус — в `**TransferService::create`**). Для INCOME — в `**IncomeLifecycleService`** (создание — `**IncomeService`**). Карта в `**OperationTransitionService`** используется там, где подключена декларативно; **TRANSFER** и **INCOME** не меняют статус через этот сервис — только через свои lifecycle-сервисы.
 
 ```text
 TransferLifecycleService   # TRANSFER после create
@@ -167,7 +169,7 @@ Flutter-интерфейсы должны использовать:
 - `AppSectionTitle`;
 - токены темы: `AppColors`, `AppTextStyles`, `AppSpacing`, `AppRadii`.
 
-Исключение по композиции: экран-оболочка **кабинета заказчика** (`CustomerWorkspaceShell`) использует `Scaffold` + **`SafeArea`** + нижний `NavigationBar`, без `AppScaffold`, чтобы корректно учесть статус-бар и home indicator; отступы и виджеты — те же токены (`AppSpacing`, `AppCard`, и т.д.).
+Исключение по композиции: экран-оболочка **кабинета заказчика** (`CustomerWorkspaceShell`) использует `Scaffold` + `**SafeArea`** + нижний `NavigationBar`, без `AppScaffold`, чтобы корректно учесть статус-бар и home indicator; отступы и виджеты — те же токены (`AppSpacing`, `AppCard`, и т.д.).
 
 Цветовой стиль:
 
@@ -421,61 +423,62 @@ Entry route:
 Scoped routes:
 
 
-| Method | Route                                                                                         | Назначение                |
-| ------ | --------------------------------------------------------------------------------------------- | ------------------------- |
-| GET    | `/api/company-workspace/{companyId}/context`                                                  | Контекст компании         |
-| GET    | `/api/company-workspace/{companyId}/operations/transfers/history`                             | Все видимые переводы по проектам компании (пагинация; при необходимости `project_name` в элементе) |
-| GET    | `/api/company-workspace/{companyId}/operations/history`                                       | Объединённая лента **TRANSFER** и **INCOME** (`AggregatedOperationsHistoryService`) |
-| GET    | `/api/company-workspace/{companyId}/operations/transfers/pending-count`                       | `{ pending_action_count }` — whitelist шагов подтверждения для пользователя |
-| GET    | `/api/company-workspace/{companyId}/companies/current`                                        | Текущая компания          |
-| GET    | `/api/company-workspace/{companyId}/projects`                                                 | Список проектов           |
-| POST   | `/api/company-workspace/{companyId}/projects`                                                 | Создать проект            |
-| GET    | `/api/company-workspace/{companyId}/counterparties`                                           | Список контрагентов       |
-| POST   | `/api/company-workspace/{companyId}/counterparties`                                           | Создать контрагента       |
-| GET    | `/api/company-workspace/{companyId}/projects/{projectId}/participants`                        | Список участников проекта |
-| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/participants`                        | Добавить участника        |
-| PATCH  | `/api/company-workspace/{companyId}/projects/{projectId}/participants/{participantId}`        | Изменить роль участника   |
-| DELETE | `/api/company-workspace/{companyId}/projects/{projectId}/participants/{participantId}`        | Удалить участника         |
-| GET    | `/api/company-workspace/{companyId}/projects/{projectId}/participants/{participantId}/wallet` | Кошелёк участника         |
-| GET    | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/recipients`    | Получатели перевода (query: `transfer_target_type`) |
-| GET    | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers`                | Список переводов          |
-| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers`                | Создать перевод           |
-| GET    | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}`   | Деталь перевода (`transfer.status_history`, `available_actions`, `project_name` при загрузке проекта) |
-| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}/approve-project-head` | Утвердить (РП), дельты → WAITING_24_HOURS |
-| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}/reject-project-head` | Отклонить РП              |
-| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}/reset-approval` | Сотрудник: сброс согласования |
-| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}/submit-for-approval` | Сотрудник: на согласование |
-| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}/complete-immediate` | РП/партнёр: CREATED → COMPLETED |
-| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}/return-to-created` | Из WAITING_24_HOURS в CREATED (откат дельт) |
-| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}/return-to-project-head-approval` | Из WAITING_24_HOURS в PROJECT_HEAD_APPROVAL |
-| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}/complete-waiting` | WAITING_24_HOURS → COMPLETED |
-| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}/rollback-completed` | Откат COMPLETED (сценарий РП/партнёра) |
-| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}/return-completed-to-project-head-approval` | Откат COMPLETED сценария сотрудника → PROJECT_HEAD_APPROVAL |
+| Method | Route                                                                                                                                 | Назначение                                                                                            |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| GET    | `/api/company-workspace/{companyId}/context`                                                                                          | Контекст компании                                                                                     |
+| GET    | `/api/company-workspace/{companyId}/operations/transfers/history`                                                                     | Все видимые переводы по проектам компании (пагинация; при необходимости `project_name` в элементе)    |
+| GET    | `/api/company-workspace/{companyId}/operations/history`                                                                               | Объединённая лента **TRANSFER** и **INCOME** (`AggregatedOperationsHistoryService`)                   |
+| GET    | `/api/company-workspace/{companyId}/operations/transfers/pending-count`                                                               | `{ pending_action_count }` — whitelist шагов подтверждения для пользователя                           |
+| GET    | `/api/company-workspace/{companyId}/companies/current`                                                                                | Текущая компания                                                                                      |
+| GET    | `/api/company-workspace/{companyId}/projects`                                                                                         | Список проектов                                                                                       |
+| POST   | `/api/company-workspace/{companyId}/projects`                                                                                         | Создать проект                                                                                        |
+| GET    | `/api/company-workspace/{companyId}/counterparties`                                                                                   | Список контрагентов                                                                                   |
+| POST   | `/api/company-workspace/{companyId}/counterparties`                                                                                   | Создать контрагента                                                                                   |
+| GET    | `/api/company-workspace/{companyId}/projects/{projectId}/participants`                                                                | Список участников проекта                                                                             |
+| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/participants`                                                                | Добавить участника                                                                                    |
+| PATCH  | `/api/company-workspace/{companyId}/projects/{projectId}/participants/{participantId}`                                                | Изменить роль участника                                                                               |
+| DELETE | `/api/company-workspace/{companyId}/projects/{projectId}/participants/{participantId}`                                                | Удалить участника                                                                                     |
+| GET    | `/api/company-workspace/{companyId}/projects/{projectId}/participants/{participantId}/wallet`                                         | Кошелёк участника                                                                                     |
+| GET    | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/recipients`                                             | Получатели перевода (query: `transfer_target_type`)                                                   |
+| GET    | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers`                                                        | Список переводов                                                                                      |
+| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers`                                                        | Создать перевод                                                                                       |
+| GET    | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}`                                           | Деталь перевода (`transfer.status_history`, `available_actions`, `project_name` при загрузке проекта) |
+| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}/approve-project-head`                      | Утвердить (РП), дельты → WAITING_24_HOURS                                                             |
+| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}/reject-project-head`                       | Отклонить РП                                                                                          |
+| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}/reset-approval`                            | Сотрудник: сброс согласования                                                                         |
+| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}/submit-for-approval`                       | Сотрудник: на согласование                                                                            |
+| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}/complete-immediate`                        | РП/партнёр: CREATED → COMPLETED                                                                       |
+| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}/return-to-created`                         | Из WAITING_24_HOURS в CREATED (откат дельт)                                                           |
+| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}/return-to-project-head-approval`           | Из WAITING_24_HOURS в PROJECT_HEAD_APPROVAL                                                           |
+| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}/complete-waiting`                          | WAITING_24_HOURS → COMPLETED                                                                          |
+| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}/rollback-completed`                        | Откат COMPLETED (сценарий РП/партнёра)                                                                |
+| POST   | `/api/company-workspace/{companyId}/projects/{projectId}/operations/transfers/{transferId}/return-completed-to-project-head-approval` | Откат COMPLETED сценария сотрудника → PROJECT_HEAD_APPROVAL                                           |
 
-Расписание: `php artisan schedule:list` — команда **`operations:complete-expired-transfer-waiting`** (каждую минуту) доводит переводы в `WAITING_24_HOURS` до `COMPLETED` после 24 ч UTC от `waiting_period_started_at`.
 
+Расписание: `php artisan schedule:list` — команда `**operations:complete-expired-transfer-waiting`** (каждую минуту) доводит переводы в `WAITING_24_HOURS` до `COMPLETED` после 24 ч UTC от `waiting_period_started_at`.
 
 ### 6.5. Personal workspace
 
 
-| Method | Route                               | Назначение                    |
-| ------ | ----------------------------------- | ----------------------------- |
-| GET    | `/api/personal-workspace/context`   | Контекст личного пространства |
-| GET    | `/api/personal-workspace/companies` | Компании                      |
-| GET    | `/api/personal-workspace/projects`  | Проекты                       |
-| GET    | `/api/personal-workspace/income-by-month` | Доход по месяцам (исполнитель) |
-| GET    | `/api/personal-workspace/operations/transfers/history` | Лента переводов по всем проектам с участием пользователя |
-| GET    | `/api/personal-workspace/operations/history` | Объединённая лента **TRANSFER** и **INCOME** |
-| GET    | `/api/personal-workspace/operations/transfers/pending-count` | `{ pending_action_count }` (те же правила whitelist, что и в company-workspace) |
-| GET    | `/api/personal-workspace/projects/{projectId}/operations/transfers/recipients` | Получатели перевода (ТЗ-05.3) |
-| GET    | `/api/personal-workspace/projects/{projectId}/operations/transfers` | Список переводов |
-| POST   | `/api/personal-workspace/projects/{projectId}/operations/transfers` | Создать перевод |
-| GET    | `/api/personal-workspace/projects/{projectId}/operations/transfers/{transferId}` | Деталь перевода (как в company-workspace: `available_actions`, история, `project_name`) |
-| POST   | `/api/personal-workspace/projects/{projectId}/operations/transfers/{transferId}/submit-for-approval` | Сотрудник: на согласование |
-| POST   | `/api/personal-workspace/projects/{projectId}/operations/transfers/{transferId}/reset-approval` | Сотрудник: сброс согласования |
-| POST   | `/api/personal-workspace/projects/{projectId}/operations/transfers/{transferId}/return-to-created` | Сотрудник: откат из ожидания |
+| Method | Route                                                                                                | Назначение                                                                              |
+| ------ | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| GET    | `/api/personal-workspace/context`                                                                    | Контекст личного пространства                                                           |
+| GET    | `/api/personal-workspace/companies`                                                                  | Компании                                                                                |
+| GET    | `/api/personal-workspace/projects`                                                                   | Проекты                                                                                 |
+| GET    | `/api/personal-workspace/income-by-month`                                                            | Доход по месяцам (исполнитель)                                                          |
+| GET    | `/api/personal-workspace/operations/transfers/history`                                               | Лента переводов по всем проектам с участием пользователя                                |
+| GET    | `/api/personal-workspace/operations/history`                                                         | Объединённая лента **TRANSFER** и **INCOME**                                            |
+| GET    | `/api/personal-workspace/operations/transfers/pending-count`                                         | `{ pending_action_count }` (те же правила whitelist, что и в company-workspace)         |
+| GET    | `/api/personal-workspace/projects/{projectId}/operations/transfers/recipients`                       | Получатели перевода (ТЗ-05.3)                                                           |
+| GET    | `/api/personal-workspace/projects/{projectId}/operations/transfers`                                  | Список переводов                                                                        |
+| POST   | `/api/personal-workspace/projects/{projectId}/operations/transfers`                                  | Создать перевод                                                                         |
+| GET    | `/api/personal-workspace/projects/{projectId}/operations/transfers/{transferId}`                     | Деталь перевода (как в company-workspace: `available_actions`, история, `project_name`) |
+| POST   | `/api/personal-workspace/projects/{projectId}/operations/transfers/{transferId}/submit-for-approval` | Сотрудник: на согласование                                                              |
+| POST   | `/api/personal-workspace/projects/{projectId}/operations/transfers/{transferId}/reset-approval`      | Сотрудник: сброс согласования                                                           |
+| POST   | `/api/personal-workspace/projects/{projectId}/operations/transfers/{transferId}/return-to-created`   | Сотрудник: откат из ожидания                                                            |
 
-Создание перевода и перечисленные действия сотрудника из личного кабинета — только для участника **1-го порядка** с ролью в проекте **`EMPLOYEE`** (`PersonalWorkspaceTransferGuard`, **403** иначе). Остальная логика — общие `TransferService` / `TransferLifecycleService`. Полное ТЗ: `docs/OldDocs/TZ_05_3_GURU_Transfer_Personal_Workspace_Alignment.md`.
+
+Создание перевода и перечисленные действия сотрудника из личного кабинета — только для участника **1-го порядка** с ролью в проекте `**EMPLOYEE`** (`PersonalWorkspaceTransferGuard`, **403** иначе). Остальная логика — общие `TransferService` / `TransferLifecycleService`. Полное ТЗ: `docs/OldDocs/TZ_05_3_GURU_Transfer_Personal_Workspace_Alignment.md`.
 
 **Query-параметр `workspace_role`** (опционально):
 
@@ -496,7 +499,6 @@ Scoped routes:
 - `my_participation`: `{ level, project_role_code }` — для клиента (ТЗ-05.3: кто может создавать перевод из личного кабинета).
 
 **Важно (интеграция PHP):** строки пагинатора с сырого `DB::table` / `fromSub` нередко приходят как `stdClass`. В `PersonalCompanyResource` и `PersonalProjectResource` ресурс перед разбором **нормализуется в массив** (`json_encode`/`json_decode`), иначе `Arr::get()` не находит ключи — на клиенте были бы пустые имена и `company_id = 0`.
-
 
 ---
 
@@ -645,7 +647,7 @@ ProjectParticipant -> ProjectParticipantWallet
 - `REJECTED`;
 - `ROLLED_BACK`.
 
-**Терминальность по типу операции:** в PHP enum `OperationStatus` метод **`isTerminal()`** отражает общий признак (в т.ч. `REJECTED` терминален «в общем»). Для сценариев вроде отклонения перевода руководителем проекта используется **`isTerminalForOperationType(OperationType)`**: для **`TRANSFER`** состояние с `REJECTED` **не** считается финальным завершением операции; для **`INCOME`** и **`REPORT`** правила уточняются в lifecycle-сервисах и enum. Словарь для клиента (`DictionaryCacheService`, ключ `guru:dict:operation_statuses:v2`) содержит **`is_terminal_by_operation_type`**.
+**Терминальность по типу операции:** в PHP enum `OperationStatus` метод `**isTerminal()`** отражает общий признак (в т.ч. `REJECTED` терминален «в общем»). Для сценариев вроде отклонения перевода руководителем проекта используется `**isTerminalForOperationType(OperationType)`**: для `**TRANSFER`** состояние с `REJECTED` не считается финальным завершением операции; для `**INCOME**` и `**REPORT`** правила уточняются в lifecycle-сервисах и enum. Словарь для клиента (`DictionaryCacheService`, ключ `guru:dict:operation_statuses:v2`) содержит `**is_terminal_by_operation_type`**.
 
 ### 7.8. OperationStatusHistory
 
@@ -657,11 +659,11 @@ ProjectParticipant -> ProjectParticipantWallet
 - `from_status`;
 - `to_status`;
 - `changed_by_project_participant_id`;
-- **`comment`** (текст причины/примечания, nullable);
-- **`author_user_id`**, **`author_full_name`** (nullable, денормализация для аудита);
+- `**comment`** (текст причины/примечания, nullable);
+- `**author_user_id**`, `**author_full_name**` (nullable, денормализация для аудита);
 - `created_at`.
 
-Для **TRANSFER** строки создают **`TransferService`** и **`TransferLifecycleService`** (в т.ч. системное авто-завершение с комментарием).
+Для **TRANSFER** строки создают `**TransferService`** и `**TransferLifecycleService`** (в т.ч. системное авто-завершение с комментарием).
 
 ### 7.9. TransferOperation
 
@@ -674,12 +676,12 @@ ProjectParticipant -> ProjectParticipantWallet
 - `initiator_project_participant_id`;
 - `sender_project_participant_id`;
 - `receiver_project_participant_id`;
-- **`receiver_counterparty_id`** (nullable; для `PERSONAL_BALANCE` — исходный контрагент-получатель);
+- `**receiver_counterparty_id`** (nullable; для `PERSONAL_BALANCE` — исходный контрагент-получатель);
 - `transfer_target_type`;
 - `amount`;
 - `comment`;
 - `operation_status`;
-- **`wallets_applied_at`**, **`wallets_reverted_at`**, **`waiting_period_started_at`** (семантика UTC для 24 ч ожидания).
+- `**wallets_applied_at`**, `**wallets_reverted_at**`, `**waiting_period_started_at**` (семантика UTC для 24 ч ожидания).
 
 Типы цели перевода:
 
@@ -720,8 +722,8 @@ receiver.personal_received += amount
 
 ### 8.2a. Кому можно быть получателем (уточнения)
 
-- **`ACCOUNTABLE_BALANCE`:** в API списка получателей **исключается текущий участник**; перевод **себе на подотчёт** при создании отклоняется (`TransferParticipantResolver`).
-- **`PERSONAL_BALANCE`:** перевод **себе на расчётный** разрешён; в списке контрагентов-получателей допускается роль **`OWNER`** (согласованный UX «на личный»).
+- `**ACCOUNTABLE_BALANCE`:** в API списка получателей **исключается текущий участник**; перевод **себе на подотчёт** при создании отклоняется (`TransferParticipantResolver`).
+- `**PERSONAL_BALANCE`:** перевод **себе на расчётный** разрешён; в списке контрагентов-получателей допускается роль `**OWNER`** (согласованный UX «на личный»).
 
 Запрещено:
 
@@ -733,17 +735,19 @@ receiver.personal_received += amount
 
 Создание (`POST .../operations/transfers`, `TransferService::create`):
 
-| Инициатор (роль в проекте) | Статус после создания | Дельты кошельков |
-| -------------------------- | ---------------------- | ----------------- |
-| `PROJECT_HEAD`, `PARTNER`  | `COMPLETED`            | применены сразу   |
-| `EMPLOYEE`                 | `PROJECT_HEAD_APPROVAL` | не применены    |
+
+| Инициатор (роль в проекте) | Статус после создания   | Дельты кошельков |
+| -------------------------- | ----------------------- | ---------------- |
+| `PROJECT_HEAD`, `PARTNER`  | `COMPLETED`             | применены сразу  |
+| `EMPLOYEE`                 | `PROJECT_HEAD_APPROVAL` | не применены     |
+
 
 После создания действующие лица вызывают **POST**-маршруты из §6.4 (см. таблицу выше). Ключевые ветки:
 
-- **Сотрудник:** при одобрении РП статус **`PROJECT_HEAD_APPROVAL` → `WAITING_24_HOURS`**, дельты применяются, **`waiting_period_started_at`** = текущее время **UTC**; затем **`WAITING_24_HOURS` → `COMPLETED`** вручную РП или планировщиком **`operations:complete-expired-transfer-waiting`** через 24 ч UTC.
-- **Отклонение РП:** кратковременный `REJECTED` в истории и возврат операции в **`CREATED`** для правок сотрудником.
-- **Откаты из ожидания:** сотрудник или РП могут отменить уже применённые дельты и вернуться в **`CREATED`** или **`PROJECT_HEAD_APPROVAL`** (см. соответствующие POST).
-- **Завершённые переводы РП/партнёра:** откат в **`CREATED`** через `rollback-completed`; переводы по сценарию сотрудника — **`return-completed-to-project-head-approval`** (откат дельт к повторному согласованию).
+- **Сотрудник:** при одобрении РП статус `**PROJECT_HEAD_APPROVAL` → `WAITING_24_HOURS`**, дельты применяются, `**waiting_period_started_at`** = текущее время UTC; затем `**WAITING_24_HOURS` → `COMPLETED**` вручную РП или планировщиком `**operations:complete-expired-transfer-waiting**` через 24 ч UTC.
+- **Отклонение РП:** кратковременный `REJECTED` в истории и возврат операции в `**CREATED`** для правок сотрудником.
+- **Откаты из ожидания:** сотрудник или РП могут отменить уже применённые дельты и вернуться в `**CREATED`** или `**PROJECT_HEAD_APPROVAL`** (см. соответствующие POST).
+- **Завершённые переводы РП/партнёра:** откат в `**CREATED`** через `rollback-completed`; переводы по сценарию сотрудника — `**return-completed-to-project-head-approval`** (откат дельт к повторному согласованию).
 
 Полный перечень переходов и прав доступа к действиям — в коде `TransferLifecycleService` и контроллерах модуля Operations.
 
@@ -806,7 +810,7 @@ erDiagram
 
 ### 10.5. Operations
 
-- `OperationTransitionService` — декларативная карта переходов там, где она подключена в коде; **TRANSFER** и **INCOME** используют **`TransferLifecycleService`** и **`IncomeLifecycleService`**.
+- `OperationTransitionService` — декларативная карта переходов там, где она подключена в коде; **TRANSFER** и **INCOME** используют `**TransferLifecycleService`** и `**IncomeLifecycleService`**.
 - `OperationStatusService` — подписи/служебная информация по статусам.
 - `TransferBalanceService` — математика перевода и отката дельт.
 - `IncomeBalanceService` — начисление и откат дельт поступления на подотчёт заказчика и РП.
@@ -826,9 +830,9 @@ erDiagram
 ### 10.6. Personal workspace (HTTP)
 
 - `PersonalWorkspaceContextController` — контекст (если предусмотрен маршрутом).
-- `ListCompaniesController` (`/personal-workspace/companies`) — пагинация компаний, в которых у пользователя есть участие в проектах (через активный counterparty и `project_participants`). Поддерживает **`workspace_role=customer`**. В ответе у каждой компании — **`projects_count`** (дедуп по `project_id` в подзапросе).
-- `ListProjectsController` (`/personal-workspace/projects`) — пагинация проектов с участием пользователя; **`leftJoin`** на `project_participant_wallets` участника; поддерживает **`workspace_role=customer`**. Ресурс отдаёт **`my_wallet`** и **`my_participation`** (`level`, `project_role_code`).
-- Контроллеры **`Operations\Http\Controllers\PersonalWorkspace\*`** — переводы под префиксом `/personal-workspace/projects/{projectId}/operations/transfers...` (см. §6.5), без дублирования бизнес-логики company-контуров.
+- `ListCompaniesController` (`/personal-workspace/companies`) — пагинация компаний, в которых у пользователя есть участие в проектах (через активный counterparty и `project_participants`). Поддерживает `**workspace_role=customer`**. В ответе у каждой компании — `**projects_count`** (дедуп по `project_id` в подзапросе).
+- `ListProjectsController` (`/personal-workspace/projects`) — пагинация проектов с участием пользователя; `**leftJoin**` на `project_participant_wallets` участника; поддерживает `**workspace_role=customer**`. Ресурс отдаёт `**my_wallet**` и `**my_participation**` (`level`, `project_role_code`).
+- Контроллеры `**Operations\Http\Controllers\PersonalWorkspace\***` — переводы под префиксом `/personal-workspace/projects/{projectId}/operations/transfers...` (см. §6.5), без дублирования бизнес-логики company-контуров.
 - `PersonalCompanyResource`, `PersonalProjectResource` — после нормализации сырой строки пагинации в массив стабильно мапят `company_id`, `company_name`, `project_*`, суммы кошелька.
 
 ---
@@ -904,22 +908,22 @@ mobile_app/lib/core/routing/router_provider.dart
 Routes:
 
 
-| Route                 | Screen             |
-| --------------------- | ------------------ |
-| `/`                   | Splash             |
-| `/login`              | Login              |
-| `/register`           | Register           |
-| `/workspaces`         | Workspace Entry    |
-| `/create-company`     | Create Company     |
-| `/company/:companyId` | Company Workspace  |
-| `/personal`           | Personal Workspace Shell (3 вкладки: главная исполнителя, **Операции** — перевод/отчёт-заглушка, уведомления) |
-| `/personal/companies` | Все компании личного кабинета |
-| `/customer`           | Customer Workspace Shell (главная + уведомления-заглушка) |
-| `/customer/companies` | Список компаний заказчика |
-| `/customer/companies/:companyId/projects` | Проекты компании для заказчика (`extra`: имя компании) |
+| Route                                     | Screen                                                                                                        |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `/`                                       | Splash                                                                                                        |
+| `/login`                                  | Login                                                                                                         |
+| `/register`                               | Register                                                                                                      |
+| `/workspaces`                             | Workspace Entry                                                                                               |
+| `/create-company`                         | Create Company                                                                                                |
+| `/company/:companyId`                     | Company Workspace                                                                                             |
+| `/personal`                               | Personal Workspace Shell (3 вкладки: главная исполнителя, **Операции** — перевод/отчёт-заглушка, уведомления) |
+| `/personal/companies`                     | Все компании личного кабинета                                                                                 |
+| `/customer`                               | Customer Workspace Shell (главная + уведомления-заглушка)                                                     |
+| `/customer/companies`                     | Список компаний заказчика                                                                                     |
+| `/customer/companies/:companyId/projects` | Проекты компании для заказчика (`extra`: имя компании)                                                        |
 
 
-На экране **`/workspaces`** кнопка **«Создать компанию»** показывается **всегда**, в том числе когда список воркспейсов уже не пуст (переход на `/create-company`).
+На экране `**/workspaces`** кнопка **«Создать компанию»** показывается **всегда**, в том числе когда список воркспейсов уже не пуст (переход на `/create-company`).
 
 На экране выбора workspace отдельная карточка **«Кабинет заказчика»** ведёт на `/customer`, если у пользователя есть роль `CUSTOMER` в personal contour; карточка **«Личное пространство»** (исполнитель) — на `/personal`, если есть `EMPLOYEE`/`CONTRACTOR`/`SUPPLIER`.
 
@@ -930,7 +934,7 @@ Routes:
 - переводы;
 - создание перевода.
 
-Из **личного кабинета** (`PersonalOperationsTab`, вкладка «Операции»): тот же `TransfersScreen` / `CreateTransferScreen`, но с **`TransferApiScope.personal`** и базой URL `/api/personal-workspace/projects/...`.
+Из **личного кабинета** (`PersonalOperationsTab`, вкладка «Операции»): тот же `TransfersScreen` / `CreateTransferScreen`, но с `**TransferApiScope.personal`** и базой URL `/api/personal-workspace/projects/...`.
 
 ### 11.4. Модуль `customer_workspace`
 
@@ -1120,7 +1124,7 @@ context.l10n.someKey
 Реализовано:
 
 - на Login/Register через `LocaleSwitchButton`;
-- на главной вкладке **Company Workspace** (`CompanyWorkspaceShell`, экран главной компании) через **`LocaleSwitchButton`** в app bar (отображение **RU** / **EN**, тот же bottom sheet выбора языка, что и на авторизации);
+- на главной вкладке **Company Workspace** (`CompanyWorkspaceShell`, экран главной компании) через `**LocaleSwitchButton`** в app bar (отображение **RU** / **EN**, тот же bottom sheet выбора языка, что и на авторизации);
 - на главном экране **кабинета заказчика** (`CustomerWorkspaceShell`) в верхней панели через `LocaleSwitchButton`;
 - в personal workspace / списках компаний личного кабинета — по месту см. код (`LocaleSwitchButton`).
 
@@ -1150,7 +1154,7 @@ context.l10n.someKey
 - контрагенты;
 - нижняя навигация и **точка входа «Операции»** (picker: **поступление** → `CreateIncomeScreen`, **перевод** → `CreateTransferScreen`, отчёт — заглушка);
 - после успешного **создания перевода** из picker — переход на вкладку «Операции», snackbar успеха, обновление счётчика ожидающих действий по **переводам** (`transferPendingActionCountProvider`);
-- переключатель языка **`LocaleSwitchButton`** на главной вкладке.
+- переключатель языка `**LocaleSwitchButton`** на главной вкладке.
 
 ### 15.4. Counterparties
 
@@ -1188,18 +1192,18 @@ context.l10n.someKey
 
 - список переводов по проекту;
 - создание перевода (шаг: тип цели → выбор получателя с API `recipients`);
-- успешный ответ создания — HTTP **201**, тело `ok` + `data.transfer`; на клиенте проверка **`ok`**, устойчивый разбор **`TransferOperation.fromJson`** (строковые поля без небезопасных `as String?`), чтобы не показывать ошибку при уже созданном на сервере переводе;
+- успешный ответ создания — HTTP **201**, тело `ok` + `data.transfer`; на клиенте проверка `**ok`**, устойчивый разбор `**TransferOperation.fromJson`** (строковые поля без небезопасных `as String?`), чтобы не показывать ошибку при уже созданном на сервере переводе;
 - комментарий и отображение статуса;
-- **экран детали** (`TransferDetailScreen`): таймлайн **`status_history`**, кнопки lifecycle по **`available_actions`** из API; POST через тот же контур; действия с обязательным комментарием — через **`showOperationCommentDialog`** (`operation_comment_dialog.dart`);
-- **история операций на дашборде и у заказчика** (`AggregatedTransfersHistoryScreen`): объединённая лента **`GET …/operations/history`** (TRANSFER + INCOME); бейдж на плитке — **`combinedOperationsPendingCountProvider`** (сумма ожиданий по переводам и поступлениям). Отдельные эндпоинты `…/transfers/history` и `…/incomes/history` по-прежнему доступны для узких сценариев.
+- **экран детали** (`TransferDetailScreen`): таймлайн `**status_history`**, кнопки lifecycle по `**available_actions`** из API; POST через тот же контур; действия с обязательным комментарием — через `**showOperationCommentDialog**` (`operation_comment_dialog.dart`);
+- **история операций на дашборде и у заказчика** (`AggregatedTransfersHistoryScreen`): объединённая лента `**GET …/operations/history`** (TRANSFER + INCOME); бейдж на плитке — `**combinedOperationsPendingCountProvider`** (сумма ожиданий по переводам и поступлениям). Отдельные эндпоинты `…/transfers/history` и `…/incomes/history` по-прежнему доступны для узких сценариев.
 
 ### 15.9. Operation entry point
 
 Нижняя кнопка `Операции` открывает picker:
 
-- **`Поступление`** — **`CreateIncomeScreen`** (выбор проекта при нескольких);
-- **`Перевод`** — **`CreateTransferScreen`**;
-- **`Отчёт`** — disabled/заглушка.
+- `**Поступление`** — `**CreateIncomeScreen`** (выбор проекта при нескольких);
+- `**Перевод**` — `**CreateTransferScreen**`;
+- `**Отчёт**` — disabled/заглушка.
 
 Если проектов несколько, перед созданием перевода или поступления показывается выбор проекта. Контент вкладки «Операции» в нижнем меню компании по-прежнему может быть **плейсхолдером**; основные сценарии — через этот picker и через участников проекта.
 
@@ -1210,13 +1214,13 @@ context.l10n.someKey
 Реализовано на том же **personal-workspace API** с `workspace_role=customer`.
 
 - **Провайдер данных:** `customerWorkspaceDataProvider` (`FutureProvider.autoDispose`) — параллельно запрашивает компании и проекты; при пустом названии компании в ответе API подставляет имя из первого связанного проекта (`withFallbackName`).
-- **Экран оболочки** `CustomerWorkspaceShell`: нижняя навигация «Главная» / «Уведомления» (вторая — заглушка); тело обёрнуто в **`SafeArea`**, нижний бар — в **`SafeArea(top: false)`**; горизонтальные отступы **`AppSpacing.lg`**, карусель проектов с карточками `AppCard`, суммы из `my_wallet`, прогресс проекта.
+- **Экран оболочки** `CustomerWorkspaceShell`: нижняя навигация «Главная» / «Уведомления» (вторая — заглушка); тело обёрнуто в `**SafeArea`**, нижний бар — в `**SafeArea(top: false)`**; горизонтальные отступы `**AppSpacing.lg**`, карусель проектов с карточками `AppCard`, суммы из `my_wallet`, прогресс проекта.
 - **Все проекты:** экран списка компаний с поиском, счётчиком проектов и агрегатами по кошелькам (суммирование по проектам компании); **без сегментации активные/неактивные компании** до появления управления статусом у руководителя компании.
 - **Проекты компании:** список проектов, где пользователь — заказчик; **без фильтрации по `is_active`** (все проекты отображаются); крупное наименование проекта, бейдж баланса.
 - Переключатель языка: `LocaleSwitchButton` в верхней панели главного экрана заказчика.
-- Кнопка **«История операций»** на главной — переход в **`AggregatedTransfersHistoryScreen`** (объединённая лента **`GET …/operations/history`**); бейдж на плитке — **`combinedOperationsPendingCountProvider`**. **«Документы»** — по-прежнему заглушка (SnackBar), отдельного API документов нет.
+- Кнопка **«История операций»** на главной — переход в `**AggregatedTransfersHistoryScreen`** (объединённая лента `**GET …/operations/history`**); бейдж на плитке — `**combinedOperationsPendingCountProvider`**. **«Документы»** — по-прежнему заглушка (SnackBar), отдельного API документов нет.
 
-Инвалидация при смене сессии: в `AuthController` инвалидируются **`workspacesProvider`** и **`customerWorkspaceDataProvider`**.
+Инвалидация при смене сессии: в `AuthController` инвалидируются `**workspacesProvider`** и `**customerWorkspaceDataProvider`**.
 
 ---
 
@@ -1226,7 +1230,7 @@ context.l10n.someKey
 
 Не реализовано:
 
-- операция **`REPORT`**;
+- операция `**REPORT`**;
 - realtime / websocket / offline sync / push notifications;
 - отдельные экраны/API **документов** для кабинета заказчика (заглушка SnackBar);
 - управление **статусами компании и проекта** (активен / архив и т.д.) в company workspace — для последующей синхронизации с фильтрами в UI заказчика;
@@ -1234,7 +1238,7 @@ context.l10n.someKey
 - графики;
 - production-grade тестовый набор.
 
-**Реализовано по операциям:** объединённая лента **`GET …/operations/history`**, **`AggregatedOperationsHistoryService`**; Flutter — **`AggregatedTransfersHistoryScreen`**, **`combinedOperationsPendingCountProvider`**; диалог комментария к действиям с обязательным текстом — **`showOperationCommentDialog`**. Отдельные списки **`…/transfers/history`** и **`…/incomes/history`** сохранены на backend для совместимости.
+**Реализовано по операциям:** объединённая лента `**GET …/operations/history`**, `**AggregatedOperationsHistoryService`**; Flutter — `**AggregatedTransfersHistoryScreen**`, `**combinedOperationsPendingCountProvider**`; диалог комментария к действиям с обязательным текстом — `**showOperationCommentDialog**`. Отдельные списки `**…/transfers/history**` и `**…/incomes/history**` сохранены на backend для совместимости.
 
 ---
 
@@ -1258,7 +1262,7 @@ context.l10n.someKey
 ### 17.2. Flutter standards
 
 1. Feature-first структура.
-2. HTTP — только через API/repository layer; Dio — **`ResponseType.plain`**, без следования редиректам на `login` как за «успех».
+2. HTTP — только через API/repository layer; Dio — `**ResponseType.plain`**, без следования редиректам на `login` как за «успех».
 3. UI не знает деталей Dio.
 4. UI использует typed domain models.
 5. State — Riverpod.
@@ -1314,9 +1318,9 @@ flutter run -d emulator-5554 --dart-define=GURU_API_BASE_URL=http://10.0.2.2:800
 http://10.0.2.2:8000/api
 ```
 
-В манифесте приложения для разработки по HTTP: разрешение **`INTERNET`**, **`android:usesCleartextTraffic="true"`**. На **физическом устройстве** вместо `10.0.2.2` используйте **IP компьютера в LAN** (например `http://192.168.0.15:8000/api`).
+В манифесте приложения для разработки по HTTP: разрешение `**INTERNET**`, `**android:usesCleartextTraffic="true"**`. На **физическом устройстве** вместо `10.0.2.2` используйте **IP компьютера в LAN** (например `http://192.168.0.15:8000/api`).
 
-Клиент **`ApiClient`**: Dio с **`ResponseType.plain`** и **`followRedirects: false`**, явный JSON `Content-Type` на POST/PATCH, разбор ответа с детекцией HTML (избегание ошибок вида `unexpected token "<"` при логин-странице или тексте ошибки веб-сервера). На стороне Laravel для `api/*`: middleware **`RejectHtmlApiResponses`**, в `bootstrap/app.php` — ветка исключений по **`$request->is('api/*')`**, в `AppServiceProvider` — **`JsonResource::withoutWrapping()`**.
+Клиент `**ApiClient`**: Dio с `**ResponseType.plain`** и `**followRedirects: false**`, явный JSON `Content-Type` на POST/PATCH, разбор ответа с детекцией HTML (избегание ошибок вида `unexpected token "<"` при логин-странице или тексте ошибки веб-сервера). На стороне Laravel для `api/*`: middleware `**RejectHtmlApiResponses**`, в `bootstrap/app.php` — ветка исключений по `**$request->is('api/*')**`, в `AppServiceProvider` — `**JsonResource::withoutWrapping()**`.
 
 ---
 
@@ -1327,7 +1331,7 @@ http://10.0.2.2:8000/api
 1. Создать Laravel API проект в `backend`.
 2. Подключить Sanctum.
 3. Создать модульную структуру `app/Modules`.
-4. Реализовать `ApiResponse`, `RequestId`, **`ForceJsonResponse`**, **`RejectHtmlApiResponses`** (стек `api` в `bootstrap/app.php`), общий error renderer по **`$request->is('api/*')`**, в провайдере — **`JsonResource::withoutWrapping()`**.
+4. Реализовать `ApiResponse`, `RequestId`, `**ForceJsonResponse**`, `**RejectHtmlApiResponses**` (стек `api` в `bootstrap/app.php`), общий error renderer по `**$request->is('api/*')**`, в провайдере — `**JsonResource::withoutWrapping()**`.
 5. Создать словари ролей компании и проекта.
 6. Создать таблицы `companies`, `counterparties`, `projects`, `project_participants`.
 7. Реализовать Auth endpoints.
@@ -1352,7 +1356,7 @@ http://10.0.2.2:8000/api
 26. Реализовать projects/counterparties/participants/wallet/transfers UI (список/создание, **экран детали** с действиями по `available_actions` и диалогом комментария при необходимости, **объединённая история** `GET …/operations/history`, **combined** pending-бейдж на главных company/customer).
 27. Реализовать **кабинет заказчика** (Flutter: `customer_workspace`, маршруты `/customer/...`) и расширить personal-workspace API (`workspace_role`, `projects_count`, `my_wallet`, `my_participation` в ресурсах).
 28. Реализовать вкладку **«Операции»** в `PersonalWorkspaceShell` (`personal_operations_tab.dart`), `TransferApiScope.personal` в `transfers_api.dart`.
-29. Поддерживать **`docs/GURU_CONTEXT_INDEX.md`**, **`docs/GURU_PROJECT_CONTEXT.md`** и короткий вход **`PROJECT_CONTEXT_GURU.md`** при крупных изменениях API/домена.
+29. Поддерживать `**docs/GURU_CONTEXT_INDEX.md`**, `**docs/GURU_PROJECT_CONTEXT.md`** и короткий вход `**PROJECT_CONTEXT_GURU.md**` при крупных изменениях API/домена.
 30. Проверить `flutter analyze`, `php artisan route:list`, ручные сценарии.
 
 ---
@@ -1423,7 +1427,7 @@ receiver.accountable_received = 200
 - переключить на `en` на login;
 - перезапустить приложение;
 - язык должен сохраниться;
-- переключить язык на главном экране company workspace (**`LocaleSwitchButton`**, отображение RU/EN);
+- переключить язык на главном экране company workspace (`**LocaleSwitchButton**`, отображение RU/EN);
 - переключить язык на главном экране кабинета заказчика;
 - интерфейс должен обновиться без выхода.
 
@@ -1439,13 +1443,13 @@ receiver.accountable_received = 200
 
 ### 21.1. Следующий backend этап
 
-- операция **`REPORT`** и отчётные агрегаты для дашборда компании;
-- при необходимости — **`POST …/incomes/…/reset-approval`** и другие точки ТЗ-06.1, если появятся в продуктовой спецификации.
+- операция `**REPORT**` и отчётные агрегаты для дашборда компании;
+- при необходимости — `**POST …/incomes/…/reset-approval**` и другие точки ТЗ-06.1, если появятся в продуктовой спецификации.
 
 ### 21.2. Следующий operations этап
 
-- расширить whitelist бейджа и **`available_actions`** под новые сценарии;
-- операция **`REPORT`**;
+- расширить whitelist бейджа и `**available_actions**` под новые сценарии;
+- операция `**REPORT**`;
 - при необходимости — уведомления о смене статуса перевода (продуктовая фича поверх API).
 
 Нормативный документ по переводу: **ТЗ-05.2 v3** (у пользователя / в документации проекта).

@@ -7,15 +7,17 @@ alwaysApply: true
 
 Монорепозиторий: `backend/` (Laravel), `mobile_app/` (Flutter).
 
-**Минимальная точка входа (мало токенов):** `docs/GURU_CONTEXT_INDEX.md`.  
-**Расширенный handoff:** `docs/GURU_PROJECT_CONTEXT.md`.  
-Корень репозитория: `PROJECT_CONTEXT_GURU.md` — только указатель на `docs/`.
+**Минимальная точка входа:** `docs/GURU_CONTEXT_INDEX.md`.  
+**Какие файлы прикладывать под задачу:** `docs/README_MODULAR.md`.  
+Корень репозитория: `PROJECT_CONTEXT_GURU.md` — указатель на `docs/`.
 
-| Файл | Назначение |
+| Папка | Назначение |
 |------|------------|
-| `docs/GURU_ARCHITECTURE_AND_STANDARDS.md` | Маршруты §6, модули, домен, стандарты API |
-| `docs/GURU_FULL_PROJECT_BLUEPRINT.md` | Подробный продуктовый/UX blueprint |
-| `docs/GURU_OPERATIONS_REFERENCE.md` | TRANSFER + INCOME (эндпойнты, деньги, lifecycle) |
+| `docs/00_core/` | Постулаты, стандарты модулей, воркспейсы, доменная модель |
+| `docs/10_operations/` | Общие правила операций, TRANSFER, INCOME, REPORT |
+| `docs/20_api/` | Маршруты и контракт ответа API |
+| `docs/30_flutter/` | Архитектура Flutter, UI, экраны |
+| `docs/90_current/` | Текущее состояние и шаблон следующей задачи |
 
 **Не опираться на** `docs/OldDocs/` без явного запроса пользователя.
 

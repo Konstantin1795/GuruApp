@@ -3,20 +3,35 @@
 **Репозиторий:** GuruApp — `backend/` (Laravel API), `mobile_app/` (Flutter).  
 **Стек:** PHP 8.3 / Laravel 13 / Sanctum / PostgreSQL; Flutter / Riverpod / go_router / Dio.
 
-## Канонические файлы (четыре)
+## Канон: модульная раскладка
 
-| Файл | Когда открывать |
-|------|-----------------|
-| **`docs/GURU_PROJECT_CONTEXT.md`** | Полный короткий handoff: продукт, маршруты, сервисы, Flutter, команды |
-| **`docs/GURU_ARCHITECTURE_AND_STANDARDS.md`** | Модули, **§6 маршруты**, доменная модель, JSON-контракт, стандарты |
-| **`docs/GURU_FULL_PROJECT_BLUEPRINT.md`** | Глубокий blueprint, постулаты, UI, сценарии «с нуля» |
-| **`docs/GURU_OPERATIONS_REFERENCE.md`** | **TRANSFER** и **INCOME**: эндпойнты, кошельки, lifecycle (`#transfer` / `#income`) |
+Папки **по частоте изменений** (префикс — порядок чтения):
+
+| Папка | Содержание | Как часто меняется |
+|--------|------------|--------------------|
+| **`docs/00_core/`** | Постулаты, стандарты архитектуры, воркспейсы, домен | Редко |
+| **`docs/10_operations/`** | Общие правила операций, TRANSFER, INCOME, REPORT (черновик) | При смене бизнес-логики операций |
+| **`docs/20_api/`** | Маршруты, контракт ответа API | При добавлении/смене маршрутов |
+| **`docs/30_flutter/`** | Архитектура клиента, UI, экраны | При развитии UI |
+| **`docs/90_current/`** | Текущий снимок и шаблон задачи | Постоянно под handoff |
+
+**Сценарии вложений в Cursor** (какой набор файлов прикладывать) — в **`docs/README_MODULAR.md`**.
+
+Минимум на один экран без глубины по задаче: **`docs/GURU_CONTEXT_INDEX.md`** (этот файл).
+
+Быстрый «полный» слой по умолчанию:
+
+```text
+docs/00_core/00_GURU_CORE_PRINCIPLES.md
+docs/00_core/02_GURU_WORKSPACES_AND_ACCESS.md
+docs/90_current/90_GURU_CURRENT_STATE.md
+```
 
 ## Не тратить контекст
 
-- **`docs/OldDocs/`** — архив; не использовать как источник истины, пока явно не попросили.
-- Не дублировать в чат длинные куски blueprint: лучше сослаться на § или файл.
+- **`docs/OldDocs/`** — архив; не использовать как источник истины без явного запроса. Монолиты прежнего формата лежат в **`docs/OldDocs/legacy_monolith/`**.
+- Не дублировать в чат длинные куски: лучше указать § или путь к модульному файлу.
 
 ## Инварианты на одну строку
 
-Два API-контура: **`/api/company-workspace/{companyId}`** (OWNER/PARTNER) и **`/api/personal-workspace`** (личные роли). Кошелёк — у **`ProjectParticipant`**, не у пользователя напрямую. Объединённая история операций на клиенте: **`GET …/operations/history`** (TRANSFER + INCOME).
+Два API-контура: `**/api/company-workspace/{companyId}**` (OWNER/PARTNER) и `**/api/personal-workspace**` (личные роли). Кошелёк — у **`ProjectParticipant`**, не у пользователя напрямую. Объединённая история операций на клиенте: **`GET …/operations/history`** (TRANSFER + INCOME).
