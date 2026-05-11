@@ -110,6 +110,8 @@ combinedOperationsPendingCountProvider
 
 ## 5. Projects
 
+**ТЗ-10A (статьи расходов):** реализовано в приложении — см. экраны ниже.
+
 ```text
 CompanyProjectsScreen
 CreateProject flow

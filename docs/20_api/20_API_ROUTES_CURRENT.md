@@ -55,6 +55,8 @@ PATCH  /projects/{projectId}/expense-items/{expenseItemId}
 DELETE /projects/{projectId}/expense-items/{expenseItemId}
 ```
 
+Блок **ТЗ-10A** (статьи расходов): реализовано; ответ `…/recipients` — только контрагенты компании (`source` в JSON ответа — `company_counterparties`). Детали — **`docs/10_operations/14_PROJECT_EXPENSE_ITEMS.md`**.
+
 `expenseItemId` — только числовой сегмент; маршрут `…/recipients` объявлен выше параметрического `…/{expenseItemId}`.
 
 ### Counterparties
