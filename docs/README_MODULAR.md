@@ -7,6 +7,8 @@
 
 **Единая точка входа:** этот файл — `docs/README_MODULAR.md`. Часто достаточно приложить его вместе с **`docs/90_current/90_GURU_CURRENT_STATE.md`**.
 
+Устаревшие точки входа (**`PROJECT_CONTEXT_GURU.md`**, **`docs/GURU_CONTEXT_INDEX.md`**) из репозитория удалены — для Cursor использовать только этот файл и перечисленные ниже модули.
+
 **Git и коммиты:** **`docs/90_current/93_GURU_GIT_COMMIT_STANDARD.md`** — в том числе обязательная проверка актуализации модульной документации перед коммитом изменений в коде; в Cursor то же задаётся правилом `.cursor/rules/guru-git-commit-standard.mdc`.
 
 | Папка под `docs/` | Содержание | Как часто меняется |
@@ -37,6 +39,8 @@ docs/90_current/90_GURU_CURRENT_STATE.md
 docs/90_current/92_GURU_SMOKE_CHECKLIST.md
 docs/90_current/93_GURU_GIT_COMMIT_STANDARD.md
 ```
+
+- `docs/90_current/91_GURU_NEXT_TASK_REPORT.md` — краткий контекст для нового Cursor-чата по ТЗ-10 «Отчёт» / REPORT.
 
 Стандарт безопасных коммитов подробно описан в **`docs/90_current/93_GURU_GIT_COMMIT_STANDARD.md`**; в Cursor он усиливается правилом **`.cursor/rules/guru-git-commit-standard.mdc`** (`alwaysApply: true`).
 
