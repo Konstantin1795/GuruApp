@@ -34,7 +34,10 @@ final class CreateProjectController
             ->where('company_id', $companyId)
             ->where('user_id', (int) $user->id)
             ->where('is_active', true)
-            ->where('company_role_code', CompanyRoleCode::OWNER->value)
+            ->whereIn('company_role_code', [
+                CompanyRoleCode::OWNER->value,
+                CompanyRoleCode::PARTNER->value,
+            ])
             ->value('id');
 
         if (! $creatorCounterpartyId) {
