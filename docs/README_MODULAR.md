@@ -17,7 +17,15 @@
 | **`10_operations/`** | Общие правила операций, TRANSFER, INCOME, REPORT (черновик), **ТЗ-10A** статьи расходов, **ТЗ-10B** прайс-листы (реализовано), подготовка к **ТЗ-10C / REPORT** | При смене бизнес-логики операций |
 | **`20_api/`** | Маршруты, контракт ответа API | При добавлении/смене маршрутов |
 | **`30_flutter/`** | Архитектура клиента, UI, экраны | При развитии UI |
-| **`90_current/`** | Текущий снимок, шаблон задачи, smoke checklist, стандарт Git | Постоянно / операционные редко |
+| **`90_current/`** | Текущий снимок, шаблон задачи, smoke checklist, стандарт Git, **ТЗ-11** карты кода/тестов и DoD | Постоянно / операционные редко |
+
+**ТЗ-11 (аудит перед REPORT):** карта структуры кода, карта тестов, Definition of Done для Cursor:
+
+```text
+docs/90_current/94_CODE_STRUCTURE_MAP.md
+docs/90_current/95_TEST_COVERAGE_MAP.md
+docs/90_current/96_GURU_DEFINITION_OF_DONE.md
+```
 
 Дефолтный «широкий» минимум без выбора сценария:
 
@@ -38,6 +46,9 @@ docs/90_current/90_GURU_CURRENT_STATE.md
 ```text
 docs/90_current/92_GURU_SMOKE_CHECKLIST.md
 docs/90_current/93_GURU_GIT_COMMIT_STANDARD.md
+docs/90_current/94_CODE_STRUCTURE_MAP.md
+docs/90_current/95_TEST_COVERAGE_MAP.md
+docs/90_current/96_GURU_DEFINITION_OF_DONE.md
 ```
 
 - `docs/90_current/91_GURU_NEXT_TASK_REPORT.md` — краткий контекст по цепочке **ТЗ-10** к REPORT; **ТЗ-10A** и **ТЗ-10B** сделаны, следующий зависимый шаг — **ТЗ-10C** (REPORT foundation).
@@ -128,6 +139,9 @@ docs/90_current/93_GURU_GIT_COMMIT_STANDARD.md
 90_current/90_GURU_CURRENT_STATE.md
 90_current/91_GURU_NEXT_TASK_TEMPLATE.md
 90_current/92_GURU_SMOKE_CHECKLIST.md
+90_current/94_CODE_STRUCTURE_MAP.md
+90_current/95_TEST_COVERAGE_MAP.md
+90_current/96_GURU_DEFINITION_OF_DONE.md
 ```
 
 ## Что менять редко

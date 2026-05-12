@@ -14,6 +14,7 @@ import '../../company_workspace/presentation/company_workspace_identity.dart';
 import '../providers.dart';
 import 'create_edit_project_expense_item_screen.dart';
 
+/// Статьи расходов проекта (ТЗ-10A): список из API, флаги `canManage` с summary — источник прав.
 class ProjectExpenseItemsScreen extends ConsumerWidget {
   final int companyId;
   final int projectId;

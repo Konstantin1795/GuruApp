@@ -22,6 +22,10 @@ import 'income_detail_screen.dart';
 import 'transfer_detail_screen.dart';
 
 /// Объединённая история операций TRANSFER + INCOME (`GET …/operations/history`, ТЗ-06.1).
+///
+/// Вкладка **pending** должна совпадать с суммой бейджей pending на дашборде: те же правила,
+/// что на backend в `TransferAvailableActionsService` / `IncomeAvailableActionsService`
+/// (например, `WAITING_24_HOURS` без «подтверждающего» действия в списке pending не попадает).
 class AggregatedOperationsHistoryScreen extends ConsumerStatefulWidget {
   final TransferApiScope apiScope;
   final int companyId;

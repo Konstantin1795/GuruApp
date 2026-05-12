@@ -24,6 +24,9 @@ import '../providers.dart';
 import 'project_expense_items_screen.dart';
 
 /// Экран проекта (ТЗ-07): метрики, разделы, переход к участникам и операциям.
+///
+/// Суммы и балансы только отображаются из API (`ProjectSummary` / metrics); не пересчитывать
+/// кошельки на клиенте — иначе расхождение с сервером и риск перед REPORT.
 class ProjectDetailScreen extends ConsumerWidget {
   final ProjectWorkspaceKey workspaceKey;
   final String? titleFallback;

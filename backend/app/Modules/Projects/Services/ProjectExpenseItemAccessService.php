@@ -12,6 +12,9 @@ use Illuminate\Support\Collection;
 
 /**
  * ТЗ-10A: доступ к статьям расходов проекта (company workspace).
+ *
+ * Матрица OWNER / PROJECT_HEAD (управление) vs PARTNER first-order (только просмотр) и
+ * привязка к видимости проекта — здесь; не дублировать в контроллерах условиями «на глаз».
  */
 final class ProjectExpenseItemAccessService
 {

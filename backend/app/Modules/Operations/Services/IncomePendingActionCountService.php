@@ -6,6 +6,12 @@ use App\Modules\Projects\Models\Project;
 use App\Modules\Projects\Models\ProjectParticipant;
 use App\Modules\Projects\Services\ProjectVisibilityService;
 
+/**
+ * Счётчик «ожидают вашего шага» по INCOME для бейджа воркспейса.
+ *
+ * Логика отбора тех же операций, что и {@see IncomeAvailableActionsService::hasPendingConfirmationAction}
+ * (см. {@see IncomeAvailableActionsService::PENDING_BADGE_KEYS}); менять только вместе с агрегированной историей.
+ */
 final class IncomePendingActionCountService
 {
     public function __construct(

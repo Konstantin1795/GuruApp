@@ -9,10 +9,12 @@ use App\Modules\Projects\Models\ProjectParticipant;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Central operation visibility rules.
+ * Правила видимости TRANSFER по проекту и в агрегированных выборках.
  *
- * General rule: a user sees an operation only if their ProjectParticipant
- * participates in it. PROJECT_HEAD sees all operations of their project.
+ * Базово: пользователь видит операцию, только если его {@see ProjectParticipant} участвует
+ * в строке перевода (инициатор / отправитель / получатель). Роль PROJECT_HEAD — все операции
+ * **своего** проекта. Для ленты «все операции» без расширения РП на весь проект используйте
+ * {@see self::transferQueryParticipationOnlyForUser} / {@see self::transferQueryParticipationOnlyAcrossProjects}.
  */
 final class OperationVisibilityService
 {

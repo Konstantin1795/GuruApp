@@ -15,6 +15,7 @@ import 'create_edit_price_list_group_screen.dart';
 import 'create_edit_price_list_screen.dart';
 import 'price_list_group_positions_screen.dart';
 
+/// Деталь прайс-листа компании (ТЗ-10B): данные с API; удаление/редактирование по правам бэкенда.
 class PriceListDetailScreen extends ConsumerWidget {
   final int companyId;
   final int priceListId;

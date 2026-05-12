@@ -14,6 +14,10 @@ use Illuminate\Database\Eloquent\Builder;
 
 /**
  * ТЗ-10B: доступ к прайс-листам компании и прикреплениям к проектам.
+ *
+ * OWNER vs PARTNER / PROJECT_HEAD и сценарии прикрепления к проекту согласованы с
+ * `docs/10_operations/15_PRICE_LISTS.md`. Удаление с учётом будущего REPORT — через
+ * {@see PriceListDeletionService} и {@see PriceListReportUsageChecker}.
  */
 final class PriceListAccessService
 {

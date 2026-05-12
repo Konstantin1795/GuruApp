@@ -6,6 +6,12 @@ use App\Modules\Projects\Models\Project;
 use App\Modules\Projects\Models\ProjectParticipant;
 use App\Modules\Projects\Services\ProjectVisibilityService;
 
+/**
+ * Счётчик «ожидают вашего шага» по TRANSFER для бейджа воркспейса.
+ *
+ * Должен оставаться согласован с {@see TransferAvailableActionsService::hasPendingConfirmationAction}
+ * и с вкладкой `tab=pending` в {@see AggregatedOperationsHistoryService} — иначе расходится UX с лентой.
+ */
 final class TransferPendingActionCountService
 {
     public function __construct(

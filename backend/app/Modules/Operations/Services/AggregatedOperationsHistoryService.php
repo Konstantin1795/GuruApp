@@ -20,6 +20,9 @@ use Illuminate\Support\Facades\DB;
  * Параметр tab:
  * - pending: только операции, где у текущего участника есть «шаг на подтверждение»
  *   (см. TransferAvailableActionsService / IncomeAvailableActionsService::hasPendingConfirmationAction).
+ *   Список ключей должен совпадать с бейджем pending на главном экране: например, этап
+ *   WAITING_24_HOURS и «чистый откат» (reset_approval у INCOME) туда не входят — см. константы
+ *   PENDING_BADGE_* в available-actions сервисах.
  * - all: «все операции» — для OWNER компании в company-workspace все операции компании;
  *   иначе только операции, где пользователь участвовал в строке операции (не «весь проект»).
  */

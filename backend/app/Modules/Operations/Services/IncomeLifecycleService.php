@@ -16,6 +16,9 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * ТЗ-06: lifecycle операции INCOME (отдельно от TRANSFER).
+ *
+ * Инвариант GURU: проведение и откат дельт кошелька только через {@see IncomeBalanceService}
+ * из этого сервиса. Статусы и история — здесь же; не дублировать в контроллерах.
  */
 final class IncomeLifecycleService
 {

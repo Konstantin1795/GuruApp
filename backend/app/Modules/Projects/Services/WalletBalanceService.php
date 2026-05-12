@@ -5,8 +5,10 @@ namespace App\Modules\Projects\Services;
 use App\Modules\Projects\Models\ProjectParticipantWallet;
 
 /**
- * Reads and prepares balance data for a participant wallet.
- * Foundation for future delta-accounting operations (ТЗ-05).
+ * Чтение среза полей кошелька участника (без проведения дельт и без бизнес-правил ТЗ).
+ *
+ * Любая арифметика балансов по операциям — в {@see \App\Modules\Operations\Services\TransferBalanceService},
+ * {@see \App\Modules\Operations\Services\IncomeBalanceService} и связанных lifecycle-сервисах.
  *
  * @return array{
  *   personal_balance: string,

@@ -17,6 +17,10 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * ТЗ-05.2 v3: переходы статусов и финансы для TRANSFER.
+ *
+ * Инвариант GURU: любые дельты по кошелькам только через {@see TransferBalanceService}
+ * внутри методов этого класса (в транзакции). Менять порядок смены статуса и проведения
+ * дельт без обновления ТЗ-05.2 и регрессионных тестов нельзя.
  */
 final class TransferLifecycleService
 {

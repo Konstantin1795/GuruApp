@@ -12,6 +12,10 @@ use Illuminate\Database\Eloquent\Builder;
 
 /**
  * ТЗ-06: видимость поступлений по проекту (не смешивать с Transfer).
+ *
+ * Учитывается роль OWNER компании владельца проекта (полная видимость по компании) и
+ * особый случай PARTNER first-order (см. тело {@see self::incomeQueryForUser}) — не менять
+ * матрицу ролей без сверки с `docs/10_operations/12_OPERATION_INCOME.md`.
  */
 final class IncomeVisibilityService
 {
