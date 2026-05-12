@@ -86,9 +86,10 @@ CompanyDashboardScreen
 Контрагенты
 Квартальная аналитика
 История операций
+Документы (плитка) → bottom sheet: Прайс-листы (ТЗ-10B) + заглушка «документы скоро»
 ```
 
-История операций использует:
+**Прайс-листы компании (ТЗ-10B):** при **`context.price_lists.can_view_library`** — переход к **`CompanyPriceListsScreen`** → **`PriceListDetailScreen`**, CRUD групп/позиций, выбор единицы из **`UnitPickerSheet`**; создание собственного прайса для **Партнёра-РП** блокируется, если уже есть активный (`context.price_lists.has_active_own_price_list`).
 
 ```text
 GET .../operations/history
@@ -118,6 +119,13 @@ CreateProject flow
 ProjectDetailScreen
 ProjectExpenseItemsScreen
 CreateEditProjectExpenseItemScreen
+ProjectPriceListsScreen
+CreateEditPriceListScreen
+PriceListDetailScreen
+PriceListGroupPositionsScreen
+CreateEditPriceListGroupScreen
+CreateEditPriceListPositionScreen
+UnitPickerSheet
 ExpenseItemRecipientPickerSheet (bottom sheet)
 ProjectParticipantsScreen
 ProjectInternalMetricsSection (на экране участников, если API разрешил can_view_internal_metrics)
@@ -131,10 +139,10 @@ ProjectInternalMetricsSection (на экране участников, если 
 projectSummaryProvider → GET …/projects/{id}/summary
 карточка метрик (доход / расход / баланс из summary)
 кнопка истории операций → AggregatedOperationsHistoryScreen (company)
-меню: при can_view_expense_items → статьи расходов (список); участники; переводы (company); заглушки документов/статуса
+меню: при can_view_expense_items → статьи расходов (список); при can_view_project_price_lists → прайс-листы проекта (прикрепление); участники; переводы (company); заглушки документов/статуса
 ```
 
-Флаги **`can_view_expense_items`** и **`can_manage_expense_items`** приходят в **`visibility`** ответа summary (company workspace). Пункт «Статьи расходов» не показывается, если **`can_view_expense_items`** = false.
+Флаги **`can_view_expense_items`** и **`can_manage_expense_items`** приходят в **`visibility`** ответа summary (company workspace). Пункт «Статьи расходов» не показывается, если **`can_view_expense_items`** = false. Пункт **«Прайс-лист»** (прикрепление к проекту) — при **`can_view_project_price_lists`**; управление прикреплением — при **`can_manage_project_price_list_attachments`** (OWNER / PROJECT_HEAD-Партнёр).
 
 **Статьи расходов проекта** (ТЗ-10A): провайдеры **`projectExpenseItemsProvider`**, **`projectExpenseItemDetailProvider`**, **`projectExpenseItemRecipientsProvider`**; API префикс **`…/projects/{projectId}/expense-items`** (см. `20_API_ROUTES_CURRENT.md`). Выбор получателей долей — **`ExpenseItemRecipientPickerSheet`**: один список **контрагентов компании**, поиск и множественный выбор (без вкладок «участники / контрагенты» в MVP).
 

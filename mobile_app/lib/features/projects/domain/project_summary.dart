@@ -58,6 +58,8 @@ class ProjectSummaryVisibility {
   final bool canCreateTransfer;
   final bool canViewExpenseItems;
   final bool canManageExpenseItems;
+  final bool canViewProjectPriceLists;
+  final bool canManageProjectPriceListAttachments;
 
   const ProjectSummaryVisibility({
     required this.canViewInternalMetrics,
@@ -66,6 +68,8 @@ class ProjectSummaryVisibility {
     required this.canCreateTransfer,
     required this.canViewExpenseItems,
     required this.canManageExpenseItems,
+    required this.canViewProjectPriceLists,
+    required this.canManageProjectPriceListAttachments,
   });
 
   factory ProjectSummaryVisibility.fromJson(Map<String, dynamic> json) => ProjectSummaryVisibility(
@@ -75,6 +79,9 @@ class ProjectSummaryVisibility {
         canCreateTransfer: json['can_create_transfer'] as bool? ?? false,
         canViewExpenseItems: json['can_view_expense_items'] as bool? ?? false,
         canManageExpenseItems: json['can_manage_expense_items'] as bool? ?? false,
+        canViewProjectPriceLists: json['can_view_project_price_lists'] as bool? ?? false,
+        canManageProjectPriceListAttachments:
+            json['can_manage_project_price_list_attachments'] as bool? ?? false,
       );
 }
 

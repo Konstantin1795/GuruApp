@@ -30,6 +30,11 @@ final class ProjectExpenseItemAccessService
         abort(403, 'Forbidden.');
     }
 
+    public function canView(User $user, int $companyId, Project $project): bool
+    {
+        return $this->hasExpenseItemsViewAccess((int) $user->id, $companyId, $project);
+    }
+
     public function assertCanManage(User $user, int $companyId, int $projectId): Project
     {
         $project = Project::query()

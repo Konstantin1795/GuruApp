@@ -19,8 +19,9 @@ import '../../operations/presentation/aggregated_operations_history_screen.dart'
 import '../domain/project.dart';
 import '../domain/project_summary.dart';
 import '../domain/project_workspace_scope.dart';
-import '../presentation/project_expense_items_screen.dart';
+import '../../price_lists/presentation/project_price_lists_screen.dart';
 import '../providers.dart';
+import 'project_expense_items_screen.dart';
 
 /// Экран проекта (ТЗ-07): метрики, разделы, переход к участникам и операциям.
 class ProjectDetailScreen extends ConsumerWidget {
@@ -291,6 +292,26 @@ class _SectionMenu extends StatelessWidget {
                     projectId: summary.project.id,
                     projectName: summary.project.name,
                     canManage: v.canManageExpenseItems,
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      }
+      if (v.canViewProjectPriceLists) {
+        tiles.add(
+          _MenuTile(
+            icon: Icons.request_quote_outlined,
+            label: l10n.projectPriceLists,
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => ProjectPriceListsScreen(
+                    companyId: summary.project.companyId,
+                    projectId: summary.project.id,
+                    projectName: summary.project.name,
+                    canManageAttachments: v.canManageProjectPriceListAttachments,
                   ),
                 ),
               );

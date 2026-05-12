@@ -1693,6 +1693,222 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Expense category deleted.'**
   String get expenseItemDeleted;
+
+  /// No description provided for @priceListsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Price lists'**
+  String get priceListsTitle;
+
+  /// No description provided for @dashboardDocumentsPriceLists.
+  ///
+  /// In en, this message translates to:
+  /// **'Price lists'**
+  String get dashboardDocumentsPriceLists;
+
+  /// No description provided for @projectPriceLists.
+  ///
+  /// In en, this message translates to:
+  /// **'Price lists'**
+  String get projectPriceLists;
+
+  /// No description provided for @priceListName.
+  ///
+  /// In en, this message translates to:
+  /// **'Price list name'**
+  String get priceListName;
+
+  /// No description provided for @priceListCreator.
+  ///
+  /// In en, this message translates to:
+  /// **'Created by'**
+  String get priceListCreator;
+
+  /// No description provided for @priceListGroupsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups'**
+  String get priceListGroupsCount;
+
+  /// No description provided for @priceListPositionsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Positions'**
+  String get priceListPositionsCount;
+
+  /// No description provided for @createPriceList.
+  ///
+  /// In en, this message translates to:
+  /// **'Create price list'**
+  String get createPriceList;
+
+  /// No description provided for @editPriceList.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit price list'**
+  String get editPriceList;
+
+  /// No description provided for @deletePriceList.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete price list'**
+  String get deletePriceList;
+
+  /// No description provided for @deletePriceListConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this price list?'**
+  String get deletePriceListConfirm;
+
+  /// No description provided for @priceListDeleteProjectsWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This price list is attached to {count} project(s). It will be detached and become unavailable.'**
+  String priceListDeleteProjectsWarning(int count);
+
+  /// No description provided for @partnerAlreadyHasPriceList.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have a price list in this company — delete or edit the existing one.'**
+  String get partnerAlreadyHasPriceList;
+
+  /// No description provided for @partnerNotProjectHeadPriceList.
+  ///
+  /// In en, this message translates to:
+  /// **'Only a project lead (partner) can create a company price list.'**
+  String get partnerNotProjectHeadPriceList;
+
+  /// No description provided for @priceListGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups / sections'**
+  String get priceListGroups;
+
+  /// No description provided for @createPriceListGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Add group'**
+  String get createPriceListGroup;
+
+  /// No description provided for @editPriceListGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit group'**
+  String get editPriceListGroup;
+
+  /// No description provided for @deletePriceListGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete group'**
+  String get deletePriceListGroup;
+
+  /// No description provided for @deletePriceListGroupConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this group and its positions?'**
+  String get deletePriceListGroupConfirm;
+
+  /// No description provided for @priceListPositions.
+  ///
+  /// In en, this message translates to:
+  /// **'Line items'**
+  String get priceListPositions;
+
+  /// No description provided for @createPriceListPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Add line item'**
+  String get createPriceListPosition;
+
+  /// No description provided for @editPriceListPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit line item'**
+  String get editPriceListPosition;
+
+  /// No description provided for @deletePriceListPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete line item'**
+  String get deletePriceListPosition;
+
+  /// No description provided for @serviceName.
+  ///
+  /// In en, this message translates to:
+  /// **'Service name'**
+  String get serviceName;
+
+  /// No description provided for @unitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get unitLabel;
+
+  /// No description provided for @recipientUnitPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient price per unit'**
+  String get recipientUnitPrice;
+
+  /// No description provided for @customerUnitPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer price per unit'**
+  String get customerUnitPrice;
+
+  /// No description provided for @profitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit'**
+  String get profitLabel;
+
+  /// No description provided for @profitPercentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit %'**
+  String get profitPercentLabel;
+
+  /// No description provided for @selectUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Select unit'**
+  String get selectUnit;
+
+  /// No description provided for @attachPriceLists.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach price lists'**
+  String get attachPriceLists;
+
+  /// No description provided for @availablePriceLists.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get availablePriceLists;
+
+  /// No description provided for @attachSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach selected'**
+  String get attachSelected;
+
+  /// No description provided for @detachPriceList.
+  ///
+  /// In en, this message translates to:
+  /// **'Detach'**
+  String get detachPriceList;
+
+  /// No description provided for @priceListsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No price lists yet.'**
+  String get priceListsEmpty;
+
+  /// No description provided for @search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
 }
 
 class _AppLocalizationsDelegate

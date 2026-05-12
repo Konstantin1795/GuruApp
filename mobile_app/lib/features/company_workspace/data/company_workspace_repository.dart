@@ -1,3 +1,4 @@
+import '../domain/company_workspace_context.dart';
 import 'company_workspace_api.dart';
 
 class CurrentCompany {
@@ -51,6 +52,12 @@ class CompanyWorkspaceRepository {
       isActive: parsed.isActive,
       myCompanyRoleCode: role,
     );
+  }
+
+  Future<CompanyWorkspaceShellContext> fetchShellContext({required int companyId}) async {
+    final json = await _api.getWorkspaceContext(companyId: companyId);
+    final data = (json['data'] as Map).cast<String, dynamic>();
+    return CompanyWorkspaceShellContext.fromJson(data);
   }
 }
 

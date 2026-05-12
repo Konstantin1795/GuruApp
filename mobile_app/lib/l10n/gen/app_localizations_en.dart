@@ -838,4 +838,117 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expenseItemDeleted => 'Expense category deleted.';
+
+  @override
+  String get priceListsTitle => 'Price lists';
+
+  @override
+  String get dashboardDocumentsPriceLists => 'Price lists';
+
+  @override
+  String get projectPriceLists => 'Price lists';
+
+  @override
+  String get priceListName => 'Price list name';
+
+  @override
+  String get priceListCreator => 'Created by';
+
+  @override
+  String get priceListGroupsCount => 'Groups';
+
+  @override
+  String get priceListPositionsCount => 'Positions';
+
+  @override
+  String get createPriceList => 'Create price list';
+
+  @override
+  String get editPriceList => 'Edit price list';
+
+  @override
+  String get deletePriceList => 'Delete price list';
+
+  @override
+  String get deletePriceListConfirm => 'Delete this price list?';
+
+  @override
+  String priceListDeleteProjectsWarning(int count) {
+    return 'This price list is attached to $count project(s). It will be detached and become unavailable.';
+  }
+
+  @override
+  String get partnerAlreadyHasPriceList =>
+      'You already have a price list in this company — delete or edit the existing one.';
+
+  @override
+  String get partnerNotProjectHeadPriceList =>
+      'Only a project lead (partner) can create a company price list.';
+
+  @override
+  String get priceListGroups => 'Groups / sections';
+
+  @override
+  String get createPriceListGroup => 'Add group';
+
+  @override
+  String get editPriceListGroup => 'Edit group';
+
+  @override
+  String get deletePriceListGroup => 'Delete group';
+
+  @override
+  String get deletePriceListGroupConfirm =>
+      'Delete this group and its positions?';
+
+  @override
+  String get priceListPositions => 'Line items';
+
+  @override
+  String get createPriceListPosition => 'Add line item';
+
+  @override
+  String get editPriceListPosition => 'Edit line item';
+
+  @override
+  String get deletePriceListPosition => 'Delete line item';
+
+  @override
+  String get serviceName => 'Service name';
+
+  @override
+  String get unitLabel => 'Unit';
+
+  @override
+  String get recipientUnitPrice => 'Recipient price per unit';
+
+  @override
+  String get customerUnitPrice => 'Customer price per unit';
+
+  @override
+  String get profitLabel => 'Profit';
+
+  @override
+  String get profitPercentLabel => 'Profit %';
+
+  @override
+  String get selectUnit => 'Select unit';
+
+  @override
+  String get attachPriceLists => 'Attach price lists';
+
+  @override
+  String get availablePriceLists => 'Available';
+
+  @override
+  String get attachSelected => 'Attach selected';
+
+  @override
+  String get detachPriceList => 'Detach';
+
+  @override
+  String get priceListsEmpty => 'No price lists yet.';
+
+  @override
+  String get search => 'Search';
 }

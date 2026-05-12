@@ -14,6 +14,7 @@ final class ProjectSummaryResponseService
         private readonly ProjectSummaryMetricsService $metrics,
         private readonly ProjectSummaryVisibilityService $visibility,
         private readonly ProjectExpenseItemAccessService $expenseItemAccess,
+        private readonly PriceListAccessService $priceListAccess,
     ) {}
 
     /**
@@ -38,6 +39,16 @@ final class ProjectSummaryResponseService
                 : [
                     'can_view_expense_items' => false,
                     'can_manage_expense_items' => false,
+                ],
+        );
+
+        $visibility = array_merge(
+            $visibility,
+            $companyId !== null
+                ? $this->priceListAccess->projectSummaryFlags($user, $companyId, $project)
+                : [
+                    'can_view_project_price_lists' => false,
+                    'can_manage_project_price_list_attachments' => false,
                 ],
         );
 

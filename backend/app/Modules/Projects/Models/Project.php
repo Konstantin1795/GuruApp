@@ -44,5 +44,10 @@ final class Project extends Model
     {
         return $this->hasMany(ProjectExpenseItem::class, 'project_id');
     }
+
+    public function projectPriceLists(): HasMany
+    {
+        return $this->hasMany(ProjectPriceList::class, 'project_id');
+    }
 }
 

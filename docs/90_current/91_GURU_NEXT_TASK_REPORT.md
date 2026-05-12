@@ -24,11 +24,12 @@
 
 ```text
 ТЗ-10A — статьи расходов проекта: реализовано в коде, запушено в main (см. 14_PROJECT_EXPENSE_ITEMS.md)
-ТЗ-10B — прайс-лист / позиции прайс-листа для отчёта: следующий зависимый этап перед REPORT foundation
+ТЗ-10B — прайс-листы / позиции / прикрепление к проекту: реализовано в коде (см. 15_PRICE_LISTS.md)
+ТЗ-10C — REPORT foundation: следующий зависимый этап перед полноценным REPORT
 ТЗ-10 — REPORT: пока не реализован (черновик 13_OPERATION_REPORT_DRAFT.md)
 ```
 
-Перед полноценным REPORT уже есть **справочник статей расходов**; следующим логическим зависимым шагом по плану ТЗ-10 является **прайс-лист (ТЗ-10B)**.
+Перед полноценным REPORT уже есть **справочник статей расходов (ТЗ-10A)** и **прайс-листы компании / прикрепление к проекту (ТЗ-10B)**; следующим логическим зависимым шагом по плану ТЗ-10 является **ТЗ-10C (REPORT foundation)**.
 
 ---
 
@@ -43,6 +44,7 @@ ProjectDetailScreen
 Project Summary Metrics
 Internal Metrics
 ТЗ-10A — статьи расходов (backend + Flutter: список, создание/редактирование, picker контрагентов компании без вкладок, soft-delete)
+ТЗ-10B — прайс-листы (backend + Flutter: библиотека компании, группы/позиции, единицы, прикрепление к проекту; см. 15_PRICE_LISTS.md)
 модульная документация
 ```
 
@@ -74,6 +76,7 @@ docs/10_operations/11_OPERATION_TRANSFER.md
 docs/10_operations/12_OPERATION_INCOME.md
 docs/10_operations/13_OPERATION_REPORT_DRAFT.md
 docs/10_operations/14_PROJECT_EXPENSE_ITEMS.md
+docs/10_operations/15_PRICE_LISTS.md
 docs/20_api/20_API_ROUTES_CURRENT.md
 docs/30_flutter/32_FLUTTER_SCREENS_CURRENT.md
 docs/90_current/90_GURU_CURRENT_STATE.md
@@ -95,5 +98,5 @@ docs/OldDocs/legacy_monolith/
 
 ```text
 REPORT пока не реализован. 13_OPERATION_REPORT_DRAFT.md — это черновик направления, а не финальное ТЗ. Перед реализацией нужно сначала согласовать бизнес-логику REPORT.
-Прайс-лист (ТЗ-10B) пока не реализован — отдельное ТЗ и код.
+Прайс-листы (ТЗ-10B) реализованы — канон `docs/10_operations/15_PRICE_LISTS.md`.
 ```

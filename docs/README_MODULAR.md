@@ -14,7 +14,7 @@
 | Папка под `docs/` | Содержание | Как часто меняется |
 |-------------------|------------|---------------------|
 | **`00_core/`** | Постулаты, стандарты архитектуры, воркспейсы, домен | Редко |
-| **`10_operations/`** | Общие правила операций, TRANSFER, INCOME, REPORT (черновик), **ТЗ-10A** статьи расходов (реализовано), подготовка к **ТЗ-10B** / REPORT | При смене бизнес-логики операций |
+| **`10_operations/`** | Общие правила операций, TRANSFER, INCOME, REPORT (черновик), **ТЗ-10A** статьи расходов, **ТЗ-10B** прайс-листы (реализовано), подготовка к **ТЗ-10C / REPORT** | При смене бизнес-логики операций |
 | **`20_api/`** | Маршруты, контракт ответа API | При добавлении/смене маршрутов |
 | **`30_flutter/`** | Архитектура клиента, UI, экраны | При развитии UI |
 | **`90_current/`** | Текущий снимок, шаблон задачи, smoke checklist, стандарт Git | Постоянно / операционные редко |
@@ -40,8 +40,9 @@ docs/90_current/92_GURU_SMOKE_CHECKLIST.md
 docs/90_current/93_GURU_GIT_COMMIT_STANDARD.md
 ```
 
-- `docs/90_current/91_GURU_NEXT_TASK_REPORT.md` — краткий контекст по цепочке **ТЗ-10** к REPORT; **ТЗ-10A** сделан, следующий зависимый шаг — **ТЗ-10B** (прайс-лист).
+- `docs/90_current/91_GURU_NEXT_TASK_REPORT.md` — краткий контекст по цепочке **ТЗ-10** к REPORT; **ТЗ-10A** и **ТЗ-10B** сделаны, следующий зависимый шаг — **ТЗ-10C** (REPORT foundation).
 - `docs/10_operations/14_PROJECT_EXPENSE_ITEMS.md` — ТЗ-10A: статьи расходов (реализовано в коде); уточнения и связь с REPORT.
+- `docs/10_operations/15_PRICE_LISTS.md` — ТЗ-10B: прайс-листы компании, группы, позиции, единицы, прикрепление к проекту (реализовано в коде).
 
 Стандарт безопасных коммитов подробно описан в **`docs/90_current/93_GURU_GIT_COMMIT_STANDARD.md`**; в Cursor он усиливается правилом **`.cursor/rules/guru-git-commit-standard.mdc`** (`alwaysApply: true`).
 
@@ -113,6 +114,7 @@ docs/90_current/93_GURU_GIT_COMMIT_STANDARD.md
 10_operations/12_OPERATION_INCOME.md
 10_operations/13_OPERATION_REPORT_DRAFT.md
 10_operations/14_PROJECT_EXPENSE_ITEMS.md
+10_operations/15_PRICE_LISTS.md
 90_current/91_GURU_NEXT_TASK_TEMPLATE.md
 ```
 

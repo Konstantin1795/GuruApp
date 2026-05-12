@@ -323,5 +323,47 @@
   "deleteExpenseItemConfirm": "Delete this expense category? This cannot be undone in the app.",
   "profitSharesMustEqualHundred": "Profit shares must total exactly 100.00%.",
   "markupSharesMustEqualHundred": "Markup shares must total exactly 100.00%.",
-  "expenseItemDeleted": "Expense category deleted."
+  "expenseItemDeleted": "Expense category deleted.",
+
+  "priceListsTitle": "Price lists",
+  "dashboardDocumentsPriceLists": "Price lists",
+  "projectPriceLists": "Price lists",
+  "priceListName": "Price list name",
+  "priceListCreator": "Created by",
+  "priceListGroupsCount": "Groups",
+  "priceListPositionsCount": "Positions",
+  "createPriceList": "Create price list",
+  "editPriceList": "Edit price list",
+  "deletePriceList": "Delete price list",
+  "deletePriceListConfirm": "Delete this price list?",
+  "priceListDeleteProjectsWarning": "This price list is attached to {count} project(s). It will be detached and become unavailable.",
+  "@priceListDeleteProjectsWarning": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "partnerAlreadyHasPriceList": "You already have a price list in this company — delete or edit the existing one.",
+  "partnerNotProjectHeadPriceList": "Only a project lead (partner) can create a company price list.",
+  "priceListGroups": "Groups / sections",
+  "createPriceListGroup": "Add group",
+  "editPriceListGroup": "Edit group",
+  "deletePriceListGroup": "Delete group",
+  "deletePriceListGroupConfirm": "Delete this group and its positions?",
+  "priceListPositions": "Line items",
+  "createPriceListPosition": "Add line item",
+  "editPriceListPosition": "Edit line item",
+  "deletePriceListPosition": "Delete line item",
+  "serviceName": "Service name",
+  "unitLabel": "Unit",
+  "recipientUnitPrice": "Recipient price per unit",
+  "customerUnitPrice": "Customer price per unit",
+  "profitLabel": "Profit",
+  "profitPercentLabel": "Profit %",
+  "selectUnit": "Select unit",
+  "attachPriceLists": "Attach price lists",
+  "availablePriceLists": "Available",
+  "attachSelected": "Attach selected",
+  "detachPriceList": "Detach",
+  "priceListsEmpty": "No price lists yet.",
+  "search": "Search"
 }

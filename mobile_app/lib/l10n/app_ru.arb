@@ -303,5 +303,47 @@
   "deleteExpenseItemConfirm": "Удалить эту статью расходов? В приложении восстановление недоступно.",
   "profitSharesMustEqualHundred": "Сумма долей прибыли должна быть ровно 100,00%.",
   "markupSharesMustEqualHundred": "Сумма долей наценки должна быть ровно 100,00%.",
-  "expenseItemDeleted": "Статья расходов удалена."
+  "expenseItemDeleted": "Статья расходов удалена.",
+
+  "priceListsTitle": "Прайс-листы",
+  "dashboardDocumentsPriceLists": "Прайс-листы",
+  "projectPriceLists": "Прайс-лист",
+  "priceListName": "Название прайс-листа",
+  "priceListCreator": "Создал",
+  "priceListGroupsCount": "Групп",
+  "priceListPositionsCount": "Позиций",
+  "createPriceList": "Создать прайс-лист",
+  "editPriceList": "Редактировать прайс-лист",
+  "deletePriceList": "Удалить прайс-лист",
+  "deletePriceListConfirm": "Удалить этот прайс-лист?",
+  "priceListDeleteProjectsWarning": "Данный прайс-лист используется в {count} проектах, прайс будет откреплён и недоступен.",
+  "@priceListDeleteProjectsWarning": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "partnerAlreadyHasPriceList": "У вас уже есть прайс-лист в этой компании, удалите или отредактируйте существующий.",
+  "partnerNotProjectHeadPriceList": "Создать прайс-лист компании может только руководитель проекта (партнёр).",
+  "priceListGroups": "Группы / разделы",
+  "createPriceListGroup": "Добавить группу",
+  "editPriceListGroup": "Редактировать группу",
+  "deletePriceListGroup": "Удалить группу",
+  "deletePriceListGroupConfirm": "Удалить эту группу и позиции внутри неё?",
+  "priceListPositions": "Позиции",
+  "createPriceListPosition": "Добавить позицию",
+  "editPriceListPosition": "Редактировать позицию",
+  "deletePriceListPosition": "Удалить позицию",
+  "serviceName": "Наименование услуги",
+  "unitLabel": "Единица измерения",
+  "recipientUnitPrice": "Стоимость для получателя за ед.",
+  "customerUnitPrice": "Стоимость для заказчика за ед.",
+  "profitLabel": "Прибыль",
+  "profitPercentLabel": "Прибыль %",
+  "selectUnit": "Выберите единицу",
+  "attachPriceLists": "Добавить прайс-лист в проект",
+  "availablePriceLists": "Доступные прайс-листы",
+  "attachSelected": "Подтвердить",
+  "detachPriceList": "Открепить",
+  "priceListsEmpty": "Прайс-листов пока нет.",
+  "search": "Поиск"
 }

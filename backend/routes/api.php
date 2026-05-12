@@ -37,6 +37,32 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/projects/{projectId}/summary', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\GetProjectSummaryController::class);
             Route::get('/projects/{projectId}/internal-metrics', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\GetProjectInternalMetricsController::class);
 
+            Route::get('/units', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\ListUnitsController::class);
+            Route::get('/price-lists', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\ListPriceListsController::class);
+            Route::post('/price-lists', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\CreatePriceListController::class);
+            Route::get('/price-lists/{priceListId}', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\ShowPriceListController::class)
+                ->whereNumber('priceListId');
+            Route::patch('/price-lists/{priceListId}', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\PatchPriceListController::class)
+                ->whereNumber('priceListId');
+            Route::delete('/price-lists/{priceListId}', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\DeletePriceListController::class)
+                ->whereNumber('priceListId');
+            Route::get('/price-lists/{priceListId}/groups', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\ListPriceListGroupsController::class)
+                ->whereNumber('priceListId');
+            Route::post('/price-lists/{priceListId}/groups', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\CreatePriceListGroupController::class)
+                ->whereNumber('priceListId');
+            Route::patch('/price-lists/{priceListId}/groups/{groupId}', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\PatchPriceListGroupController::class)
+                ->whereNumber('priceListId')->whereNumber('groupId');
+            Route::delete('/price-lists/{priceListId}/groups/{groupId}', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\DeletePriceListGroupController::class)
+                ->whereNumber('priceListId')->whereNumber('groupId');
+            Route::get('/price-lists/{priceListId}/groups/{groupId}/positions', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\ListPriceListPositionsController::class)
+                ->whereNumber('priceListId')->whereNumber('groupId');
+            Route::post('/price-lists/{priceListId}/groups/{groupId}/positions', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\CreatePriceListPositionController::class)
+                ->whereNumber('priceListId')->whereNumber('groupId');
+            Route::patch('/price-lists/{priceListId}/groups/{groupId}/positions/{positionId}', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\PatchPriceListPositionController::class)
+                ->whereNumber('priceListId')->whereNumber('groupId')->whereNumber('positionId');
+            Route::delete('/price-lists/{priceListId}/groups/{groupId}/positions/{positionId}', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\DeletePriceListPositionController::class)
+                ->whereNumber('priceListId')->whereNumber('groupId')->whereNumber('positionId');
+
             Route::get('/projects/{projectId}/expense-items/recipients', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\ListProjectExpenseItemRecipientsController::class);
             Route::get('/projects/{projectId}/expense-items', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\ListProjectExpenseItemsController::class);
             Route::post('/projects/{projectId}/expense-items', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\CreateProjectExpenseItemController::class);
@@ -46,6 +72,11 @@ Route::middleware('auth:sanctum')->group(function () {
                 ->whereNumber('expenseItemId');
             Route::delete('/projects/{projectId}/expense-items/{expenseItemId}', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\DeleteProjectExpenseItemController::class)
                 ->whereNumber('expenseItemId');
+            Route::get('/projects/{projectId}/price-lists/available', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\ListAvailableProjectPriceListsController::class);
+            Route::get('/projects/{projectId}/price-lists', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\ListProjectPriceListsController::class);
+            Route::post('/projects/{projectId}/price-lists/attach', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\AttachProjectPriceListsController::class);
+            Route::delete('/projects/{projectId}/price-lists/{priceListId}', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\DetachProjectPriceListController::class)
+                ->whereNumber('priceListId');
             Route::get('/projects/{projectId}/operations/transfers/recipients', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ListTransferRecipientsController::class);
             Route::get('/projects/{projectId}/operations/transfers', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ListTransfersController::class);
             Route::post('/projects/{projectId}/operations/transfers', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\CreateTransferController::class);

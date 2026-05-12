@@ -839,4 +839,117 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get expenseItemDeleted => 'Статья расходов удалена.';
+
+  @override
+  String get priceListsTitle => 'Прайс-листы';
+
+  @override
+  String get dashboardDocumentsPriceLists => 'Прайс-листы';
+
+  @override
+  String get projectPriceLists => 'Прайс-лист';
+
+  @override
+  String get priceListName => 'Название прайс-листа';
+
+  @override
+  String get priceListCreator => 'Создал';
+
+  @override
+  String get priceListGroupsCount => 'Групп';
+
+  @override
+  String get priceListPositionsCount => 'Позиций';
+
+  @override
+  String get createPriceList => 'Создать прайс-лист';
+
+  @override
+  String get editPriceList => 'Редактировать прайс-лист';
+
+  @override
+  String get deletePriceList => 'Удалить прайс-лист';
+
+  @override
+  String get deletePriceListConfirm => 'Удалить этот прайс-лист?';
+
+  @override
+  String priceListDeleteProjectsWarning(int count) {
+    return 'Данный прайс-лист используется в $count проектах, прайс будет откреплён и недоступен.';
+  }
+
+  @override
+  String get partnerAlreadyHasPriceList =>
+      'У вас уже есть прайс-лист в этой компании, удалите или отредактируйте существующий.';
+
+  @override
+  String get partnerNotProjectHeadPriceList =>
+      'Создать прайс-лист компании может только руководитель проекта (партнёр).';
+
+  @override
+  String get priceListGroups => 'Группы / разделы';
+
+  @override
+  String get createPriceListGroup => 'Добавить группу';
+
+  @override
+  String get editPriceListGroup => 'Редактировать группу';
+
+  @override
+  String get deletePriceListGroup => 'Удалить группу';
+
+  @override
+  String get deletePriceListGroupConfirm =>
+      'Удалить эту группу и позиции внутри неё?';
+
+  @override
+  String get priceListPositions => 'Позиции';
+
+  @override
+  String get createPriceListPosition => 'Добавить позицию';
+
+  @override
+  String get editPriceListPosition => 'Редактировать позицию';
+
+  @override
+  String get deletePriceListPosition => 'Удалить позицию';
+
+  @override
+  String get serviceName => 'Наименование услуги';
+
+  @override
+  String get unitLabel => 'Единица измерения';
+
+  @override
+  String get recipientUnitPrice => 'Стоимость для получателя за ед.';
+
+  @override
+  String get customerUnitPrice => 'Стоимость для заказчика за ед.';
+
+  @override
+  String get profitLabel => 'Прибыль';
+
+  @override
+  String get profitPercentLabel => 'Прибыль %';
+
+  @override
+  String get selectUnit => 'Выберите единицу';
+
+  @override
+  String get attachPriceLists => 'Добавить прайс-лист в проект';
+
+  @override
+  String get availablePriceLists => 'Доступные прайс-листы';
+
+  @override
+  String get attachSelected => 'Подтвердить';
+
+  @override
+  String get detachPriceList => 'Открепить';
+
+  @override
+  String get priceListsEmpty => 'Прайс-листов пока нет.';
+
+  @override
+  String get search => 'Поиск';
 }

@@ -39,6 +39,8 @@ GET /context
 GET /companies/current
 ```
 
+Ответ **`GET /context`**: помимо `active_company_id`, `company_role`, `company` — объект **`price_lists`**: `can_view_company_price_list_library`, `can_create_company_price_list`, `company_price_list_create_blocked_reason` (`partner_not_project_head` | `partner_already_has_active_list` | `null`), `active_own_price_list_id`.
+
 ### Projects
 
 ```http
@@ -58,6 +60,36 @@ DELETE /projects/{projectId}/expense-items/{expenseItemId}
 Блок **ТЗ-10A** (статьи расходов): реализовано; ответ `…/recipients` — только контрагенты компании (`source` в JSON ответа — `company_counterparties`). Детали — **`docs/10_operations/14_PROJECT_EXPENSE_ITEMS.md`**.
 
 `expenseItemId` — только числовой сегмент; маршрут `…/recipients` объявлен выше параметрического `…/{expenseItemId}`.
+
+### Price lists (ТЗ-10B)
+
+```http
+GET    /units
+GET    /price-lists?search=&page=&per_page=
+POST   /price-lists
+GET    /price-lists/{priceListId}
+PATCH  /price-lists/{priceListId}
+DELETE /price-lists/{priceListId}
+
+GET    /price-lists/{priceListId}/groups?search=&page=&per_page=
+POST   /price-lists/{priceListId}/groups
+PATCH  /price-lists/{priceListId}/groups/{groupId}
+DELETE /price-lists/{priceListId}/groups/{groupId}
+
+GET    /price-lists/{priceListId}/groups/{groupId}/positions?search=&page=&per_page=
+POST   /price-lists/{priceListId}/groups/{groupId}/positions
+PATCH  /price-lists/{priceListId}/groups/{groupId}/positions/{positionId}
+DELETE /price-lists/{priceListId}/groups/{groupId}/positions/{positionId}
+
+GET    /projects/{projectId}/price-lists/available
+GET    /projects/{projectId}/price-lists
+POST   /projects/{projectId}/price-lists/attach
+DELETE /projects/{projectId}/price-lists/{priceListId}
+```
+
+Канон по домену и правам — **`docs/10_operations/15_PRICE_LISTS.md`**.  
+`GET /context` дополняется блоком `price_lists` (флаги библиотеки компании для UI).  
+`GET …/summary` → `visibility` дополняется `can_view_project_price_lists`, `can_manage_project_price_list_attachments`.
 
 ### Counterparties
 

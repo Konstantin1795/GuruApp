@@ -6,5 +6,8 @@ class CompanyWorkspaceApi {
 
   Future<Map<String, dynamic>> getCurrentCompany({required int companyId}) =>
       _api.getJson('/company-workspace/$companyId/companies/current');
+
+  Future<Map<String, dynamic>> getWorkspaceContext({required int companyId}) =>
+      _api.getJson('/company-workspace/$companyId/context');
 }
 

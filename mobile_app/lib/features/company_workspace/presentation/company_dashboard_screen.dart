@@ -8,6 +8,7 @@ import '../../../core/localization/app_localizations_extension.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../operations/data/transfers_api.dart';
 import '../../operations/presentation/aggregated_operations_history_screen.dart';
+import '../../price_lists/presentation/company_price_lists_screen.dart';
 import '../../operations/providers.dart';
 import '../domain/company_dashboard_stats.dart';
 import '../providers/company_dashboard_stats_provider.dart';
@@ -107,7 +108,7 @@ class CompanyDashboardScreen extends ConsumerWidget {
           _WideNavTileGlass(
             icon: Icons.folder_outlined,
             title: l10n.dashboardDocuments,
-            onTap: () => _toast(context, l10n.dashboardDocumentsSoon),
+            onTap: () => _openDocumentsMenu(context, companyId),
           ),
           const SizedBox(height: 12),
           _WideNavTileGlass(
@@ -133,8 +134,36 @@ class CompanyDashboardScreen extends ConsumerWidget {
     );
   }
 
-  static void _toast(BuildContext context, String text) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+  static void _openDocumentsMenu(BuildContext context, int companyId) {
+    final l10n = context.l10n;
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.request_quote_outlined),
+              title: Text(l10n.dashboardDocumentsPriceLists),
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => CompanyPriceListsScreen(companyId: companyId),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.hourglass_empty),
+              title: Text(l10n.projectDocuments),
+              subtitle: Text(l10n.projectComingSoonSnippet),
+              onTap: () => Navigator.pop(ctx),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
