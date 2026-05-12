@@ -43,6 +43,8 @@ GET /companies/current
 
 ### Projects
 
+**`POST /projects`:** создаёт проект активный контрагент пользователя в компании с ролью компании **`OWNER`** или **`PARTNER`** (тот же контур, что `EnsureCompanyWorkspaceAccess`); для него создаётся участник **`PROJECT_HEAD`**, `level=first`, и кошелёк.
+
 ```http
 GET  /projects
 POST /projects
@@ -113,14 +115,14 @@ GET    /projects/{projectId}/participants/{participantId}/wallet
 ## 4. Company Workspace — unified operations
 
 ```http
-GET /operations/history
+GET /operations/history?tab=all|pending&page=&per_page=
 ```
 
-Назначение:
+- **`tab`**: необязательный; по умолчанию **`all`**.
+  - **`pending`** — только операции, где от текущего пользователя требуется шаг «на подтверждение» (та же логика, что суммарный **pending-count** по TRANSFER + INCOME).
+  - **`all`** — «все операции»: для **OWNER** компании — все TRANSFER и INCOME по `company_id`; для **PARTNER** и прочих — только операции, где пользователь участвует в строке операции (не весь проект из‑за роли РП / партнёра 1-го уровня).
 
-```text
-объединённая история TRANSFER + INCOME
-```
+Объединённая лента: **TRANSFER + INCOME**.
 
 ---
 
@@ -169,6 +171,7 @@ Lifecycle actions:
 
 ```http
 POST /projects/{projectId}/operations/incomes/{incomeId}/submit-to-customer-approval
+POST /projects/{projectId}/operations/incomes/{incomeId}/reset-approval
 POST /projects/{projectId}/operations/incomes/{incomeId}/complete-waiting
 POST /projects/{projectId}/operations/incomes/{incomeId}/rollback-completed
 ```
@@ -197,8 +200,10 @@ GET /income-by-month
 ### Unified operations
 
 ```http
-GET /operations/history
+GET /operations/history?tab=all|pending&page=&per_page=
 ```
+
+Параметр **`tab`**: см. §4 Company Workspace — unified operations (то же поведение в personal-workspace).
 
 ---
 
@@ -234,13 +239,16 @@ GET /projects/{projectId}/operations/incomes
 GET /projects/{projectId}/operations/incomes/{incomeId}
 ```
 
-Customer actions:
+Customer / инициатор (личный кабинет):
 
 ```http
 POST /projects/{projectId}/operations/incomes/{incomeId}/approve-customer
 POST /projects/{projectId}/operations/incomes/{incomeId}/reject-customer
 POST /projects/{projectId}/operations/incomes/{incomeId}/return-to-customer-approval
+POST /projects/{projectId}/operations/incomes/{incomeId}/reset-approval
 ```
+
+(`reset-approval` — инициатор сбрасывает этап согласования заказчика; см. company-workspace для того же действия из кабинета компании.)
 
 ---
 

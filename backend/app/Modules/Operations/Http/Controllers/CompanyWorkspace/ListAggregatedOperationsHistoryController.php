@@ -21,11 +21,16 @@ final class ListAggregatedOperationsHistoryController
         $p = Pagination::fromRequest($request);
         $userId = (int) $request->user()->id;
 
+        $tab = (string) $request->query('tab', 'all');
+        if (! in_array($tab, ['pending', 'all'], true)) {
+            $tab = 'all';
+        }
+
         $projects = $projectVisibility
             ->queryForCompanyWorkspace($userId, $companyId)
             ->get();
 
-        $result = $history->paginate($projects, $userId, $p['per_page'], $p['page']);
+        $result = $history->paginate($projects, $userId, $companyId, $tab, $p['per_page'], $p['page']);
 
         $lastPage = max(1, (int) ceil($result['total'] / $p['per_page']));
 

@@ -27,7 +27,7 @@ docs/00_core/02_GURU_WORKSPACES_AND_ACCESS.md
 docs/90_current/90_GURU_CURRENT_STATE.md
 ```
 
-**Инвариант (одна строка):** два API-контура — `**/api/company-workspace/{companyId}/**` и `**/api/personal-workspace/**`; кошелёк у **`ProjectParticipant`**; объединённая история на клиенте — **`GET …/operations/history`** (TRANSFER + INCOME).
+**Инвариант (одна строка):** два API-контура — `**/api/company-workspace/{companyId}/**` и `**/api/personal-workspace/**`; кошелёк у **`ProjectParticipant`**; объединённая история на клиенте — **`GET …/operations/history`** (TRANSFER + INCOME; параметр **`tab=pending|all`**).
 
 **Архив:** `docs/OldDocs/` (в т.ч. `docs/OldDocs/legacy_monolith/`) — не канон без явного запроса.
 

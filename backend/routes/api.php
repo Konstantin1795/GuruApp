@@ -104,6 +104,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/projects/{projectId}/operations/incomes/{incomeId}', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ShowIncomeController::class);
             Route::patch('/projects/{projectId}/operations/incomes/{incomeId}', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\PatchIncomeController::class);
             Route::post('/projects/{projectId}/operations/incomes/{incomeId}/submit-to-customer-approval', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\IncomeSubmitToCustomerApprovalController::class);
+            Route::post('/projects/{projectId}/operations/incomes/{incomeId}/reset-approval', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\IncomeResetApprovalController::class);
             Route::post('/projects/{projectId}/operations/incomes/{incomeId}/complete-waiting', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\IncomeCompleteWaitingController::class);
             Route::post('/projects/{projectId}/operations/incomes/{incomeId}/rollback-completed', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\IncomeRollbackCompletedController::class);
         });
@@ -140,5 +141,6 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/projects/{projectId}/operations/incomes/{incomeId}/approve-customer', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\IncomeApproveCustomerController::class);
             Route::post('/projects/{projectId}/operations/incomes/{incomeId}/reject-customer', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\IncomeRejectCustomerController::class);
             Route::post('/projects/{projectId}/operations/incomes/{incomeId}/return-to-customer-approval', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\IncomeReturnToCustomerApprovalController::class);
+            Route::post('/projects/{projectId}/operations/incomes/{incomeId}/reset-approval', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\IncomeResetApprovalController::class);
         });
 }); 

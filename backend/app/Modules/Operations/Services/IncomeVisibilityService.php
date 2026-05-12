@@ -80,6 +80,47 @@ final class IncomeVisibilityService
         });
     }
 
+    /**
+     * Агрегированная лента «все операции»: только поступления, где участник — инициатор / РП / заказчик по строке операции.
+     */
+    public function incomeQueryParticipationOnlyForUser(Project $project, int $userId): Builder
+    {
+        $query = IncomeOperation::query()->where('project_id', $project->id);
+        $participant = $this->participantForUser($project, $userId);
+
+        if (! $participant) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        $pid = (int) $participant->id;
+
+        return $query->where(function (Builder $q) use ($pid): void {
+            $q->where('initiator_project_participant_id', $pid)
+                ->orWhere('project_head_project_participant_id', $pid)
+                ->orWhere('customer_project_participant_id', $pid);
+        });
+    }
+
+    /**
+     * @param iterable<int, Project> $projects
+     */
+    public function incomeQueryParticipationOnlyAcrossProjects(iterable $projects, int $userId): Builder
+    {
+        $projects = is_array($projects) ? $projects : iterator_to_array($projects);
+        if ($projects === []) {
+            return IncomeOperation::query()->whereRaw('1 = 0');
+        }
+
+        return IncomeOperation::query()->where(function (Builder $outer) use ($projects, $userId): void {
+            foreach ($projects as $project) {
+                $outer->orWhere(function (Builder $q) use ($project, $userId): void {
+                    $sub = $this->incomeQueryParticipationOnlyForUser($project, $userId);
+                    $q->whereIn('income_operations.id', $sub->select('income_operations.id'));
+                });
+            }
+        });
+    }
+
     public function participantForUser(Project $project, int $userId): ?ProjectParticipant
     {
         return ProjectParticipant::query()

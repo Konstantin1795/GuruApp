@@ -198,7 +198,7 @@ Comment dialog
 Экран истории должен использовать:
 
 ```text
-GET .../operations/history
+GET .../operations/history?tab=pending|all
 ```
 
 и показывать:

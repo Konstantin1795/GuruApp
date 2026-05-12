@@ -544,6 +544,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get operationsHistoryEmpty => 'Нет операций';
 
   @override
+  String get operationsHistoryTabPending => 'На подтверждение';
+
+  @override
+  String get operationsHistoryTabAll => 'Все операции';
+
+  @override
+  String get operationsHistoryEmptyPending =>
+      'Нет операций, требующих вашего действия';
+
+  @override
   String get incomeHistoryCardTitle => 'Поступление средств';
 
   @override

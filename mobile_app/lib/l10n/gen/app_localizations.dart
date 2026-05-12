@@ -1136,6 +1136,24 @@ abstract class AppLocalizations {
   /// **'No operations yet'**
   String get operationsHistoryEmpty;
 
+  /// No description provided for @operationsHistoryTabPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending confirmation'**
+  String get operationsHistoryTabPending;
+
+  /// No description provided for @operationsHistoryTabAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All operations'**
+  String get operationsHistoryTabAll;
+
+  /// No description provided for @operationsHistoryEmptyPending.
+  ///
+  /// In en, this message translates to:
+  /// **'No operations require your action'**
+  String get operationsHistoryEmptyPending;
+
   /// No description provided for @incomeHistoryCardTitle.
   ///
   /// In en, this message translates to:

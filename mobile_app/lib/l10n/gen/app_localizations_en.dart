@@ -545,6 +545,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get operationsHistoryEmpty => 'No operations yet';
 
   @override
+  String get operationsHistoryTabPending => 'Pending confirmation';
+
+  @override
+  String get operationsHistoryTabAll => 'All operations';
+
+  @override
+  String get operationsHistoryEmptyPending =>
+      'No operations require your action';
+
+  @override
   String get incomeHistoryCardTitle => 'Project income';
 
   @override

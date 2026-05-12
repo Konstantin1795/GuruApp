@@ -66,6 +66,48 @@ final class OperationVisibilityService
         });
     }
 
+    /**
+     * Агрегированная лента «все операции»: только переводы, где участник фигурирует в операции
+     * (инициатор / отправитель / получатель), без правила «РП видит все проекта».
+     */
+    public function transferQueryParticipationOnlyForUser(Project $project, int $userId): Builder
+    {
+        $query = TransferOperation::query()->where('project_id', $project->id);
+        $participant = $this->participantForUser($project, $userId);
+
+        if (! $participant) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        $participantId = (int) $participant->id;
+
+        return $query->where(function (Builder $q) use ($participantId): void {
+            $q->where('initiator_project_participant_id', $participantId)
+                ->orWhere('sender_project_participant_id', $participantId)
+                ->orWhere('receiver_project_participant_id', $participantId);
+        });
+    }
+
+    /**
+     * @param iterable<int, Project> $projects
+     */
+    public function transferQueryParticipationOnlyAcrossProjects(iterable $projects, int $userId): Builder
+    {
+        $projects = is_array($projects) ? $projects : iterator_to_array($projects);
+        if ($projects === []) {
+            return TransferOperation::query()->whereRaw('1 = 0');
+        }
+
+        return TransferOperation::query()->where(function (Builder $outer) use ($projects, $userId): void {
+            foreach ($projects as $project) {
+                $outer->orWhere(function (Builder $q) use ($project, $userId): void {
+                    $sub = $this->transferQueryParticipationOnlyForUser($project, $userId);
+                    $q->whereIn('transfer_operations.id', $sub->select('transfer_operations.id'));
+                });
+            }
+        });
+    }
+
     public function participantForUser(Project $project, int $userId): ?ProjectParticipant
     {
         return ProjectParticipant::query()

@@ -30,8 +30,8 @@ php artisan test
 | Health | `GET /api/health` или системный health по конфигу | 200, JSON ok |
 | Сводка проекта (компания) | `GET …/company-workspace/{id}/projects/{projectId}/summary` | 200, блок project + metrics + visibility |
 | Сводка проекта (personal) | `GET …/personal-workspace/projects/{projectId}/summary` | 200 |
-| Единая история (компания) | `GET …/company-workspace/{id}/operations/history` | 200, пагинация |
-| Единая история (personal) | `GET …/personal-workspace/operations/history` | 200 |
+| Единая история (компания) | `GET …/company-workspace/{id}/operations/history?tab=all` и `…?tab=pending` | 200, пагинация |
+| Единая история (personal) | `GET …/personal-workspace/operations/history?tab=all` | 200 |
 | Internal metrics (разрешено) | `GET …/projects/{id}/internal-metrics` от роли с правом | 200, блок `metrics` |
 | Internal metrics (запрещено) | тот же URL от пользователя без права | 403 |
 

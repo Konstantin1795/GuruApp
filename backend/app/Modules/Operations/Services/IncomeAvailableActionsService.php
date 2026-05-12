@@ -12,12 +12,11 @@ use App\Modules\Projects\Models\ProjectParticipant;
  */
 final class IncomeAvailableActionsService
 {
-    /** Для бейджа pending-count (ТЗ §18.5, ТЗ-06.1). */
+    /** Для бейджа pending-count и вкладки «На подтверждение». Без reset_approval: сброс с этапа заказчика — опция, очередь «вперёд» только у заказчика. */
     private const PENDING_BADGE_KEYS = [
         'approve_customer',
         'reject_customer',
         'submit_to_customer_approval',
-        'reset_approval',
     ];
 
     /**

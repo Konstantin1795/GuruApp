@@ -92,7 +92,7 @@ CompanyDashboardScreen
 **Прайс-листы компании (ТЗ-10B):** при **`context.price_lists.can_view_library`** — переход к **`CompanyPriceListsScreen`** → **`PriceListDetailScreen`**, CRUD групп/позиций, выбор единицы из **`UnitPickerSheet`**; создание собственного прайса для **Партнёра-РП** блокируется, если уже есть активный (`context.price_lists.has_active_own_price_list`).
 
 ```text
-GET .../operations/history
+GET .../operations/history?tab=pending|all
 ```
 
 и показывает:
@@ -238,13 +238,20 @@ IncomeDetailScreen
 
 ## 10. Unified operations history
 
-Текущий экран:
+Экран:
 
 ```text
 AggregatedOperationsHistoryScreen
 ```
 
-Фактически показывает:
+Вкладки (порядок):
+
+```text
+На подтверждение — GET …/operations/history?tab=pending
+Все операции — GET …/operations/history?tab=all (по умолчанию, если tab не передан)
+```
+
+Показывает:
 
 ```text
 TRANSFER + INCOME
@@ -253,8 +260,10 @@ TRANSFER + INCOME
 Источник:
 
 ```text
-GET .../operations/history
+GET .../operations/history?tab=&page=&per_page=
 ```
+
+Суммарный бейдж ожиданий на дашборде: **`combinedOperationsPendingCountProvider`** (TRANSFER + INCOME pending-count) совпадает с набором операций вкладки **«На подтверждение»**.
 
 ---
 

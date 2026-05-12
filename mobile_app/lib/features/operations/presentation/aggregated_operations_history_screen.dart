@@ -37,19 +37,111 @@ class AggregatedOperationsHistoryScreen extends ConsumerStatefulWidget {
       _AggregatedOperationsHistoryScreenState();
 }
 
-class _AggregatedOperationsHistoryScreenState extends ConsumerState<AggregatedOperationsHistoryScreen> {
+class _AggregatedOperationsHistoryScreenState extends ConsumerState<AggregatedOperationsHistoryScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+
+  IncomeApiScope get _incomeScope =>
+      widget.apiScope == TransferApiScope.company ? IncomeApiScope.company : IncomeApiScope.personal;
+
+  CombinedPendingKey get _pendingKey => (scope: widget.apiScope, companyId: widget.companyId);
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void _invalidatePending() {
+    ref.invalidate(combinedOperationsPendingCountProvider(_pendingKey));
+    ref.invalidate(transferPendingActionCountProvider((scope: widget.apiScope, companyId: widget.companyId)));
+    ref.invalidate(incomePendingActionCountProvider((scope: _incomeScope, companyId: widget.companyId)));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final userName = ref.watch(currentUserProvider).valueOrNull?.name.trim() ?? '';
+    final roleLabel = widget.apiScope == TransferApiScope.personal
+        ? l10n.personalWorkspaceTitle
+        : companyWorkspaceHeaderRoleLabel(ref, widget.companyId, l10n);
+
+    return AppScaffold(
+      headerUserName: userName.isEmpty ? null : userName,
+      headerRoleLabel: roleLabel,
+      title: l10n.dashboardHistory,
+      subtitle: l10n.operationsHistorySubtitle,
+      body: Column(
+        children: [
+          TabBar(
+            controller: _tabController,
+            tabs: [
+              Tab(text: l10n.operationsHistoryTabPending),
+              Tab(text: l10n.operationsHistoryTabAll),
+            ],
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _AggregatedHistoryTabBody(
+                  key: const PageStorageKey<String>('ops_hist_pending'),
+                  tab: UnifiedOperationsHistoryTab.pending,
+                  apiScope: widget.apiScope,
+                  companyId: widget.companyId,
+                  incomeScope: _incomeScope,
+                  onInvalidatePending: _invalidatePending,
+                ),
+                _AggregatedHistoryTabBody(
+                  key: const PageStorageKey<String>('ops_hist_all'),
+                  tab: UnifiedOperationsHistoryTab.all,
+                  apiScope: widget.apiScope,
+                  companyId: widget.companyId,
+                  incomeScope: _incomeScope,
+                  onInvalidatePending: _invalidatePending,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AggregatedHistoryTabBody extends ConsumerStatefulWidget {
+  final UnifiedOperationsHistoryTab tab;
+  final TransferApiScope apiScope;
+  final int companyId;
+  final IncomeApiScope incomeScope;
+  final VoidCallback onInvalidatePending;
+
+  const _AggregatedHistoryTabBody({
+    super.key,
+    required this.tab,
+    required this.apiScope,
+    required this.companyId,
+    required this.incomeScope,
+    required this.onInvalidatePending,
+  });
+
+  @override
+  ConsumerState<_AggregatedHistoryTabBody> createState() => _AggregatedHistoryTabBodyState();
+}
+
+class _AggregatedHistoryTabBodyState extends ConsumerState<_AggregatedHistoryTabBody> {
   static const _perPage = 20;
   List<AggregatedHistoryItem> _items = const [];
   PaginationInfo? _pagination;
   bool _loading = true;
   bool _loadingMore = false;
   Object? _error;
-
-  IncomeApiScope get _incomeScope =>
-      widget.apiScope == TransferApiScope.company ? IncomeApiScope.company : IncomeApiScope.personal;
-
-  CombinedPendingKey get _pendingKey =>
-      (scope: widget.apiScope, companyId: widget.companyId);
 
   @override
   void initState() {
@@ -68,6 +160,7 @@ class _AggregatedOperationsHistoryScreenState extends ConsumerState<AggregatedOp
             companyId: widget.companyId,
             page: 1,
             perPage: _perPage,
+            tab: widget.tab,
           );
       if (!mounted) return;
       setState(() {
@@ -94,6 +187,7 @@ class _AggregatedOperationsHistoryScreenState extends ConsumerState<AggregatedOp
             companyId: widget.companyId,
             page: p.page + 1,
             perPage: _perPage,
+            tab: widget.tab,
           );
       if (!mounted) return;
       setState(() {
@@ -104,12 +198,6 @@ class _AggregatedOperationsHistoryScreenState extends ConsumerState<AggregatedOp
     } catch (_) {
       if (mounted) setState(() => _loadingMore = false);
     }
-  }
-
-  void _invalidatePending() {
-    ref.invalidate(combinedOperationsPendingCountProvider(_pendingKey));
-    ref.invalidate(transferPendingActionCountProvider((scope: widget.apiScope, companyId: widget.companyId)));
-    ref.invalidate(incomePendingActionCountProvider((scope: _incomeScope, companyId: widget.companyId)));
   }
 
   void _openTransfer(AggregatedHistoryItem row) {
@@ -127,7 +215,7 @@ class _AggregatedOperationsHistoryScreenState extends ConsumerState<AggregatedOp
       ),
     )
         .then((_) {
-      _invalidatePending();
+      widget.onInvalidatePending();
       _loadFirst();
     });
   }
@@ -139,7 +227,7 @@ class _AggregatedOperationsHistoryScreenState extends ConsumerState<AggregatedOp
         .push<void>(
       MaterialPageRoute<void>(
         builder: (_) => IncomeDetailScreen(
-          apiScope: _incomeScope,
+          apiScope: widget.incomeScope,
           companyId: widget.companyId,
           projectId: inc.projectId,
           incomeId: inc.id,
@@ -147,29 +235,13 @@ class _AggregatedOperationsHistoryScreenState extends ConsumerState<AggregatedOp
       ),
     )
         .then((_) {
-      _invalidatePending();
+      widget.onInvalidatePending();
       _loadFirst();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final userName = ref.watch(currentUserProvider).valueOrNull?.name.trim() ?? '';
-    final roleLabel = widget.apiScope == TransferApiScope.personal
-        ? l10n.personalWorkspaceTitle
-        : companyWorkspaceHeaderRoleLabel(ref, widget.companyId, l10n);
-
-    return AppScaffold(
-      headerUserName: userName.isEmpty ? null : userName,
-      headerRoleLabel: roleLabel,
-      title: l10n.dashboardHistory,
-      subtitle: l10n.operationsHistorySubtitle,
-      body: _buildBody(context),
-    );
-  }
-
-  Widget _buildBody(BuildContext context) {
     final l10n = context.l10n;
     if (_loading) return const AppLoader();
     final err = _error;
@@ -190,10 +262,13 @@ class _AggregatedOperationsHistoryScreenState extends ConsumerState<AggregatedOp
     }
 
     if (_items.isEmpty) {
+      final emptyTitle = widget.tab == UnifiedOperationsHistoryTab.pending
+          ? l10n.operationsHistoryEmptyPending
+          : l10n.operationsHistoryEmpty;
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
-          AppEmptyState(icon: Icons.layers_outlined, title: l10n.operationsHistoryEmpty),
+          AppEmptyState(icon: Icons.layers_outlined, title: emptyTitle),
         ],
       );
     }

@@ -1,6 +1,12 @@
 import 'income_operation.dart';
 import 'transfer_operation.dart';
 
+/// Вкладка агрегированной истории: query `tab` для `GET …/operations/history`.
+enum UnifiedOperationsHistoryTab {
+  pending,
+  all,
+}
+
 /// Элемент объединённой ленты `/operations/history` (ТЗ-06.1).
 class AggregatedHistoryItem {
   final String operationKind;

@@ -248,7 +248,7 @@ POST /return-to-customer-approval
 `INCOME` должен отображаться в единой истории операций:
 
 ```text
-GET /operations/history
+GET /operations/history?tab=all|pending&page=&per_page=
 ```
 
 вместе с `TRANSFER`.

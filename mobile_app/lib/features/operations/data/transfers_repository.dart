@@ -141,12 +141,14 @@ class TransfersRepository {
     required int companyId,
     required int page,
     required int perPage,
+    required UnifiedOperationsHistoryTab tab,
   }) async {
     final json = await _api.listUnifiedOperationsHistory(
       scope: scope,
       companyId: companyId,
       page: page,
       perPage: perPage,
+      tab: tab.name,
     );
     final data = (json['data'] as Map).cast<String, dynamic>();
     return Paginated<AggregatedHistoryItem>.fromJson(data, parseItem: AggregatedHistoryItem.fromJson);

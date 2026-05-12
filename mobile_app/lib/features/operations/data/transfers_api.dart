@@ -105,10 +105,11 @@ class TransfersApi {
     required int companyId,
     required int page,
     required int perPage,
+    required String tab,
   }) =>
       _api.getJson(
         _unifiedHistoryPath(scope: scope, companyId: companyId),
-        query: {'page': page, 'per_page': perPage},
+        query: {'page': page, 'per_page': perPage, 'tab': tab},
       );
 
   Future<Map<String, dynamic>> listHistoryAggregated({

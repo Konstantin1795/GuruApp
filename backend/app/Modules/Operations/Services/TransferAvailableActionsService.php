@@ -14,16 +14,19 @@ use App\Modules\Projects\Models\ProjectParticipant;
 final class TransferAvailableActionsService
 {
     /**
-     * Какие флаги из forParticipant() участвуют в бейдже «ожидают от вас шага / подтверждения».
+     * Какие флаги из forParticipant() участвуют в бейдже «ожидают от вас шага / подтверждения»
+     * и во вкладке «На подтверждение» агрегированной истории.
      *
-     * Не включаем: complete_immediate (опция инициатора), reset_approval (снятие с рассмотрения),
-     * вмешательство в WAITING_24_HOURS (процесс идёт по таймеру), rollback/return completed (коррективы).
-     * При добавлении Отчёта/Поступления/согласования заказчика — дополнять этот список.
+     * Включаем complete_immediate: для инициатора РП/Партнёра в CREATED требуется явное действие
+     * (в т.ч. после отклонения и возврата в CREATED).
+     *
+     * Не включаем: reset_approval (откат с рассмотрения), WAITING_24_HOURS, rollback/return completed.
      */
     private const PENDING_BADGE_ACTION_KEYS = [
         'approve_project_head',
         'reject_project_head',
         'submit_for_approval',
+        'complete_immediate',
     ];
 
     /**
