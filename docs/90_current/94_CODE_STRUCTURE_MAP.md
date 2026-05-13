@@ -1,6 +1,6 @@
 # 94 — Карта структуры кода GURU
 
-**Назначение:** быстрый ориентир для нового разработчика перед REPORT. Канон правил — `docs/00_core/`, операции — `docs/10_operations/`.
+**Назначение:** быстрый ориентир для нового разработчика. Канон правил — `docs/00_core/`, операции — `docs/10_operations/` (в т.ч. **`16_OPERATION_REPORT.md`** для REPORT foundation).
 
 ---
 
@@ -24,18 +24,35 @@
 |------|----------------|
 | `mobile_app/lib/core/` | API (Dio), тема, общие виджеты, локализация. |
 | `mobile_app/lib/features/*/` | Фичи: `data/` (API), `domain/`, `presentation/`, `providers.dart`. |
-| `mobile_app/lib/features/operations/` | Переводы, поступления, объединённая история. |
+| `mobile_app/lib/features/operations/` | Переводы, поступления, объединённая история (**TRANSFER + INCOME + REPORT**), минимальный контур REPORT (pending, stub-деталь). |
 | `mobile_app/lib/features/projects/` | Проекты, деталь, статьи расходов. |
 | `mobile_app/lib/features/price_lists/` | Прайс-листы компании и привязка к проекту. |
 
 ---
 
-## 3. Где находятся операции (TRANSFER / INCOME)
+## 3. Где находятся операции (TRANSFER / INCOME / REPORT foundation)
 
-- **Модели:** `backend/app/Modules/Operations/Models/` (`TransferOperation`, `IncomeOperation`, `Operation`, …).
-- **Lifecycle и смена статусов:** `TransferLifecycleService`, `IncomeLifecycleService`.
-- **Доступные POST-действия (UI):** `TransferAvailableActionsService`, `IncomeAvailableActionsService`.
-- **Контроллеры:** `Operations/Http/Controllers/CompanyWorkspace/*`, `PersonalWorkspace/*`.
+- **Модели:** `backend/app/Modules/Operations/Models/` (`TransferOperation`, `IncomeOperation`, `Operation`, **`ReportOperation`**, **`ReportOperationLine`**, **`ReportWalletDelta`**, **`ReportTransferLink`**, **`ReportOperationStatusHistory`**, …).
+- **Lifecycle и смена статусов:** `TransferLifecycleService`, `IncomeLifecycleService`, **`ReportLifecycleService`**.
+- **Доступные POST-действия (UI):** `TransferAvailableActionsService`, `IncomeAvailableActionsService`, **`ReportAvailableActionsService`**.
+- **Контроллеры:** `Operations/Http/Controllers/CompanyWorkspace/*`, `PersonalWorkspace/*` (для REPORT в personal сейчас в основном **pending-count** и **transfer-links** — см. **`16_OPERATION_REPORT.md`**).
+
+### 3.1. REPORT foundation — сервисы
+
+```text
+ReportService
+ReportLifecycleService
+ReportBalanceService
+ReportAccessService
+ReportVisibilityService
+ReportAvailableActionsService
+ReportPendingActionCountService
+ReportTransferLinkService
+ReportOperationNumberService
+ReportParticipantResolver
+```
+
+**Связано:** `AggregatedOperationsHistoryService` (union `operation_kind = report`); `CompleteExpiredReportWaitingCommand` + расписание в `bootstrap/app.php`.
 
 ---
 
@@ -44,7 +61,7 @@
 - **Проект в воркспейсе:** `ProjectVisibilityService`, middleware `EnsureCompanyWorkspaceAccess` / personal-аналоги.
 - **Статьи расходов (ТЗ-10A):** `ProjectExpenseItemAccessService`.
 - **Прайс-листы (ТЗ-10B):** `PriceListAccessService`.
-- **Видимость операций в лентах:** `OperationVisibilityService`, `IncomeVisibilityService` (не путать с company OWNER «все операции компании» — это в `AggregatedOperationsHistoryService`).
+- **Видимость операций в лентах:** `OperationVisibilityService`, `IncomeVisibilityService`, **`ReportVisibilityService`** (не путать с company OWNER «все операции компании» — это в `AggregatedOperationsHistoryService`).
 
 ---
 
@@ -52,6 +69,7 @@
 
 - **TRANSFER:** только в `TransferLifecycleService` (+ история статусов внутри транзакций).
 - **INCOME:** только в `IncomeLifecycleService`.
+- **REPORT foundation:** только в **`ReportLifecycleService`** (+ история в `ReportOperationStatusHistory`).
 - Контроллеры вызывают lifecycle-сервисы после проверок доступа; не добавлять переходы статусов в контроллер.
 
 ---
@@ -60,6 +78,7 @@
 
 - **Переводы:** `TransferBalanceService` (дельты кошельков по ТЗ-05.2).
 - **Поступления:** `IncomeBalanceService`.
+- **Отчёт (foundation):** **`ReportBalanceService`** — дельты в **`report_wallet_deltas`**; откат по сохранённым строкам.
 - **Обеспечение кошелька / вспомогательно:** `WalletService`, чтение среза балансов — `WalletBalanceService` (без проведения дельт).
 
 ---
@@ -68,6 +87,7 @@
 
 - **Файл:** `backend/routes/api.php`.
 - **Канон списка:** `docs/20_api/20_API_ROUTES_CURRENT.md`.
+- **Канон REPORT foundation:** `docs/10_operations/16_OPERATION_REPORT.md`.
 
 ---
 
@@ -80,7 +100,7 @@
 
 ## 9. Как добавлять новую операцию
 
-1. Прочитать `docs/10_operations/10_OPERATION_COMMON_RULES.md` и черновик REPORT при необходимости.
+1. Прочитать `docs/10_operations/10_OPERATION_COMMON_RULES.md` и при REPORT — **`16_OPERATION_REPORT.md`**.
 2. Модели + миграции (отдельное согласование схемы).
 3. `*LifecycleService` — все переходы статусов и побочные эффекты в транзакции.
 4. `*BalanceService` или существующие wallet-сервисы — все деньги.
@@ -110,29 +130,36 @@
 6. `docs/10_operations/12_OPERATION_INCOME.md` — INCOME.
 7. `docs/10_operations/14_PROJECT_EXPENSE_ITEMS.md` — статьи расходов.
 8. `docs/10_operations/15_PRICE_LISTS.md` — прайс-листы.
-9. `docs/90_current/95_TEST_COVERAGE_MAP.md` — что уже покрыто тестами.
+9. `docs/10_operations/16_OPERATION_REPORT.md` — REPORT foundation (канон по текущей реализации).
+10. `docs/90_current/95_TEST_COVERAGE_MAP.md` — что уже покрыто тестами.
 
 ---
 
-## 12. ТЗ-12.1 — Targeted refactor перед REPORT
+## 12. ТЗ-12.1 и ТЗ-10C REPORT foundation
 
-**Укреплено:** создание проекта в company-workspace вынесено в `backend/app/Modules/Projects/Services/CreateProjectService.php`; контроллер только вызывает сервис и отдаёт `ProjectResource`. Заказчик при создании — **CUSTOMER, `level = first`** (как РП). Добавлены/расширены feature-тесты: OWNER + кошелёк РП, PARTNER + кошелёк, проект с заказчиком (роль, уровень, `is_active`, кошелёк).
+**Укреплено (ТЗ-12.1):** создание проекта в company-workspace вынесено в `backend/app/Modules/Projects/Services/CreateProjectService.php`; контроллер только вызывает сервис и отдаёт `ProjectResource`. Заказчик при создании — **CUSTOMER, `level = first`** (как РП). Добавлены/расширены feature-тесты: OWNER + кошелёк РП, PARTNER + кошелёк, проект с заказчиком (роль, уровень, `is_active`, кошелёк).
 
-**Не трогали:** lifecycle TRANSFER/INCOME, математику `TransferBalanceService`/`IncomeBalanceService`, схему БД, Flutter-экраны (только зафиксирован техдолг на декомпозицию).
+**Не трогали:** lifecycle TRANSFER/INCOME, математику `TransferBalanceService`/`IncomeBalanceService`, схему TRANSFER/INCOME, Flutter-экраны (только зафиксирован техдолг на декомпозицию).
 
-**Будущий REPORT (по ТЗ-10C+):** отдельные таблицы и сервисы — без смешения с `WalletBalanceService` (read-only срез) и без дельт в контроллерах. Ожидаемый контур сервисов (имена можно уточнить под стиль модуля Operations):
+**ТЗ-10C REPORT foundation (реализовано в коде):** отдельные таблицы и сервисы без дельт в контроллерах/`WalletBalanceService`. Канон по домену и ограничениям — **`docs/10_operations/16_OPERATION_REPORT.md`**. Реализованный контур:
 
 ```text
+ReportOperation
+ReportOperationLine
+ReportWalletDelta
+ReportTransferLink
+ReportOperationStatusHistory
+
 ReportService
 ReportLifecycleService
 ReportBalanceService
 ReportAccessService
 ReportVisibilityService
 ReportAvailableActionsService
-ReportResponseService
-ReportLineSnapshotService
+ReportPendingActionCountService
 ReportTransferLinkService
 ReportOperationNumberService
+ReportParticipantResolver
 ```
 
-**Техдолг после foundation REPORT:** интеграционные smoke-тесты «полный TRANSFER/INCOME + дельты кошелька» на SQLite; крупные Flutter-экраны (`ProjectDetailScreen`, `AggregatedOperationsHistoryScreen`).
+**Техдолг:** интеграционные smoke «полный TRANSFER/INCOME + дельты кошелька» на SQLite; расширенные REPORT-тесты (см. **`95_TEST_COVERAGE_MAP.md`**); крупные Flutter-экраны (`ProjectDetailScreen`, `AggregatedOperationsHistoryScreen`); доработка `PriceListReportUsageChecker` под реальные ссылки отчёт → прайс.

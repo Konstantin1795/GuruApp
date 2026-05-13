@@ -14,7 +14,7 @@
 | Папка под `docs/` | Содержание | Как часто меняется |
 |-------------------|------------|---------------------|
 | **`00_core/`** | Постулаты, стандарты архитектуры, воркспейсы, домен | Редко |
-| **`10_operations/`** | Общие правила операций, TRANSFER, INCOME, REPORT (черновик **`13_OPERATION_REPORT_DRAFT.md`** — раздел **«9. Актуальные уточнения перед реализацией ТЗ-10C»** синхронизирован с ТЗ-10C), **ТЗ-10A** статьи расходов, **ТЗ-10B** прайс-листы (реализовано), подготовка к **ТЗ-10C / REPORT** | При смене бизнес-логики операций |
+| **`10_operations/`** | Общие правила операций, TRANSFER, INCOME; **канон REPORT foundation:** **`16_OPERATION_REPORT.md`**; черновик/история уточнений **`13_OPERATION_REPORT_DRAFT.md`** (раздел **9**); **ТЗ-10A** статьи расходов; **ТЗ-10B** прайс-листы | При смене бизнес-логики операций |
 | **`20_api/`** | Маршруты, контракт ответа API | При добавлении/смене маршрутов |
 | **`30_flutter/`** | Архитектура клиента, UI, экраны | При развитии UI |
 | **`90_current/`** | Текущий снимок, шаблон задачи, smoke checklist, стандарт Git, **ТЗ-11** карты кода/тестов и DoD | Постоянно / операционные редко |
@@ -31,7 +31,7 @@ docs/90_current/96_GURU_DEFINITION_OF_DONE.md
 
 **ТЗ-12.1 (targeted refactor перед REPORT):** `CreateProjectService` для создания проекта; тесты OWNER/PARTNER + кошельки; PHPDoc слоёв кошелька под будущий REPORT — см. раздел **12** в `docs/90_current/94_CODE_STRUCTURE_MAP.md` и `90_GURU_CURRENT_STATE.md`.
 
-**ТЗ-10C (REPORT foundation):** до начала кода читать **`docs/10_operations/13_OPERATION_REPORT_DRAFT.md`**, раздел **«9. Актуальные уточнения перед реализацией ТЗ-10C»** — там синхронизированы канон-уточнения с внешним ТЗ-10C (отдельная `report_operations`, дельты, ссылки на переводы, история, pending и т.д.).
+**ТЗ-10C (REPORT foundation):** канон по **реализованному** коду — **`docs/10_operations/16_OPERATION_REPORT.md`**. Исторические уточнения и прежние формулировки до кода — **`docs/10_operations/13_OPERATION_REPORT_DRAFT.md`** (раздел **9**); не подменять канон **16** при расхождении с черновиком.
 
 Дефолтный «широкий» минимум без выбора сценария:
 
@@ -41,7 +41,7 @@ docs/00_core/02_GURU_WORKSPACES_AND_ACCESS.md
 docs/90_current/90_GURU_CURRENT_STATE.md
 ```
 
-**Инвариант (одна строка):** два API-контура — `**/api/company-workspace/{companyId}/**` и `**/api/personal-workspace/**`; кошелёк у **`ProjectParticipant`**; объединённая история на клиенте — **`GET …/operations/history`** (TRANSFER + INCOME; параметр **`tab=pending|all`**).
+**Инвариант (одна строка):** два API-контура — `**/api/company-workspace/{companyId}/**` и `**/api/personal-workspace/**`; кошелёк у **`ProjectParticipant`**; объединённая история на клиенте — **`GET …/operations/history`** (**TRANSFER + INCOME + REPORT**; параметр **`tab=pending|all`**).
 
 **Архив:** `docs/OldDocs/` (в т.ч. `docs/OldDocs/legacy_monolith/`) — не канон без явного запроса.
 
@@ -57,7 +57,7 @@ docs/90_current/95_TEST_COVERAGE_MAP.md
 docs/90_current/96_GURU_DEFINITION_OF_DONE.md
 ```
 
-- `docs/90_current/91_GURU_NEXT_TASK_REPORT.md` — краткий контекст по цепочке **ТЗ-10** к REPORT; **ТЗ-10A** и **ТЗ-10B** сделаны, следующий зависимый шаг — **ТЗ-10C** (REPORT foundation). Уточнения ТЗ-10C в каноне: **`docs/10_operations/13_OPERATION_REPORT_DRAFT.md`** (раздел **9**).
+- `docs/90_current/91_GURU_NEXT_TASK_REPORT.md` — краткий контекст по цепочке **ТЗ-10** к REPORT; **ТЗ-10A** и **ТЗ-10B** сделаны; **ТЗ-10C foundation** в коде — см. **`16_OPERATION_REPORT.md`**. Уточнения до кода — **`13_OPERATION_REPORT_DRAFT.md`** (раздел **9**).
 - `docs/10_operations/14_PROJECT_EXPENSE_ITEMS.md` — ТЗ-10A: статьи расходов (реализовано в коде); уточнения и связь с REPORT.
 - `docs/10_operations/15_PRICE_LISTS.md` — ТЗ-10B: прайс-листы компании, группы, позиции, единицы, прикрепление к проекту (реализовано в коде).
 
@@ -129,6 +129,7 @@ docs/90_current/96_GURU_DEFINITION_OF_DONE.md
 10_operations/10_OPERATION_COMMON_RULES.md
 10_operations/11_OPERATION_TRANSFER.md
 10_operations/12_OPERATION_INCOME.md
+10_operations/16_OPERATION_REPORT.md
 10_operations/13_OPERATION_REPORT_DRAFT.md
 10_operations/14_PROJECT_EXPENSE_ITEMS.md
 10_operations/15_PRICE_LISTS.md

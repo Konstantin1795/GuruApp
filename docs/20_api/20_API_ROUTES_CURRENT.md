@@ -3,6 +3,8 @@
 Файл часто меняется.  
 Обновлять после добавления маршрутов.
 
+**Канон REPORT foundation (домен, видимость, MVP):** **`docs/10_operations/16_OPERATION_REPORT.md`**.
+
 ---
 
 ## 1. Auth
@@ -119,10 +121,10 @@ GET /operations/history?tab=all|pending&page=&per_page=
 ```
 
 - **`tab`**: необязательный; по умолчанию **`all`**.
-  - **`pending`** — только операции, где от текущего пользователя требуется шаг «на подтверждение» (та же логика, что суммарный **pending-count** по TRANSFER + INCOME).
-  - **`all`** — «все операции»: для **OWNER** компании — все TRANSFER и INCOME по `company_id`; для **PARTNER** и прочих — только операции, где пользователь участвует в строке операции (не весь проект из‑за роли РП / партнёра 1-го уровня).
+  - **`pending`** — только операции, где от текущего пользователя требуется шаг «на подтверждение» (та же логика, что суммарный **pending-count** по TRANSFER + INCOME + REPORT).
+  - **`all`** — «все операции»: для **OWNER** компании — все TRANSFER, INCOME и REPORT по `company_id`; для **PARTNER** и прочих — только операции, где пользователь участвует в строке операции (не весь проект из‑за роли РП / партнёра 1-го уровня).
 
-Объединённая лента: **TRANSFER + INCOME**.
+Объединённая лента: **TRANSFER + INCOME + REPORT**.
 
 ---
 
@@ -175,6 +177,36 @@ POST /projects/{projectId}/operations/incomes/{incomeId}/reset-approval
 POST /projects/{projectId}/operations/incomes/{incomeId}/complete-waiting
 POST /projects/{projectId}/operations/incomes/{incomeId}/rollback-completed
 ```
+
+### Reports (ТЗ-10C)
+
+```http
+GET  /operations/reports/pending-count
+
+GET    /projects/{projectId}/operations/reports
+POST   /projects/{projectId}/operations/reports
+GET    /projects/{projectId}/operations/reports/{reportId}
+PATCH  /projects/{projectId}/operations/reports/{reportId}
+POST   /projects/{projectId}/operations/reports/{reportId}/submit
+POST   /projects/{projectId}/operations/reports/{reportId}/approve-supervisor
+POST   /projects/{projectId}/operations/reports/{reportId}/reject-supervisor
+POST   /projects/{projectId}/operations/reports/{reportId}/approve-project-head
+POST   /projects/{projectId}/operations/reports/{reportId}/reject-project-head
+POST   /projects/{projectId}/operations/reports/{reportId}/approve-customer
+POST   /projects/{projectId}/operations/reports/{reportId}/reject-customer
+POST   /projects/{projectId}/operations/reports/{reportId}/complete-waiting-period
+POST   /projects/{projectId}/operations/reports/{reportId}/rollback-completed
+
+GET    /projects/{projectId}/operations/reports/{reportId}/transfer-links
+POST   /projects/{projectId}/operations/reports/{reportId}/transfer-links
+DELETE /projects/{projectId}/operations/reports/{reportId}/transfer-links/{linkId}
+```
+
+- **`POST …/transfer-links`**: тело `{ "operation_number": "TRF-{id}" }` (или числовой id); ответ **201**, объект `data.link`.
+- **`GET …/transfer-links`**: для участника проекта с ролью **CUSTOMER** список всегда пустой (`items: []`) — заказчик не видит переводы к отчёту (в т.ч. через **personal-workspace**).
+- В **`GET …/reports/{reportId}`** (company-workspace) поле **`transfer_links`** не подгружается для участника с ролью проекта **CUSTOMER** (остальные роли — с детализацией переводов).
+
+Те же пути **`…/transfer-links`** продублированы под **`/api/personal-workspace`** (см. §9) для ролей личного кабинета, включая **CUSTOMER**.
 
 ---
 
@@ -249,6 +281,16 @@ POST /projects/{projectId}/operations/incomes/{incomeId}/reset-approval
 ```
 
 (`reset-approval` — инициатор сбрасывает этап согласования заказчика; см. company-workspace для того же действия из кабинета компании.)
+
+### REPORT — transfer links (личный кабинет, ТЗ-10C)
+
+```http
+GET    /projects/{projectId}/operations/reports/{reportId}/transfer-links
+POST   /projects/{projectId}/operations/reports/{reportId}/transfer-links
+DELETE /projects/{projectId}/operations/reports/{reportId}/transfer-links/{linkId}
+```
+
+Поведение как в company-workspace (пустой список для **CUSTOMER**). Доступ к **personal-workspace** — только роли из `EnsurePersonalWorkspaceAccess` (**EMPLOYEE**, **CONTRACTOR**, **SUPPLIER**, **CUSTOMER**); **OWNER** / **PARTNER** компании для этих путей используют **company-workspace**.
 
 ---
 

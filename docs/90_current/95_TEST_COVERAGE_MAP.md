@@ -1,6 +1,6 @@
 # 95 — Карта тестового покрытия (backend)
 
-**Обновлено:** 2026-05-13 (ТЗ-10C: канон-уточнения REPORT в `13_OPERATION_REPORT_DRAFT.md` §9). Сводка по PHPUnit в `backend/tests/`. SQLite + `RefreshDatabase` для feature-тестов (см. `phpunit.xml`).
+**Обновлено:** 2026-05-11. Сводка по PHPUnit в `backend/tests/`. SQLite + `RefreshDatabase` для feature-тестов (см. `phpunit.xml`).
 
 ---
 
@@ -43,7 +43,7 @@
 
 | Область | Покрыто | Не покрыто / слабо |
 |---------|---------|---------------------|
-| `tab=pending` / `tab=all`, роли | `Feature/AggregatedOperationsHistoryTabsTest.php`. | Пагинация union-запроса под нагрузкой, персональные edge cases. |
+| `tab=pending` / `tab=all`, роли | `Feature/AggregatedOperationsHistoryTabsTest.php`. | REPORT в union и edge cases **report** в `tab=pending` — без отдельного feature-файла; пагинация union под нагрузкой. |
 
 ---
 
@@ -55,26 +55,32 @@
 
 ---
 
-## REPORT
+## REPORT (foundation ТЗ-10C)
 
-Не реализовано. Тестов нет.
+| Область | Покрыто | Не покрыто / слабо |
+|---------|---------|---------------------|
+| **transfer-links** company-workspace | `Feature/ReportTransferLinksCompanyWorkspaceTest.php` — attach / list / detach; повторный attach → **422**. | Все роли и сочетания с редактированием отчёта в разных статусах. |
+| **transfer-links** personal-workspace | `Feature/ReportTransferLinksPersonalWorkspaceTest.php` — партнёр (company) видит связь; заказчик (personal) — пустой список. | EMPLOYEE attach из personal и т.п. |
+| **Защита маршрутов** | `Feature/ProtectedApiRoutesTest.php` — без auth на `…/transfer-links` (company + personal). | Полная матрица чувствительных REPORT-маршрутов. |
+| **pending-count REPORT** | Косвенно: общий регресс `php artisan test`; логика в `ReportPendingActionCountService` + `ReportAvailableActionsService`. | Отдельный feature-тест на счётчик vs набор отчётов в **pending**. |
+| **Остальной REPORT** | — | См. список ниже — **обязательно** нарастить перед «продуктовым» merge REPORT. |
 
-**REPORT — обязательные тесты перед merge (ТЗ-10C / foundation):**
+**REPORT — что ещё нужно покрыть тестами (следующий этап):**
 
 ```text
-- lifecycle PROJECT_HEAD / PARTNER / EMPLOYEE;
-- SUPERVISOR ветка;
-- применение и откат report_wallet_deltas;
-- CUSTOMER reject;
-- COMPLETED rollback;
-- snapshot строк;
-- visibility CUSTOMER / second-order recipient;
-- report_transfer_links;
-- operation_number;
-- pending/all history.
+1. lifecycle PROJECT_HEAD / PARTNER / EMPLOYEE;
+2. SUPERVISOR branch;
+3. ReportBalanceService apply/revert;
+4. CUSTOMER reject;
+5. COMPLETED rollback;
+6. WAITING_24_HOURS auto complete (команда/schedule + HTTP edge);
+7. snapshot строк после изменения прайса (регресс историчности);
+8. visibility CUSTOMER / second-order recipient;
+9. full aggregated history REPORT (tab=all|pending, роли);
+10. full Flutter smoke.
 ```
 
-После реализации — отдельный контур feature/unit (операция, снимки, взаимодействие с прайсами/статьями расходов, `PriceListReportUsageChecker`).
+После расширения покрытия — обновить этот файл и **`docs/10_operations/16_OPERATION_REPORT.md`** при смене контракта.
 
 ---
 
@@ -82,5 +88,5 @@
 
 1. **EXPENSE_ITEMS:** расширить покрытие GET для PARTNER (read-only) и сложные комбинации долей; при смене валидации — синхронизировать с `ProjectExpenseItemValidationService`.
 2. **INCOME/TRANSFER:** хотя бы по одному интеграционному сценарию «полный переход + кошелёк» на SQLite (сейчас упор на available_actions и историю).
-3. **REPORT (после реализации):** `PriceListReportUsageChecker` + запрет hard-delete при использовании в отчёте; строки отчёта и ссылки на прайс/позицию.
+3. **REPORT (расширение после foundation):** `PriceListReportUsageChecker` + запрет hard-delete при использовании в отчёте; полный lifecycle + дельты; строки отчёта и ссылки на прайс/позицию; см. **`16_OPERATION_REPORT.md`**.
 4. **Права company-workspace:** расширить `ProtectedApiRoutesTest` или отдельный класс для новых чувствительных маршрутов по мере роста API.

@@ -254,7 +254,7 @@ AggregatedOperationsHistoryScreen
 Показывает:
 
 ```text
-TRANSFER + INCOME
+TRANSFER + INCOME + REPORT
 ```
 
 Источник:
@@ -263,7 +263,17 @@ TRANSFER + INCOME
 GET .../operations/history?tab=&page=&per_page=
 ```
 
-Суммарный бейдж ожиданий на дашборде: **`combinedOperationsPendingCountProvider`** (TRANSFER + INCOME pending-count) совпадает с набором операций вкладки **«На подтверждение»**.
+Суммарный бейдж ожиданий на дашборде: **`combinedOperationsPendingCountProvider`** (**TRANSFER + INCOME + REPORT** pending-count) совпадает с набором операций вкладки **«На подтверждение»** (для REPORT `complete_waiting` не входит в pending-бейдж).
+
+### 10.1. REPORT foundation (Flutter)
+
+```text
+AggregatedOperationsHistoryScreen — карточка отчёта
+reportPendingActionCountProvider + combinedOperationsPendingCountProvider
+ReportDetailStubScreen — вход в деталь без полноценной формы отчёта
+```
+
+Полноценный **Create/Edit/Detail** UI отчёта — **не** реализован (следующий этап).
 
 ---
 
@@ -309,13 +319,13 @@ workspace_role=customer
 
 ```text
 GET .../operations/history
-TRANSFER + INCOME
+TRANSFER + INCOME + REPORT
 ```
 
 Бейдж:
 
 ```text
-combinedOperationsPendingCountProvider
+combinedOperationsPendingCountProvider (TRANSFER + INCOME + REPORT)
 ```
 
 ---
@@ -323,7 +333,7 @@ combinedOperationsPendingCountProvider
 ## 13. Не реализовано / placeholder
 
 ```text
-REPORT
+Полноценный UI операции REPORT (создание/редактирование/деталь, не stub)
 Documents
 Push notifications
 Realtime/WebSocket
