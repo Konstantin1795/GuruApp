@@ -135,7 +135,7 @@ GET /operations/transfers/history
 GET /operations/transfers/pending-count
 
 GET  /projects/{projectId}/operations/transfers/recipients
-GET  /projects/{projectId}/operations/transfers
+GET  /projects/{projectId}/operations/transfers?page=&per_page=&search=
 POST /projects/{projectId}/operations/transfers
 GET  /projects/{projectId}/operations/transfers/{transferId}
 ```
@@ -183,7 +183,7 @@ POST /projects/{projectId}/operations/incomes/{incomeId}/rollback-completed
 ```http
 GET  /operations/reports/pending-count
 
-GET    /projects/{projectId}/operations/reports
+GET    /projects/{projectId}/operations/reports?search=
 POST   /projects/{projectId}/operations/reports
 GET    /projects/{projectId}/operations/reports/{reportId}
 PATCH  /projects/{projectId}/operations/reports/{reportId}
@@ -204,9 +204,8 @@ DELETE /projects/{projectId}/operations/reports/{reportId}/transfer-links/{linkI
 
 - **`POST …/transfer-links`**: тело `{ "operation_number": "TRF-{id}" }` (или числовой id); ответ **201**, объект `data.link`.
 - **`GET …/transfer-links`**: для участника проекта с ролью **CUSTOMER** список всегда пустой (`items: []`) — заказчик не видит переводы к отчёту (в т.ч. через **personal-workspace**).
-- В **`GET …/reports/{reportId}`** (company-workspace) поле **`transfer_links`** не подгружается для участника с ролью проекта **CUSTOMER** (остальные роли — с детализацией переводов).
-
-Те же пути **`…/transfer-links`** продублированы под **`/api/personal-workspace`** (см. §9) для ролей личного кабинета, включая **CUSTOMER**.
+- В **`GET …/reports/{reportId}`** и **`GET …/reports`** (company- и personal-workspace) тело отчёта сериализуется с учётом роли: поле **`viewer_context`**: `full` \| `customer` \| `second_order_recipient`. Для **CUSTOMER** из payload убраны внутренние суммы, «внутренние» поля строк и блок **`transfer_links`**. Для **second-order** основного получателя — скрыты суммы заказчика; список **`transfer_links`** фильтруется по участию текущего пользователя в переводе.
+- **`transfer_links`** в **GET show** не подгружаются для участника с ролью проекта **CUSTOMER** (как и ранее).
 
 ---
 
@@ -246,7 +245,7 @@ GET /operations/transfers/history
 GET /operations/transfers/pending-count
 
 GET  /projects/{projectId}/operations/transfers/recipients
-GET  /projects/{projectId}/operations/transfers
+GET  /projects/{projectId}/operations/transfers?page=&per_page=&search=
 POST /projects/{projectId}/operations/transfers
 GET  /projects/{projectId}/operations/transfers/{transferId}
 ```
@@ -282,15 +281,23 @@ POST /projects/{projectId}/operations/incomes/{incomeId}/reset-approval
 
 (`reset-approval` — инициатор сбрасывает этап согласования заказчика; см. company-workspace для того же действия из кабинета компании.)
 
-### REPORT — transfer links (личный кабинет, ТЗ-10C)
+### Personal Workspace — reports (ТЗ-10C.1)
 
 ```http
+GET  /operations/reports/pending-count
+
+GET    /projects/{projectId}/operations/reports?search=
+GET    /projects/{projectId}/operations/reports/{reportId}
+POST   /projects/{projectId}/operations/reports/{reportId}/approve-customer
+POST   /projects/{projectId}/operations/reports/{reportId}/reject-customer
+POST   /projects/{projectId}/operations/reports/{reportId}/rollback-completed
+
 GET    /projects/{projectId}/operations/reports/{reportId}/transfer-links
 POST   /projects/{projectId}/operations/reports/{reportId}/transfer-links
 DELETE /projects/{projectId}/operations/reports/{reportId}/transfer-links/{linkId}
 ```
 
-Поведение как в company-workspace (пустой список для **CUSTOMER**). Доступ к **personal-workspace** — только роли из `EnsurePersonalWorkspaceAccess` (**EMPLOYEE**, **CONTRACTOR**, **SUPPLIER**, **CUSTOMER**); **OWNER** / **PARTNER** компании для этих путей используют **company-workspace**.
+Поведение **transfer-links** как в company-workspace (пустой список для **CUSTOMER**). Создание отчёта и большинство lifecycle-этапов — только **company-workspace**; в personal — list/show с redaction (см. §6 bullet про `viewer_context`), customer approve/reject, rollback completed для РП. Доступ к **personal-workspace** — роли из `EnsurePersonalWorkspaceAccess` (**EMPLOYEE**, **CONTRACTOR**, **SUPPLIER**, **CUSTOMER**); **OWNER** / **PARTNER** для полного CRUD отчётов используют **company-workspace**.
 
 ---
 

@@ -162,4 +162,4 @@ ReportOperationNumberService
 ReportParticipantResolver
 ```
 
-**Техдолг:** интеграционные smoke «полный TRANSFER/INCOME + дельты кошелька» на SQLite; расширенные REPORT-тесты (см. **`95_TEST_COVERAGE_MAP.md`**); крупные Flutter-экраны (`ProjectDetailScreen`, `AggregatedOperationsHistoryScreen`); доработка `PriceListReportUsageChecker` под реальные ссылки отчёт → прайс.
+**Техдолг:** интеграционные smoke «полный TRANSFER/INCOME + дельты кошелька» на SQLite; расширенные REPORT-тесты (см. **`95_TEST_COVERAGE_MAP.md`**, в т.ч. `ReportTenC1HardeningTest`); крупные Flutter-экраны (`ProjectDetailScreen`, `AggregatedOperationsHistoryScreen`); доработка `PriceListReportUsageChecker` под реальные ссылки отчёт → прайс; Flutter — PATCH отчёта, detach линков.

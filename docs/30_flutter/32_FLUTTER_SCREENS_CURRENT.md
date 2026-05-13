@@ -270,7 +270,9 @@ GET .../operations/history?tab=&page=&per_page=
 ```text
 AggregatedOperationsHistoryScreen — карточка отчёта
 reportPendingActionCountProvider + combinedOperationsPendingCountProvider
-ReportDetailStubScreen — вход в деталь без полноценной формы отчёта
+`ReportDetailScreen` — деталь REPORT (детали + вкладка «Переводы к отчёту» с **«Прикрепить перевод»** и bottom sheet; для `viewer_context == customer` одна вкладка).
+`TransferDetailScreen` — **`linked_report`** в шапке и кнопка **«Прикрепить к отчёту»** (bottom sheet списка отчётов с поиском).
+`CreateEditReportScreen` — создание отчёта (company-workspace): несколько строк, CUSTOM + **PRICE_LIST** из прайсов, прикреплённых к проекту, **preview** итогов (сервер пересчитывает окончательно).
 ```
 
 Полноценный **Create/Edit/Detail** UI отчёта — **не** реализован (следующий этап).

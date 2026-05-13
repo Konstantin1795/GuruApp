@@ -4,7 +4,7 @@
 
 **Документация:** каноничный вход — **`docs/README_MODULAR.md`** и модульные файлы под `docs/` (в т.ч. этот файл). **ТЗ-11:** структура репозитория и тестов — **`94_CODE_STRUCTURE_MAP.md`**, **`95_TEST_COVERAGE_MAP.md`**, чеклист готовности кода — **`96_GURU_DEFINITION_OF_DONE.md`**. **ТЗ-12.1 (targeted refactor перед REPORT):** создание проекта вынесено в `CreateProjectService`; расширены тесты OWNER/PARTNER + кошелёк и сценарий с заказчиком; в PHPDoc кошельков зафиксировано, что REPORT — отдельные сервисы (`ReportBalanceService` и др.), без дельт в контроллерах/`WalletBalanceService`. Подробности — раздел **«12. ТЗ-12.1»** в `94_CODE_STRUCTURE_MAP.md`.
 
-**Проверка статусов (факт кода):** TRANSFER и INCOME на backend + Flutter; единая лента `GET …/operations/history` с **`tab`** (`pending` | `all`); суммарный бейдж — `combinedOperationsPendingCountProvider` (**TRANSFER + INCOME + REPORT** pending-count); **ТЗ-10A** и **ТЗ-10B** реализованы в **main**. **REPORT foundation (ТЗ-10C)** на backend реализована (схема, lifecycle, баланс по дельтам, ссылки на переводы, агрегированная история, pending-count, company-workspace API, transfer-links company + personal); **минимальная** интеграция во Flutter (история, pending, stub-деталь). **Не сделано:** полноценный UI отчёта (create/edit/detail), полный набор **personal-workspace** REPORT actions/list/show (кроме pending-count и transfer-links), realtime и полноценные **документы**.
+**Проверка статусов (факт кода):** TRANSFER и INCOME на backend + Flutter; единая лента `GET …/operations/history` с **`tab`** (`pending` | `all`); суммарный бейдж — `combinedOperationsPendingCountProvider` (**TRANSFER + INCOME + REPORT** pending-count); **ТЗ-10A** и **ТЗ-10B** реализованы в **main**. **REPORT foundation (ТЗ-10C)** на backend реализована (схема, lifecycle, баланс по дельтам, ссылки на переводы, агрегированная история, pending-count, company-workspace API, transfer-links company + personal). **ТЗ-10C.1:** personal-workspace list/show отчётов, customer approve/reject, rollback completed, transfer-links; redacted JSON и **`viewer_context`**; summary **`can_create_report`**; поиск **`search`** на list transfers/reports (company + personal); **`linked_report`** на show transfer; Flutter — **`ReportDetailScreen`**, **`TransferDetailScreen`** (attach к отчёту), **`CreateEditReportScreen`** (multi-line, прайс-строки, preview), кнопка «Отчёт» в company shell. **Tech debt:** PATCH отчёта в UI, detach линков из клиента, ручной smoke полного REPORT lifecycle, realtime, доработка **`PriceListReportUsageChecker`**.
 
 **Канон по реализованному foundation:** **`docs/10_operations/16_OPERATION_REPORT.md`**. Исторические уточнения до кода — **`docs/10_operations/13_OPERATION_REPORT_DRAFT.md`** (раздел **9**).
 
@@ -21,7 +21,7 @@
 - **TRANSFER:** полный lifecycle в сервисах Operations, маршруты company + personal, Flutter create / list / detail, `available_actions`, pending-count.
 - **INCOME:** lifecycle, маршруты, Flutter create / detail, действия заказчика, pending-count.
 - **Unified operations:** `GET …/operations/history` с параметром **`tab`** (`pending` | `all`): вкладка «На подтверждение» / «Все операции»; на клиенте **`AggregatedOperationsHistoryScreen`** (TabBar + TabBarView); **`combinedOperationsPendingCountProvider`** = сумма pending-count **TRANSFER + INCOME + REPORT** и совпадает с вкладкой **pending** (без `WAITING_24_HOURS`, без «только откат», без **INCOME** `reset_approval` на этапе заказчика — тогда «на подтверждение» только у заказчика; для TRANSFER учтён **`complete_immediate`** у инициатора РП/Партнёра в **CREATED**; для REPORT `complete_waiting` не входит в pending-бейдж). Для **OWNER** компании вкладка **all** — все операции компании (включая REPORT по `company_id`); для **PARTNER / CUSTOMER** — только участие в строке операции.
-- **REPORT foundation (ТЗ-10C):** backend — см. **`docs/10_operations/16_OPERATION_REPORT.md`**; Flutter — карточка в истории, pending, **`ReportDetailStubScreen`** (без полноценных форм).
+- **REPORT (ТЗ-10C + 10C.1):** backend — см. **`docs/10_operations/16_OPERATION_REPORT.md`**; Flutter — карточка в истории, pending, **`ReportDetailScreen`** (attach перевода), **`TransferDetailScreen`** (attach к отчёту, баннер связи), **`CreateEditReportScreen`** (несколько строк, CUSTOM + PRICE_LIST, preview).
 - **Customer:** карточки проектов с **«Поступило» / баланс** из API (`PersonalProjectResource` + экран заказчика).
 - **Локализация:** RU/EN, ARB, переключатель локали.
 
@@ -38,7 +38,7 @@
 
 ## 3. Не реализовано
 
-- **Полноценный REPORT в продукте:** UI создания/редактирования/детали во Flutter, полный **personal-workspace** контур действий как у INCOME, интеграционные smoke по всему lifecycle — вынесены за пределы текущего foundation (см. **`16_OPERATION_REPORT.md`** §5–6 и **`95_TEST_COVERAGE_MAP.md`**).
+- **Расширение REPORT в продукте:** редактирование отчёта (PATCH) в Flutter, detach transfer-link из UI, полный интеграционный smoke по всему lifecycle, WebSocket — см. **`16_OPERATION_REPORT.md`** и **`95_TEST_COVERAGE_MAP.md`**.
 - **WebSocket / realtime** обновлений.
 - **Документы** (прочие, вне прайс-листов) — заглушки «скоро».
 - **Push**, **offline-sync**, **production-grade** тестовый контур.

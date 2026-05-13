@@ -59,6 +59,8 @@
 
 | Область | Покрыто | Не покрыто / слабо |
 |---------|---------|---------------------|
+| **ТЗ-10C.1 hardening (payload, pending, attach guard, search, customer approve)** | `Feature/ReportTenC1HardeningTest.php` — customer/second-order redaction, `WAITING_24_HOURS` вне pending, reject + wallet revert, cross-project attach **422**, transfer list `search`, customer approve → `WAITING_24_HOURS`. Дубликат attach **422** — `ReportTransferLinksCompanyWorkspaceTest`. | Полная матрица lifecycle и UI-smoke. |
+| **personal-workspace REPORT API (list/show + customer + rollback)** | `Feature/ReportPersonalWorkspaceApiTest.php` — redacted payload для заказчика, approve через personal. | Полная матрица lifecycle (см. список ТЗ-10C.1). |
 | **transfer-links** company-workspace | `Feature/ReportTransferLinksCompanyWorkspaceTest.php` — attach / list / detach; повторный attach → **422**. | Все роли и сочетания с редактированием отчёта в разных статусах. |
 | **transfer-links** personal-workspace | `Feature/ReportTransferLinksPersonalWorkspaceTest.php` — партнёр (company) видит связь; заказчик (personal) — пустой список. | EMPLOYEE attach из personal и т.п. |
 | **Защита маршрутов** | `Feature/ProtectedApiRoutesTest.php` — без auth на `…/transfer-links` (company + personal). | Полная матрица чувствительных REPORT-маршрутов. |

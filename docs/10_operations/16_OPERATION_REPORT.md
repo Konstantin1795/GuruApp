@@ -1,7 +1,7 @@
 # 16 — Operation REPORT (foundation / ТЗ-10C)
 
-**Статус:** канон по **уже реализованному** REPORT foundation в коде (backend + минимальный Flutter).  
-**Не канон** для нереализованных частей: полный UI отчёта, полный personal-workspace API действий, документы, realtime.
+**Статус:** канон по **уже реализованному** REPORT foundation + **ТЗ-10C.1** (API parity, personal list/show/actions, attach-flow в UI, MVP create с несколькими строками и прайс-строками, поиск list transfers/reports).  
+**Tech debt:** редактирование черновика отчёта после создания (PATCH UI), детач линков из Flutter, расширенные фильтры attach, realtime.
 
 Исторический черновик и уточнения до кода — **`13_OPERATION_REPORT_DRAFT.md`** (в т.ч. раздел **9**); при конфликте постановки «на бумаге» и этого файла приоритет у **фактической реализации** и у **16**.
 
@@ -37,16 +37,18 @@
 ## 4. Видимость и роли
 
 13. **Заказчик (CUSTOMER)** не видит переводы к отчёту: **`GET …/transfer-links`** возвращает пустой список; в **`GET …/reports/{id}`** связи **`transfer_links`** для роли CUSTOMER в проекте не подгружаются (UI «вкладка переводов» — только не-CUSTOMER).
-14. **Основной получатель** при необходимости создаётся как **second-order** `ProjectParticipant`; такой участник **не получает** полноту данных как **OWNER** компании без участия в проекте — видимость отчётов и строк в ленте ограничена правилами `ReportVisibilityService` и участием в операции (см. также агрегированную историю для non-OWNER).
-15. **Заказчик проекта** (**first-order CUSTOMER**) по определению **не совпадает** с основным получателем отчёта (валидация/разрешение получателя в `ReportParticipantResolver` / `ReportService`).
+14. **Сериализация отчёта для API:** в **GET list/show** (company- и personal-workspace) ответ включает **`viewer_context`**: `full` \| `customer` \| `second_order_recipient`. Для **CUSTOMER** из тела убраны внутренние суммы и «внутренние» поля строк; для **second-order** основного получателя скрыты суммы заказчика, **`transfer_links`** фильтруются по участию пользователя в переводе (`ReportOperationApiPayloadFactory` + `ReportOperationViewerModeResolver`).
+15. **Основной получатель** при необходимости создаётся как **second-order** `ProjectParticipant`; такой участник **не получает** полноту данных как **OWNER** компании без участия в проекте — видимость отчётов и строк в ленте ограничена правилами `ReportVisibilityService` и участием в операции (см. также агрегированную историю для non-OWNER).
+16. **Заказчик проекта** (**first-order CUSTOMER**) по определению **не совпадает** с основным получателем отчёта (валидация/разрешение получателя в `ReportParticipantResolver` / `ReportService`).
 
 ---
 
 ## 5. MVP-ограничения и клиент
 
-16. **Отрицательная прибыль** (`profit_amount < 0`) в MVP **запрещена**: ответ **422** до применения финансов (`ReportService::recalculateTotals`).
-17. **Flutter (текущее):** отчёт **отображается** в объединённой истории операций, **участвует** в суммарном pending-count, открывается через **`ReportDetailStubScreen`**; **полноценный** create/edit/detail UI отчёта **не** реализован.
-18. **Personal-workspace (текущее):** реализованы **`GET /operations/reports/pending-count`** и **transfer-links** (`GET`/`POST`/`DELETE` под `/api/personal-workspace/projects/{projectId}/…`); **полного** набора маршрутов REPORT (list/show/patch/submit/customer actions и т.д.), как в company-workspace, **нет** — следующий этап.
+17. **Отрицательная прибыль** (`profit_amount < 0`) в MVP **запрещена**: ответ **422** до применения финансов (`ReportService::recalculateTotals`).
+18. **Flutter (ТЗ-10C.1):** отчёт в объединённой истории; **`ReportDetailScreen`** (детали, вкладка «Переводы к отчёту» с **«Прикрепить перевод»** и bottom sheet поиска); **`TransferDetailScreen`** — **`linked_report`**, кнопка **«Прикрепить к отчёту»**; **`CreateEditReportScreen`** — несколько строк, CUSTOM + **PRICE_LIST** из прикреплённых к проекту прайс-листов, **preview** итогов (окончательный расчёт на backend).
+19. **Personal-workspace (ТЗ-10C.1):** **`GET …/operations/reports`**, **`GET …/reports/{id}`**, **`POST …/approve-customer`**, **`POST …/reject-customer`**, **`POST …/rollback-completed`**, **transfer-links** list/attach/detach под `/api/personal-workspace/projects/{projectId}/…`. Создание отчёта и остальные lifecycle-этапы (кроме перечисленного) — **company-workspace**.
+20. **Поиск для attach UI:** опциональный query **`search`** на **`GET …/operations/transfers`** и **`GET …/operations/reports`** (company и personal): номер операции, дата `YYYY-MM-DD`, суммы — см. `TransferOperationListSearchFilter`, `ReportOperationListSearchFilter`.
 
 ---
 
