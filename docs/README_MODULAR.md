@@ -27,6 +27,8 @@ docs/90_current/95_TEST_COVERAGE_MAP.md
 docs/90_current/96_GURU_DEFINITION_OF_DONE.md
 ```
 
+**ТЗ-12 (quality hardening перед REPORT):** расширение регрессионных тестов (статьи расходов, прайсы, pending/history), уточнение доков «первые 30 минут», точечные комментарии без смены бизнес-логики — см. обновлённые `94` / `95` и `90_GURU_CURRENT_STATE.md`.
+
 Дефолтный «широкий» минимум без выбора сценария:
 
 ```text

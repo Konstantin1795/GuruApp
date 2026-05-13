@@ -96,3 +96,17 @@
 - Не смешивать company-workspace и personal-workspace в одном endpoint без явного префикса маршрута.
 - Не менять lifecycle TRANSFER/INCOME без ТЗ и регрессионных тестов.
 - Не полагаться на `docs/OldDocs/` как на канон.
+
+---
+
+## 11. Что прочитать за первые 30 минут (новый разработчик)
+
+1. `docs/README_MODULAR.md` — вход и карта модулей.
+2. `docs/90_current/94_CODE_STRUCTURE_MAP.md` — этот файл: где код и инварианты.
+3. `docs/90_current/96_GURU_DEFINITION_OF_DONE.md` — чеклист перед merge.
+4. `docs/10_operations/10_OPERATION_COMMON_RULES.md` — общие правила операций.
+5. `docs/10_operations/11_OPERATION_TRANSFER.md` — TRANSFER.
+6. `docs/10_operations/12_OPERATION_INCOME.md` — INCOME.
+7. `docs/10_operations/14_PROJECT_EXPENSE_ITEMS.md` — статьи расходов.
+8. `docs/10_operations/15_PRICE_LISTS.md` — прайс-листы.
+9. `docs/90_current/95_TEST_COVERAGE_MAP.md` — что уже покрыто тестами.

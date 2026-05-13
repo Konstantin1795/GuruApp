@@ -161,6 +161,21 @@ final class AggregatedOperationsHistoryTabsTest extends TestCase
         self::assertContains($fixture->transferId, $this->transferIdsFromItems($res->json('data.items')));
     }
 
+    public function test_company_partner_project_head_pending_excludes_transfer_in_waiting_24_hours(): void
+    {
+        $fixture = $this->createCompanyWithEmployeeTransferInWaiting24();
+
+        Sanctum::actingAs($fixture->headPartnerUser);
+        $res = $this->getJson("/api/company-workspace/{$fixture->companyId}/operations/history?tab=pending&per_page=50");
+
+        $res->assertOk();
+        self::assertNotContains(
+            $fixture->transferId,
+            $this->transferIdsFromItems($res->json('data.items')),
+            'WAITING_24_HOURS: действия return/complete_waiting не входят в pending-вкладку и бейдж',
+        );
+    }
+
     /**
      * @param list<array<string, mixed>>|null $items
      *
@@ -501,6 +516,8 @@ final class AggregatedOperationsHistoryTabsTest extends TestCase
 
         $f = new EmployeeTransferFixture;
         $f->companyId = (int) $company->id;
+        $f->ownerUser = $owner;
+        $f->headPartnerUser = $headPartner;
         $f->employeeInitiatorUser = $empInit;
         $f->transferId = (int) $transfer->id;
         $f->ppHeadId = (int) $ppHead->id;

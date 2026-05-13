@@ -50,9 +50,11 @@ final class PriceListPositionService
     public function create(User $user, PriceListGroup $group, array $data): PriceListPosition
     {
         $this->validateUnit((int) $group->price_list_id, (int) $data['unit_id']);
-        $this->validatePrices($data['recipient_unit_price'], $data['customer_unit_price']);
+        $recipient = PriceListPricing::normalizeMoney((string) $data['recipient_unit_price']);
+        $customer = PriceListPricing::normalizeMoney((string) $data['customer_unit_price']);
+        $this->validatePrices($recipient, $customer);
 
-        return DB::transaction(function () use ($user, $group, $data): PriceListPosition {
+        return DB::transaction(function () use ($user, $group, $data, $recipient, $customer): PriceListPosition {
             $max = (int) PriceListPosition::query()
                 ->where('price_list_group_id', (int) $group->id)
                 ->max('sort_order');
@@ -62,8 +64,8 @@ final class PriceListPositionService
                 'price_list_group_id' => (int) $group->id,
                 'service_name' => trim($data['service_name']),
                 'unit_id' => (int) $data['unit_id'],
-                'recipient_unit_price' => PriceListPricing::normalizeMoney($data['recipient_unit_price']),
-                'customer_unit_price' => PriceListPricing::normalizeMoney($data['customer_unit_price']),
+                'recipient_unit_price' => $recipient,
+                'customer_unit_price' => $customer,
                 'sort_order' => $max + 1,
                 'is_active' => true,
                 'created_by_user_id' => (int) $user->id,

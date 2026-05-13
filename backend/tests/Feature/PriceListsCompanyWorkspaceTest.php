@@ -269,4 +269,38 @@ final class PriceListsCompanyWorkspaceTest extends TestCase
             'customer_unit_price' => '10.00',
         ])->assertStatus(422)->assertJsonPath('error.message', 'recipient_unit_price must be greater than 0.');
     }
+
+    public function test_position_rejects_non_numeric_recipient_unit_price(): void
+    {
+        [$owner, $company] = $this->createOwnerWithCompany();
+        Sanctum::actingAs($owner);
+        $base = "/api/company-workspace/{$company->id}";
+        $listId = (int) $this->postJson("{$base}/price-lists", ['name' => 'L'])->json('data.price_list.id');
+        $groupId = (int) $this->postJson("{$base}/price-lists/{$listId}/groups", ['name' => 'G'])
+            ->json('data.group.id');
+        $unitId = $this->systemUnitId();
+
+        $this->postJson("{$base}/price-lists/{$listId}/groups/{$groupId}/positions", [
+            'service_name' => 'Work',
+            'unit_id' => $unitId,
+            'recipient_unit_price' => 'not-a-number',
+            'customer_unit_price' => '10.00',
+        ])->assertStatus(422)->assertJsonPath('error.message', 'recipient_unit_price must be greater than 0.');
+    }
+
+    public function test_available_price_lists_for_project_contains_company_lists(): void
+    {
+        [$owner, $company, $ownerCp] = $this->createOwnerWithCompany();
+        $project = $this->createProjectWithOwnerHead($company, $ownerCp);
+
+        Sanctum::actingAs($owner);
+        $base = "/api/company-workspace/{$company->id}";
+        $idA = (int) $this->postJson("{$base}/price-lists", ['name' => 'PL Av A'])->json('data.price_list.id');
+        $idB = (int) $this->postJson("{$base}/price-lists", ['name' => 'PL Av B'])->json('data.price_list.id');
+
+        $res = $this->getJson("{$base}/projects/{$project->id}/price-lists/available")->assertOk();
+        $ids = array_column($res->json('data.price_lists') ?? [], 'id');
+        self::assertContains($idA, $ids);
+        self::assertContains($idB, $ids);
+    }
 }

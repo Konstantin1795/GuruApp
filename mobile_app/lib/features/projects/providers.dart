@@ -44,6 +44,7 @@ final projectExpenseItemsRepositoryProvider = Provider<ProjectExpenseItemsReposi
   (ref) => ProjectExpenseItemsRepository(ref.watch(projectExpenseItemsApiProvider)),
 );
 
+/// Список статей расходов проекта (ТЗ-10A): только GET через API; права и `can_manage` — на сервере.
 final projectExpenseItemsProvider =
     FutureProvider.family<List<ProjectExpenseItemListRow>, ({int companyId, int projectId})>((ref, key) async {
   return ref.read(projectExpenseItemsRepositoryProvider).list(

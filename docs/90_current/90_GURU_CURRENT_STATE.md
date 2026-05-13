@@ -2,7 +2,7 @@
 
 **Обновлено:** 2026-05-11. Короткий снимок; детали — в `docs/README_MODULAR.md` и файлах `00_core` … `30_flutter`. Монолиты в `docs/OldDocs/legacy_monolith/` не канон.
 
-**Документация:** каноничный вход — **`docs/README_MODULAR.md`** и модульные файлы под `docs/` (в т.ч. этот файл). **ТЗ-11:** структура репозитория и тестов — **`94_CODE_STRUCTURE_MAP.md`**, **`95_TEST_COVERAGE_MAP.md`**, чеклист готовности кода — **`96_GURU_DEFINITION_OF_DONE.md`**.
+**Документация:** каноничный вход — **`docs/README_MODULAR.md`** и модульные файлы под `docs/` (в т.ч. этот файл). **ТЗ-11:** структура репозитория и тестов — **`94_CODE_STRUCTURE_MAP.md`**, **`95_TEST_COVERAGE_MAP.md`**, чеклист готовности кода — **`96_GURU_DEFINITION_OF_DONE.md`**. **ТЗ-12:** усиление тестов и онбординга перед REPORT (без смены контрактов) — см. обновлённые **`95`** и раздел «30 минут» в **`94`**.
 
 **Проверка статусов (факт кода):** TRANSFER и INCOME на backend + Flutter; единая лента `GET …/operations/history` с **`tab`** (`pending` | `all`); суммарный бейдж — `combinedOperationsPendingCountProvider`; **ТЗ-10A** и **ТЗ-10B** (прайс-листы, единицы, прикрепление к проекту) реализованы в **main**; операция **REPORT**, realtime и полноценные **документы** в продукте **не** реализованы.
 
@@ -46,7 +46,8 @@
 ## 4. Текущий технический долг
 
 - Дашборд компании и «полная» финансовая аналитика без REPORT; не раздувать placeholder-логику до отдельного ТЗ.
-- **ТЗ-11 (аудит):** смешение EN/RU в PHPDoc отдельных сервисов Operations; крупные Flutter-экраны (`ProjectDetailScreen`, `AggregatedOperationsHistoryScreen`) — позже декомпозиция на виджеты без смены поведения; **статьи расходов (ТЗ-10A)** — не хватает выделенных feature-тестов на права и валидацию долей/процентов (см. `95_TEST_COVERAGE_MAP.md`).
+- **ТЗ-11 (аудит):** смешение EN/RU в PHPDoc отдельных сервисов Operations; крупные Flutter-экраны (`ProjectDetailScreen`, `AggregatedOperationsHistoryScreen`) — позже декомпозиция на виджеты без смены поведения; **интеграционный «полный lifecycle + кошелёк»** для TRANSFER/INCOME через HTTP — по отдельному ТЗ.
+- **ТЗ-12:** `PriceListPricing::normalizeMoney` защищён от `NAN`/`INF` в float (возврат `0.00` → дальше 422 по правилам позиции); `PriceListPositionService::create` нормализует цены до `validatePrices` (устранение рассинхрона и 500 при краевых строках). Полный отказ от `(float)` в нормализации — отдельное ТЗ.
 
 ---
 
