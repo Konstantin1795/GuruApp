@@ -9,6 +9,9 @@ use App\Modules\Projects\Models\ProjectParticipantWallet;
  * Creates and initialises a wallet for a ProjectParticipant.
  * Every balance field starts at 0.00.
  * Idempotent: if the wallet already exists it is returned as-is.
+ *
+ * Используется при создании участника (в т.ч. из {@see CreateProjectService}). REPORT не должен
+ * обходить этот слой и писать балансы напрямую в модель.
  */
 final class WalletFactoryService
 {

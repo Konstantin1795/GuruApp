@@ -12,6 +12,9 @@ use Illuminate\Validation\ValidationException;
  * Источник списания всегда: sender.accountable_balance (+ accountable_spent).
  * Используем целые копейки/центы в расчётах; в БД — decimal string.
  * sender.personal_balance при переводе не меняется.
+ *
+ * Будущая операция REPORT должна иметь собственный слой проведения (например, `ReportBalanceService`),
+ * а не добавлять дельты отчёта сюда или в контроллеры.
  */
 final class TransferBalanceService
 {

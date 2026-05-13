@@ -12,6 +12,7 @@
 | `backend/app/Modules/*/Http/Controllers` | Тонкий слой: валидация запроса, вызов сервиса, `ApiResponse`. |
 | `backend/app/Modules/*/Http/Requests` | FormRequest — правила валидации. |
 | `backend/app/Modules/*/Services` | Бизнес-действия, доступ, агрегации, расчёты ответов. |
+| `backend/app/Modules/Projects/Services/CreateProjectService.php` | Создание проекта в company-workspace (РП **first** + кошелёк; опционально CUSTOMER **first** при выборе заказчика). |
 | `backend/app/Modules/*/Models` | Eloquent: связи, casts; без сложной бизнес-логики. |
 | `backend/routes/api.php` | Регистрация маршрутов (два контура: `company-workspace`, `personal-workspace`). |
 
@@ -110,3 +111,15 @@
 7. `docs/10_operations/14_PROJECT_EXPENSE_ITEMS.md` — статьи расходов.
 8. `docs/10_operations/15_PRICE_LISTS.md` — прайс-листы.
 9. `docs/90_current/95_TEST_COVERAGE_MAP.md` — что уже покрыто тестами.
+
+---
+
+## 12. ТЗ-12.1 — Targeted refactor перед REPORT
+
+**Укреплено:** создание проекта в company-workspace вынесено в `backend/app/Modules/Projects/Services/CreateProjectService.php`; контроллер только вызывает сервис и отдаёт `ProjectResource`. Заказчик при создании — **CUSTOMER, `level = first`** (как РП). Добавлены/расширены feature-тесты: OWNER + кошелёк РП, PARTNER + кошелёк, проект с заказчиком (роль, уровень, `is_active`, кошелёк).
+
+**Не трогали:** lifecycle TRANSFER/INCOME, математику `TransferBalanceService`/`IncomeBalanceService`, схему БД, Flutter-экраны (только зафиксирован техдолг на декомпозицию).
+
+**Будущий REPORT (по ТЗ-10C+):** ориентир на отдельные `ReportService`, `ReportLifecycleService`, `ReportBalanceService`, `ReportAccessService`, `ReportVisibilityService` — без смешения с `WalletBalanceService` (read-only срез) и без дельт в контроллерах.
+
+**Техдолг после foundation REPORT:** интеграционные smoke-тесты «полный TRANSFER/INCOME + дельты кошелька» на SQLite; крупные Flutter-экраны (`ProjectDetailScreen`, `AggregatedOperationsHistoryScreen`).

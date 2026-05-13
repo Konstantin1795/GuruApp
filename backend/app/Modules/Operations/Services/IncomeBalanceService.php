@@ -9,6 +9,8 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * ТЗ-06: начисление поступления на подотчёт Заказчика и Руководителя проекта.
+ *
+ * REPORT (когда появится) — отдельные сервисы lifecycle/balance; не смешивать дельты отчёта с INCOME здесь.
  */
 final class IncomeBalanceService
 {

@@ -10,6 +10,7 @@ use App\Modules\Companies\Models\Counterparty;
 use App\Modules\Dictionaries\Enums\CompanyRoleCode;
 use App\Modules\Dictionaries\Enums\ProjectRoleCode;
 use App\Modules\Projects\Models\ProjectParticipant;
+use App\Modules\Projects\Models\ProjectParticipantWallet;
 use Database\Seeders\CompanyRoleSeeder;
 use Database\Seeders\ProjectRoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -71,5 +72,17 @@ final class CreateProjectPartnerCompanyWorkspaceTest extends TestCase
                 ->where('is_active', true)
                 ->exists(),
         );
+
+        $head = ProjectParticipant::query()
+            ->where('project_id', $projectId)
+            ->where('counterparty_id', (int) $partnerCp->id)
+            ->where('project_role_code', ProjectRoleCode::PROJECT_HEAD->value)
+            ->first();
+        $this->assertNotNull($head);
+        $wallet = ProjectParticipantWallet::query()
+            ->where('project_participant_id', (int) $head->id)
+            ->first();
+        $this->assertNotNull($wallet);
+        self::assertSame('0.00', (string) $wallet->accountable_balance);
     }
 }

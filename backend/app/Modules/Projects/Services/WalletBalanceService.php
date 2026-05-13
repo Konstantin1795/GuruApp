@@ -9,6 +9,7 @@ use App\Modules\Projects\Models\ProjectParticipantWallet;
  *
  * Любая арифметика балансов по операциям — в {@see \App\Modules\Operations\Services\TransferBalanceService},
  * {@see \App\Modules\Operations\Services\IncomeBalanceService} и связанных lifecycle-сервисах.
+ * Снимки/проводки по REPORT — в отдельных сервисах после ТЗ-10C, не в этом read-only слое.
  *
  * @return array{
  *   personal_balance: string,
