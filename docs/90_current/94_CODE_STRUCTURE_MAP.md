@@ -120,6 +120,19 @@
 
 **Не трогали:** lifecycle TRANSFER/INCOME, математику `TransferBalanceService`/`IncomeBalanceService`, схему БД, Flutter-экраны (только зафиксирован техдолг на декомпозицию).
 
-**Будущий REPORT (по ТЗ-10C+):** ориентир на отдельные `ReportService`, `ReportLifecycleService`, `ReportBalanceService`, `ReportAccessService`, `ReportVisibilityService` — без смешения с `WalletBalanceService` (read-only срез) и без дельт в контроллерах.
+**Будущий REPORT (по ТЗ-10C+):** отдельные таблицы и сервисы — без смешения с `WalletBalanceService` (read-only срез) и без дельт в контроллерах. Ожидаемый контур сервисов (имена можно уточнить под стиль модуля Operations):
+
+```text
+ReportService
+ReportLifecycleService
+ReportBalanceService
+ReportAccessService
+ReportVisibilityService
+ReportAvailableActionsService
+ReportResponseService
+ReportLineSnapshotService
+ReportTransferLinkService
+ReportOperationNumberService
+```
 
 **Техдолг после foundation REPORT:** интеграционные smoke-тесты «полный TRANSFER/INCOME + дельты кошелька» на SQLite; крупные Flutter-экраны (`ProjectDetailScreen`, `AggregatedOperationsHistoryScreen`).

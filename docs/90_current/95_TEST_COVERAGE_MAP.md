@@ -1,6 +1,6 @@
 # 95 — Карта тестового покрытия (backend)
 
-**Обновлено:** 2026-05-13 (ТЗ-12.1). Сводка по PHPUnit в `backend/tests/`. SQLite + `RefreshDatabase` для feature-тестов (см. `phpunit.xml`).
+**Обновлено:** 2026-05-13 (ТЗ-10C: канон-уточнения REPORT в `13_OPERATION_REPORT_DRAFT.md` §9). Сводка по PHPUnit в `backend/tests/`. SQLite + `RefreshDatabase` для feature-тестов (см. `phpunit.xml`).
 
 ---
 
@@ -57,7 +57,24 @@
 
 ## REPORT
 
-Не реализовано. Тестов нет. После ТЗ-10C — отдельный контур тестов (операция, снимки, взаимодействие с прайсами/статьями расходов).
+Не реализовано. Тестов нет.
+
+**REPORT — обязательные тесты перед merge (ТЗ-10C / foundation):**
+
+```text
+- lifecycle PROJECT_HEAD / PARTNER / EMPLOYEE;
+- SUPERVISOR ветка;
+- применение и откат report_wallet_deltas;
+- CUSTOMER reject;
+- COMPLETED rollback;
+- snapshot строк;
+- visibility CUSTOMER / second-order recipient;
+- report_transfer_links;
+- operation_number;
+- pending/all history.
+```
+
+После реализации — отдельный контур feature/unit (операция, снимки, взаимодействие с прайсами/статьями расходов, `PriceListReportUsageChecker`).
 
 ---
 

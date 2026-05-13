@@ -6,6 +6,8 @@
 
 **Проверка статусов (факт кода):** TRANSFER и INCOME на backend + Flutter; единая лента `GET …/operations/history` с **`tab`** (`pending` | `all`); суммарный бейдж — `combinedOperationsPendingCountProvider`; **ТЗ-10A** и **ТЗ-10B** (прайс-листы, единицы, прикрепление к проекту) реализованы в **main**; операция **REPORT**, realtime и полноценные **документы** в продукте **не** реализованы.
 
+**Перед реализацией REPORT:** закрыты финальные уточнения ТЗ-10C в **`docs/10_operations/13_OPERATION_REPORT_DRAFT.md`** (раздел **«9. Актуальные уточнения перед реализацией ТЗ-10C»**): отдельная **`report_operations`**, **`report_wallet_deltas`**, **`report_transfer_links`**, **`operation_number`**, visibility, pending, snapshot строк, рабочая вкладка **«Переводы к отчёту»**.
+
 ТЗ-10B — Прайс-листы и позиции прайс-листа реализованы, запушены и прошли ручной smoke-проверку в приложении. Проверены сценарии OWNER / PROJECT_HEAD-Партнёр / проектные прайс-листы.
 
 ---
