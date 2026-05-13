@@ -82,5 +82,6 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withSchedule(function (Schedule $schedule): void {
         $schedule->command('operations:complete-expired-transfer-waiting')->everyMinute();
         $schedule->command('operations:complete-expired-income-waiting')->everyMinute();
+        $schedule->command('operations:complete-expired-report-waiting')->everyMinute();
     })
     ->create();

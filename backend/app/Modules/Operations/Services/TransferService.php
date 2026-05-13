@@ -144,6 +144,8 @@ final class TransferService
                 'waiting_period_started_at'          => null,
             ]);
 
+            app(ReportOperationNumberService::class)->assignTransferNumber($transfer);
+
             $operation->refresh();
 
             return $transfer->load(['sender.counterparty.user', 'receiver.counterparty.user']);

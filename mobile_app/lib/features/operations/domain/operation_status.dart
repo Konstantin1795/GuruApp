@@ -2,6 +2,7 @@ import 'operation_type.dart';
 
 enum OperationStatus {
   created,
+  supervisorApproval,
   projectHeadApproval,
   customerApproval,
   waiting24Hours,
@@ -13,6 +14,7 @@ enum OperationStatus {
     final v = value.trim().toUpperCase();
     return switch (v) {
       'CREATED'                => created,
+      'SUPERVISOR_APPROVAL'    => supervisorApproval,
       'PROJECT_HEAD_APPROVAL'  => projectHeadApproval,
       'CUSTOMER_APPROVAL'      => customerApproval,
       'WAITING_24_HOURS'       => waiting24Hours,
@@ -24,23 +26,25 @@ enum OperationStatus {
   }
 
   String toJson() => switch (this) {
-        created             => 'CREATED',
-        projectHeadApproval => 'PROJECT_HEAD_APPROVAL',
-        customerApproval    => 'CUSTOMER_APPROVAL',
-        waiting24Hours      => 'WAITING_24_HOURS',
-        completed           => 'COMPLETED',
-        rejected            => 'REJECTED',
-        rolledBack          => 'ROLLED_BACK',
+        created               => 'CREATED',
+        supervisorApproval    => 'SUPERVISOR_APPROVAL',
+        projectHeadApproval   => 'PROJECT_HEAD_APPROVAL',
+        customerApproval      => 'CUSTOMER_APPROVAL',
+        waiting24Hours        => 'WAITING_24_HOURS',
+        completed             => 'COMPLETED',
+        rejected              => 'REJECTED',
+        rolledBack            => 'ROLLED_BACK',
       };
 
   String get label => switch (this) {
-        created             => 'Создана',
-        projectHeadApproval => 'Ожидает руководителя',
-        customerApproval    => 'Ожидает заказчика',
-        waiting24Hours      => 'Период 24 часа',
-        completed           => 'Завершена',
-        rejected            => 'Отклонена',
-        rolledBack          => 'Откат',
+        created               => 'Создана',
+        supervisorApproval    => 'Ожидает технадзора',
+        projectHeadApproval   => 'Ожидает руководителя',
+        customerApproval      => 'Ожидает заказчика',
+        waiting24Hours        => 'Период 24 часа',
+        completed             => 'Завершена',
+        rejected              => 'Отклонена',
+        rolledBack            => 'Откат',
       };
 
   /// Default terminality for generic lifecycles (REJECTED is final until overridden per type).
@@ -59,6 +63,9 @@ enum OperationStatus {
             completed => true,
             _ => false,
           },
-        OperationType.report => isTerminalDefault,
+        OperationType.report => switch (this) {
+            completed || rolledBack => true,
+            _ => false,
+          },
       };
 }

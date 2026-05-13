@@ -30,6 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
             Route::get('/operations/incomes/history', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ListAggregatedIncomesController::class);
             Route::get('/operations/incomes/pending-count', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\IncomePendingCountController::class);
+            Route::get('/operations/reports/pending-count', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ReportPendingCountController::class);
 
             Route::get('/companies/current', \App\Modules\Companies\Http\Controllers\CompanyWorkspace\CurrentCompanyController::class);
             Route::get('/projects', \App\Modules\Projects\Http\Controllers\CompanyWorkspace\ListProjectsController::class);
@@ -107,6 +108,24 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/projects/{projectId}/operations/incomes/{incomeId}/reset-approval', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\IncomeResetApprovalController::class);
             Route::post('/projects/{projectId}/operations/incomes/{incomeId}/complete-waiting', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\IncomeCompleteWaitingController::class);
             Route::post('/projects/{projectId}/operations/incomes/{incomeId}/rollback-completed', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\IncomeRollbackCompletedController::class);
+
+            Route::get('/projects/{projectId}/operations/reports', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ListReportsController::class);
+            Route::post('/projects/{projectId}/operations/reports', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\CreateReportController::class);
+            Route::get('/projects/{projectId}/operations/reports/{reportId}', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ShowReportController::class);
+            Route::patch('/projects/{projectId}/operations/reports/{reportId}', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\PatchReportController::class);
+            Route::post('/projects/{projectId}/operations/reports/{reportId}/submit', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\SubmitReportController::class);
+            Route::post('/projects/{projectId}/operations/reports/{reportId}/approve-supervisor', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ReportApproveSupervisorController::class);
+            Route::post('/projects/{projectId}/operations/reports/{reportId}/reject-supervisor', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ReportRejectSupervisorController::class);
+            Route::post('/projects/{projectId}/operations/reports/{reportId}/approve-project-head', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ReportApproveProjectHeadController::class);
+            Route::post('/projects/{projectId}/operations/reports/{reportId}/reject-project-head', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ReportRejectProjectHeadController::class);
+            Route::post('/projects/{projectId}/operations/reports/{reportId}/approve-customer', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ReportApproveCustomerController::class);
+            Route::post('/projects/{projectId}/operations/reports/{reportId}/reject-customer', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ReportRejectCustomerController::class);
+            Route::post('/projects/{projectId}/operations/reports/{reportId}/complete-waiting-period', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ReportCompleteWaitingController::class);
+            Route::post('/projects/{projectId}/operations/reports/{reportId}/rollback-completed', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ReportRollbackCompletedController::class);
+            Route::get('/projects/{projectId}/operations/reports/{reportId}/transfer-links', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ListReportTransferLinksController::class);
+            Route::post('/projects/{projectId}/operations/reports/{reportId}/transfer-links', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\AttachReportTransferLinkController::class);
+            Route::delete('/projects/{projectId}/operations/reports/{reportId}/transfer-links/{linkId}', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\DetachReportTransferLinkController::class)
+                ->whereNumber('linkId');
         });
 
     Route::prefix('personal-workspace')
@@ -121,6 +140,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
             Route::get('/operations/incomes/history', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\ListAggregatedIncomesController::class);
             Route::get('/operations/incomes/pending-count', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\IncomePendingCountController::class);
+            Route::get('/operations/reports/pending-count', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\ReportPendingCountController::class);
 
             Route::get('/companies', \App\Modules\Companies\Http\Controllers\PersonalWorkspace\ListCompaniesController::class);
             Route::get('/projects', \App\Modules\Projects\Http\Controllers\PersonalWorkspace\ListProjectsController::class);
@@ -142,5 +162,10 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/projects/{projectId}/operations/incomes/{incomeId}/reject-customer', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\IncomeRejectCustomerController::class);
             Route::post('/projects/{projectId}/operations/incomes/{incomeId}/return-to-customer-approval', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\IncomeReturnToCustomerApprovalController::class);
             Route::post('/projects/{projectId}/operations/incomes/{incomeId}/reset-approval', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\IncomeResetApprovalController::class);
+
+            Route::get('/projects/{projectId}/operations/reports/{reportId}/transfer-links', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\ListReportTransferLinksController::class);
+            Route::post('/projects/{projectId}/operations/reports/{reportId}/transfer-links', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\AttachReportTransferLinkController::class);
+            Route::delete('/projects/{projectId}/operations/reports/{reportId}/transfer-links/{linkId}', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\DetachReportTransferLinkController::class)
+                ->whereNumber('linkId');
         });
 }); 

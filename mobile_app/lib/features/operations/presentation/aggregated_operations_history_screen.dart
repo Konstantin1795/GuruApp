@@ -16,9 +16,11 @@ import '../data/incomes_api.dart';
 import '../data/transfers_api.dart';
 import '../domain/aggregated_history_item.dart';
 import '../domain/income_operation.dart';
+import '../domain/report_operation.dart';
 import '../domain/transfer_operation.dart';
 import '../providers.dart';
 import 'income_detail_screen.dart';
+import 'report_detail_stub_screen.dart';
 import 'transfer_detail_screen.dart';
 
 /// Объединённая история операций TRANSFER + INCOME (`GET …/operations/history`, ТЗ-06.1).
@@ -66,6 +68,7 @@ class _AggregatedOperationsHistoryScreenState extends ConsumerState<AggregatedOp
     ref.invalidate(combinedOperationsPendingCountProvider(_pendingKey));
     ref.invalidate(transferPendingActionCountProvider((scope: widget.apiScope, companyId: widget.companyId)));
     ref.invalidate(incomePendingActionCountProvider((scope: _incomeScope, companyId: widget.companyId)));
+    ref.invalidate(reportPendingActionCountProvider((scope: widget.apiScope, companyId: widget.companyId)));
   }
 
   @override
@@ -244,6 +247,24 @@ class _AggregatedHistoryTabBodyState extends ConsumerState<_AggregatedHistoryTab
     });
   }
 
+  void _openReport(AggregatedHistoryItem row) {
+    final r = row.report;
+    if (r == null) return;
+    Navigator.of(context)
+        .push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => ReportDetailStubScreen(
+          projectId: r.projectId,
+          report: r,
+        ),
+      ),
+    )
+        .then((_) {
+      widget.onInvalidatePending();
+      _loadFirst();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -300,6 +321,15 @@ class _AggregatedHistoryTabBodyState extends ConsumerState<_AggregatedHistoryTab
                   child: _AggregatedIncomeCard(
                     income: row.income!,
                     onTap: () => _openIncome(row),
+                  ),
+                );
+              }
+              if (row.isReport && row.report != null) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: _AggregatedReportCard(
+                    report: row.report!,
+                    onTap: () => _openReport(row),
                   ),
                 );
               }
@@ -395,6 +425,82 @@ class _AggregatedTransferCard extends StatelessWidget {
             ),
           ),
         ),
+    );
+  }
+}
+
+class _AggregatedReportCard extends StatelessWidget {
+  final ReportOperation report;
+  final VoidCallback onTap;
+  static const _accent = Color(0xFF00D6C9);
+
+  const _AggregatedReportCard({required this.report, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final projectLine = report.projectName?.trim().isNotEmpty == true
+        ? report.projectName!
+        : 'Проект #${report.projectId}';
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(22),
+        onTap: onTap,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(22),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+                gradient: LinearGradient(
+                  colors: [Colors.white.withValues(alpha: 0.09), _accent.withValues(alpha: 0.07)],
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.operationReport,
+                    style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.45)),
+                  ),
+                  Text(
+                    projectLine,
+                    style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.55)),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          report.operationNumber ?? 'REP-${report.id}',
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                      Text(
+                        report.customerTotalAmount,
+                        style: const TextStyle(color: _accent, fontSize: 18, fontWeight: FontWeight.w900),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: [
+                      _Chip(label: report.status.label),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

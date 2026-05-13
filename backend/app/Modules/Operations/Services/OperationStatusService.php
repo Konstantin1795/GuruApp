@@ -33,6 +33,7 @@ final class OperationStatusService
     {
         return match ($status) {
             OperationStatus::CREATED               => 'Создана',
+            OperationStatus::SUPERVISOR_APPROVAL   => 'Ожидает подтверждения технадзора',
             OperationStatus::PROJECT_HEAD_APPROVAL => 'Ожидает подтверждения руководителя',
             OperationStatus::CUSTOMER_APPROVAL     => 'Ожидает подтверждения заказчика',
             OperationStatus::WAITING_24_HOURS      => 'Период ожидания 24 часа',

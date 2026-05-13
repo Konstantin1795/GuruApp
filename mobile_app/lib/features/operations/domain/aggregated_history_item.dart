@@ -1,4 +1,5 @@
 import 'income_operation.dart';
+import 'report_operation.dart';
 import 'transfer_operation.dart';
 
 /// Вкладка агрегированной истории: query `tab` для `GET …/operations/history`.
@@ -13,12 +14,14 @@ class AggregatedHistoryItem {
   final int projectId;
   final TransferOperation? transfer;
   final IncomeOperation? income;
+  final ReportOperation? report;
 
   const AggregatedHistoryItem({
     required this.operationKind,
     required this.projectId,
     this.transfer,
     this.income,
+    this.report,
   });
 
   factory AggregatedHistoryItem.fromJson(Map<String, dynamic> json) {
@@ -50,10 +53,21 @@ class AggregatedHistoryItem {
         );
       }
     }
+    if (kind == 'report') {
+      final raw = json['report'];
+      if (raw is Map) {
+        return AggregatedHistoryItem(
+          operationKind: kind,
+          projectId: projectId,
+          report: ReportOperation.fromJson(raw.cast<String, dynamic>()),
+        );
+      }
+    }
 
     return AggregatedHistoryItem(operationKind: kind, projectId: projectId);
   }
 
   bool get isTransfer => operationKind == 'transfer';
   bool get isIncome => operationKind == 'income';
+  bool get isReport => operationKind == 'report';
 }

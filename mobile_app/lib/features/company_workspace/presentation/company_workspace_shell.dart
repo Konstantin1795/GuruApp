@@ -304,6 +304,11 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
           (scope: IncomeApiScope.company, companyId: widget.companyId),
         ),
       );
+      ref.invalidate(
+        reportPendingActionCountProvider(
+          (scope: TransferApiScope.company, companyId: widget.companyId),
+        ),
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.l10n.transferCreated)),
       );

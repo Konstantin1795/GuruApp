@@ -34,6 +34,20 @@ final class ProtectedApiRoutesTest extends TestCase
         $response->assertUnauthorized();
     }
 
+    public function test_company_report_transfer_links_requires_authentication(): void
+    {
+        $response = $this->getJson('/api/company-workspace/1/projects/1/operations/reports/1/transfer-links');
+
+        $response->assertUnauthorized();
+    }
+
+    public function test_personal_report_transfer_links_requires_authentication(): void
+    {
+        $response = $this->getJson('/api/personal-workspace/projects/1/operations/reports/1/transfer-links');
+
+        $response->assertUnauthorized();
+    }
+
     public function test_company_project_expense_items_requires_authentication(): void
     {
         $response = $this->getJson('/api/company-workspace/1/projects/1/expense-items');

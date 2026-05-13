@@ -7,6 +7,9 @@ enum OperationStatus: string
     /** Newly created, awaiting first approval. */
     case CREATED                = 'CREATED';
 
+    /** Pending approval by the supervisor (SUPERVISOR), REPORT only. */
+    case SUPERVISOR_APPROVAL    = 'SUPERVISOR_APPROVAL';
+
     /** Pending approval by the project head (PROJECT_HEAD). */
     case PROJECT_HEAD_APPROVAL  = 'PROJECT_HEAD_APPROVAL';
 
@@ -53,7 +56,10 @@ enum OperationStatus: string
                 self::COMPLETED => true,
                 default => false,
             },
-            OperationType::REPORT => $this->isTerminal(),
+            OperationType::REPORT => match ($this) {
+                self::COMPLETED, self::ROLLED_BACK => true,
+                default => false,
+            },
         };
     }
 }

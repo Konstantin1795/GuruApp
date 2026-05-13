@@ -7,15 +7,17 @@ namespace App\Modules\Operations\Services;
 use App\Modules\Companies\Models\Counterparty;
 use App\Modules\Dictionaries\Enums\CompanyRoleCode;
 use App\Modules\Operations\Http\Resources\IncomeOperationResource;
+use App\Modules\Operations\Http\Resources\ReportOperationResource;
 use App\Modules\Operations\Http\Resources\TransferOperationResource;
 use App\Modules\Operations\Models\IncomeOperation;
+use App\Modules\Operations\Models\ReportOperation;
 use App\Modules\Operations\Models\TransferOperation;
 use App\Modules\Projects\Models\Project;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Объединённая история TRANSFER + INCOME для экрана «История операций» (ТЗ-06.1).
+ * Объединённая история TRANSFER + INCOME + REPORT для экрана «История операций» (ТЗ-06.1 / ТЗ-10C).
  *
  * Параметр tab:
  * - pending: только операции, где у текущего участника есть «шаг на подтверждение»
@@ -31,8 +33,10 @@ final class AggregatedOperationsHistoryService
     public function __construct(
         private readonly OperationVisibilityService $operationVisibility,
         private readonly IncomeVisibilityService $incomeVisibility,
+        private readonly ReportVisibilityService $reportVisibility,
         private readonly TransferAvailableActionsService $transferAvailableActions,
         private readonly IncomeAvailableActionsService $incomeAvailableActions,
+        private readonly ReportAvailableActionsService $reportAvailableActions,
     ) {}
 
     /**
@@ -90,6 +94,15 @@ final class AggregatedOperationsHistoryService
                     $this->sortAtSql('income_operations'),
                     'income_operations.project_id',
                 ]);
+
+            $rq = ReportOperation::query()
+                ->where('company_id', $companyId)
+                ->select([
+                    DB::raw("'report' as operation_kind"),
+                    'report_operations.id as operation_row_id',
+                    $this->sortAtSql('report_operations'),
+                    'report_operations.project_id',
+                ]);
         } else {
             if ($projects === []) {
                 return ['items' => [], 'total' => 0];
@@ -112,9 +125,18 @@ final class AggregatedOperationsHistoryService
                     $this->sortAtSql('income_operations'),
                     'income_operations.project_id',
                 ]);
+
+            $rq = $this->reportVisibility
+                ->reportQueryParticipationOnlyAcrossProjects($projects, $userId)
+                ->select([
+                    DB::raw("'report' as operation_kind"),
+                    'report_operations.id as operation_row_id',
+                    $this->sortAtSql('report_operations'),
+                    'report_operations.project_id',
+                ]);
         }
 
-        $union = $tq->unionAll($iq);
+        $union = $tq->unionAll($iq)->unionAll($rq);
 
         $total = (int) DB::query()->fromSub($union, 'merged')->count();
 
@@ -164,6 +186,18 @@ final class AggregatedOperationsHistoryService
                 foreach ($q->cursor() as $income) {
                     if ($this->incomeAvailableActions->hasPendingConfirmationAction($incomeParticipant, $income)) {
                         $candidates[] = $this->candidateRow('income', (int) $income->id, $income->updated_at, $income->created_at);
+                    }
+                }
+            }
+
+            $reportParticipant = $this->reportVisibility->participantForUser($project, $userId);
+            if ($reportParticipant !== null) {
+                $q = $this->reportVisibility
+                    ->reportQueryForUser($project, $userId)
+                    ->with('initiator');
+                foreach ($q->cursor() as $report) {
+                    if ($this->reportAvailableActions->hasPendingConfirmationAction($reportParticipant, $report)) {
+                        $candidates[] = $this->candidateRow('report', (int) $report->id, $report->updated_at, $report->created_at);
                     }
                 }
             }
@@ -217,7 +251,7 @@ final class AggregatedOperationsHistoryService
                         'transfer' => (new TransferOperationResource($t))->resolve(),
                     ];
                 }
-            } else {
+            } elseif ($kind === 'income') {
                 $i = IncomeOperation::query()
                     ->with([
                         'initiator.counterparty.user',
@@ -231,6 +265,22 @@ final class AggregatedOperationsHistoryService
                         'operation_kind' => 'income',
                         'project_id' => (int) $i->project_id,
                         'income' => (new IncomeOperationResource($i))->resolve(),
+                    ];
+                }
+            } elseif ($kind === 'report') {
+                $r = ReportOperation::query()
+                    ->with([
+                        'initiator.counterparty.user',
+                        'recipientParticipant.counterparty.user',
+                        'customerParticipant.counterparty.user',
+                        'project',
+                    ])
+                    ->find($id);
+                if ($r !== null) {
+                    $items[] = [
+                        'operation_kind' => 'report',
+                        'project_id' => (int) $r->project_id,
+                        'report' => (new ReportOperationResource($r))->resolve(),
                     ];
                 }
             }

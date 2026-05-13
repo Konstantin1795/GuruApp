@@ -101,6 +101,7 @@ class _CustomerHomeBody extends ConsumerWidget {
       );
       ref.invalidate(incomePendingActionCountProvider((scope: IncomeApiScope.personal, companyId: 0)));
       ref.invalidate(transferPendingActionCountProvider((scope: TransferApiScope.personal, companyId: 0)));
+      ref.invalidate(reportPendingActionCountProvider((scope: TransferApiScope.personal, companyId: 0)));
       await Future.wait([
         ref.read(customerWorkspaceDataProvider.future),
         ref.read(combinedOperationsPendingCountProvider((scope: TransferApiScope.personal, companyId: 0)).future),

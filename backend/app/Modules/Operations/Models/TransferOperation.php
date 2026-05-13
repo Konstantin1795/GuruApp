@@ -32,6 +32,7 @@ final class TransferOperation extends Model
 
     protected $fillable = [
         'operation_id',
+        'operation_number',
         'project_id',
         'initiator_project_participant_id',
         'sender_project_participant_id',

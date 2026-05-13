@@ -22,6 +22,7 @@ final class TransferOperationResource extends JsonResource
 
         return [
             'id' => $transfer->id,
+            'operation_number' => $transfer->operation_number,
             'operation_id' => $transfer->operation_id,
             'project_id' => $transfer->project_id,
             'initiator_project_participant_id' => $transfer->initiator_project_participant_id,
