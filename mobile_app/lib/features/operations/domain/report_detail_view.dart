@@ -1,22 +1,22 @@
-import 'linked_report_summary.dart';
 import 'operation_status_history_entry.dart';
-import 'transfer_operation.dart';
 
-class TransferDetailView {
-  final TransferOperation transfer;
+class ReportDetailView {
+  final Map<String, dynamic> report;
   final Map<String, bool> availableActions;
+  final String? viewerContext;
   final List<OperationStatusHistoryEntry> statusHistory;
-  final LinkedReportSummary? linkedReport;
+  final List<Map<String, dynamic>> transferLinks;
 
-  const TransferDetailView({
-    required this.transfer,
+  const ReportDetailView({
+    required this.report,
     required this.availableActions,
+    required this.viewerContext,
     required this.statusHistory,
-    this.linkedReport,
+    required this.transferLinks,
   });
 
-  factory TransferDetailView.fromShowJson(Map<String, dynamic> data) {
-    final transferMap = (data['transfer'] as Map).cast<String, dynamic>();
+  factory ReportDetailView.fromShowJson(Map<String, dynamic> data) {
+    final reportMap = (data['report'] as Map).cast<String, dynamic>();
     final rawActions = data['available_actions'];
     final Map<String, bool> actions = {};
     if (rawActions is Map) {
@@ -25,8 +25,10 @@ class TransferDetailView {
       }
     }
 
-    final histRaw = transferMap['status_history'];
+    final viewerContext = data['viewer_context'] as String?;
+
     final List<OperationStatusHistoryEntry> history = [];
+    final histRaw = reportMap['status_history'];
     if (histRaw is List) {
       for (final item in histRaw) {
         if (item is Map) {
@@ -34,7 +36,6 @@ class TransferDetailView {
         }
       }
     }
-
     history.sort((a, b) {
       final ta = a.createdAt;
       final tb = b.createdAt;
@@ -44,11 +45,22 @@ class TransferDetailView {
       return ta.compareTo(tb);
     });
 
-    return TransferDetailView(
-      transfer: TransferOperation.fromJson(transferMap),
+    final List<Map<String, dynamic>> links = [];
+    final tl = reportMap['transfer_links'];
+    if (tl is List) {
+      for (final e in tl) {
+        if (e is Map) {
+          links.add(e.cast<String, dynamic>());
+        }
+      }
+    }
+
+    return ReportDetailView(
+      report: reportMap,
       availableActions: actions,
+      viewerContext: viewerContext,
       statusHistory: history,
-      linkedReport: LinkedReportSummary.tryParse(transferMap['linked_report']),
+      transferLinks: links,
     );
   }
 }

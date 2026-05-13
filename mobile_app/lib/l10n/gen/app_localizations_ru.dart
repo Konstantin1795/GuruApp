@@ -572,6 +572,162 @@ class AppLocalizationsRu extends AppLocalizations {
   String get operationReportSoon => 'Будет доступно позже';
 
   @override
+  String get operationReportNoPermission =>
+      'Недостаточно прав для создания отчёта по этому проекту.';
+
+  @override
+  String get reportDetailTitle => 'Отчёт';
+
+  @override
+  String get reportTabDetails => 'Детали';
+
+  @override
+  String get reportTabTransfers => 'Переводы к отчёту';
+
+  @override
+  String get reportCustomerTotal => 'Итого заказчику';
+
+  @override
+  String get reportRecipientTotal => 'Итого получателю';
+
+  @override
+  String get reportProfit => 'Прибыль';
+
+  @override
+  String get reportLinesTitle => 'Позиции';
+
+  @override
+  String get reportTransfersEmpty => 'Пока нет привязанных переводов.';
+
+  @override
+  String get reportAttachTransferButton => 'Прикрепить перевод';
+
+  @override
+  String get reportAttachTransferTitle => 'Выбор перевода';
+
+  @override
+  String get reportAttachTransferSearchHint =>
+      'Поиск: номер, дата (ГГГГ-ММ-ДД) или сумма';
+
+  @override
+  String get reportAttachTransferMissingNumber =>
+      'У перевода ещё нет номера операции.';
+
+  @override
+  String get transferAttachToReportButton => 'Прикрепить к отчёту';
+
+  @override
+  String get transferAttachToReportTitle => 'Выбор отчёта';
+
+  @override
+  String get transferAttachToReportSearchHint =>
+      'Поиск: номер, дата (ГГГГ-ММ-ДД) или сумма';
+
+  @override
+  String transferLinkedToReport(String number) {
+    return 'Связан с отчётом № $number';
+  }
+
+  @override
+  String get reportCreateAddCustomLine => 'Добавить строку';
+
+  @override
+  String get reportCreateAddFromPriceList => 'Из прайс-листа';
+
+  @override
+  String get reportCreatePreviewTitle => 'Предпросмотр (приблизительно)';
+
+  @override
+  String get reportCreatePreviewRecipient => 'Сумма получателю';
+
+  @override
+  String get reportCreatePreviewCustomerBase => 'Сумма заказчику (по строкам)';
+
+  @override
+  String get reportCreatePreviewMarkup => 'Наценка';
+
+  @override
+  String get reportCreatePreviewCustomerTotal => 'Итог заказчику (с наценкой)';
+
+  @override
+  String get reportCreatePreviewProfit => 'Прибыль (по строкам)';
+
+  @override
+  String get reportCreatePreviewNote =>
+      'Окончательный расчёт выполняется на сервере.';
+
+  @override
+  String get reportPriceListPickerTitle => 'Прайс-листы проекта';
+
+  @override
+  String get reportPriceListPickerEmpty =>
+      'Позиции не найдены. Сначала прикрепите прайс-лист к проекту.';
+
+  @override
+  String get reportCreateTitle => 'Новый отчёт';
+
+  @override
+  String get reportCreateExpenseSection => 'Статья расходов';
+
+  @override
+  String get reportCreateExpenseItem => 'Статья расходов';
+
+  @override
+  String get reportCreateRecipient => 'Получатель (контрагент)';
+
+  @override
+  String get reportCreateOperationDate => 'Дата операции';
+
+  @override
+  String get reportCreateLineSection => 'Позиции';
+
+  @override
+  String get reportCreateLineName => 'Наименование';
+
+  @override
+  String get reportCreateQuantity => 'Количество';
+
+  @override
+  String get reportCreateRecipientUnitPrice => 'Цена получателю (за ед.)';
+
+  @override
+  String get reportCreateCustomerUnitPrice => 'Цена заказчику (за ед.)';
+
+  @override
+  String get reportCreateMissingFields =>
+      'Выберите статью расходов и получателя.';
+
+  @override
+  String get reportActionSubmit => 'Отправить';
+
+  @override
+  String get reportActionApproveCustomer => 'Подтвердить (заказчик)';
+
+  @override
+  String get reportActionRejectCustomer => 'Отклонить (заказчик)';
+
+  @override
+  String get reportActionApproveProjectHead => 'Подтвердить (РП)';
+
+  @override
+  String get reportActionRejectProjectHead => 'Отклонить (РП)';
+
+  @override
+  String get reportActionApproveSupervisor => 'Подтвердить (технадзор)';
+
+  @override
+  String get reportActionRejectSupervisor => 'Отклонить (технадзор)';
+
+  @override
+  String get reportActionCompleteWaiting => 'Завершить 24 часа';
+
+  @override
+  String get reportActionRollbackCompleted => 'Откатить завершённый отчёт';
+
+  @override
+  String get reportCreated => 'Отчёт создан';
+
+  @override
   String get selectProject => 'Выберите проект';
 
   @override

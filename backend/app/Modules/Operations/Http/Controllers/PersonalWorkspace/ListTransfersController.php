@@ -4,6 +4,7 @@ namespace App\Modules\Operations\Http\Controllers\PersonalWorkspace;
 
 use App\Modules\Operations\Http\Resources\TransferOperationResource;
 use App\Modules\Operations\Services\OperationVisibilityService;
+use App\Modules\Operations\Support\TransferOperationListSearchFilter;
 use App\Modules\Projects\Services\ProjectVisibilityService;
 use App\Support\Http\ApiResponse;
 use App\Support\Http\Pagination\PaginatedResourceResponse;
@@ -27,6 +28,8 @@ final class ListTransfersController
             ->transferQueryForUser($project, $userId)
             ->with(['sender.counterparty.user', 'receiver.counterparty.user'])
             ->orderByDesc('id');
+
+        TransferOperationListSearchFilter::apply($query, (string) $request->query('search', ''));
 
         $paginator = $query->paginate(
             perPage: $p['per_page'],

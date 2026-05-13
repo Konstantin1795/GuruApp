@@ -17,6 +17,8 @@ class TransferOperation {
   final OperationStatus status;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  /// Номер операции (`TRF-…`), если отдан API.
+  final String? operationNumber;
   /// Если отдано API (агрегированный список по компании).
   final String? projectName;
 
@@ -35,6 +37,7 @@ class TransferOperation {
     required this.status,
     required this.createdAt,
     required this.updatedAt,
+    this.operationNumber,
     this.projectName,
   });
 
@@ -76,6 +79,7 @@ class TransferOperation {
       status: OperationStatus.fromJson((json['operation_status'] ?? '').toString()),
       createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) : null,
       updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at'].toString()) : null,
+      operationNumber: readOptString(json['operation_number']),
       projectName: readOptString(json['project_name']),
     );
   }

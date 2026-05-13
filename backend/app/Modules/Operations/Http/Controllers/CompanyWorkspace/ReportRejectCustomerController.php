@@ -6,8 +6,9 @@ namespace App\Modules\Operations\Http\Controllers\CompanyWorkspace;
 
 use App\Modules\Operations\Http\Concerns\ResolvesProjectParticipant;
 use App\Modules\Operations\Http\Requests\RejectReportRequest;
-use App\Modules\Operations\Http\Resources\ReportOperationResource;
 use App\Modules\Operations\Services\ReportLifecycleService;
+use App\Modules\Operations\Services\ReportOperationApiPayloadFactory;
+use App\Modules\Operations\Services\ReportOperationViewerModeResolver;
 use App\Modules\Operations\Services\ReportVisibilityService;
 use App\Modules\Projects\Services\ProjectVisibilityService;
 use App\Support\Http\ApiResponse;
@@ -21,6 +22,8 @@ final class ReportRejectCustomerController
         ProjectVisibilityService $projectVisibility,
         ReportVisibilityService $reportVisibility,
         ReportLifecycleService $lifecycle,
+        ReportOperationViewerModeResolver $viewerMode,
+        ReportOperationApiPayloadFactory $reportPayload,
         int $companyId,
         int $projectId,
         int $reportId,
@@ -38,6 +41,11 @@ final class ReportRejectCustomerController
             (string) $request->validated('comment'),
         );
 
-        return ApiResponse::ok(['report' => (new ReportOperationResource($updated))->resolve()]);
+        $mode = $viewerMode->resolve($actor, $updated);
+
+        return ApiResponse::ok([
+            'report' => $reportPayload->forReport($updated, $mode),
+            'viewer_context' => $mode->value,
+        ]);
     }
 }

@@ -40,6 +40,21 @@ final class TransferOperationResource extends JsonResource
             'waiting_period_started_at' => optional($transfer->waiting_period_started_at)?->toIso8601String(),
             'created_at' => optional($transfer->created_at)?->toIso8601String(),
             'updated_at' => optional($transfer->updated_at)?->toIso8601String(),
+            'linked_report' => $this->when(
+                $transfer->relationLoaded('reportTransferLink'),
+                function () use ($transfer): ?array {
+                    $link = $transfer->reportTransferLink;
+                    if ($link === null) {
+                        return null;
+                    }
+                    $link->loadMissing('reportOperation');
+
+                    return [
+                        'report_id' => (int) $link->report_operation_id,
+                        'operation_number' => $link->reportOperation?->operation_number,
+                    ];
+                },
+            ),
             'project_name' => $this->when(
                 $transfer->relationLoaded('project') && $transfer->project,
                 fn () => $transfer->project->name,

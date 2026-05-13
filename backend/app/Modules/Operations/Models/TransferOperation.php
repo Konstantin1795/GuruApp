@@ -9,6 +9,7 @@ use App\Modules\Projects\Models\Project;
 use App\Modules\Projects\Models\ProjectParticipant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @property int                $id
@@ -80,6 +81,12 @@ final class TransferOperation extends Model
     public function receiver(): BelongsTo
     {
         return $this->belongsTo(ProjectParticipant::class, 'receiver_project_participant_id');
+    }
+
+    /** @return HasOne<ReportTransferLink, TransferOperation> */
+    public function reportTransferLink(): HasOne
+    {
+        return $this->hasOne(ReportTransferLink::class, 'transfer_operation_id');
     }
 
     public function receiverCounterparty(): BelongsTo

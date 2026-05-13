@@ -20,7 +20,7 @@ import '../domain/report_operation.dart';
 import '../domain/transfer_operation.dart';
 import '../providers.dart';
 import 'income_detail_screen.dart';
-import 'report_detail_stub_screen.dart';
+import 'report_detail_screen.dart';
 import 'transfer_detail_screen.dart';
 
 /// Объединённая история операций TRANSFER + INCOME (`GET …/operations/history`, ТЗ-06.1).
@@ -253,9 +253,11 @@ class _AggregatedHistoryTabBodyState extends ConsumerState<_AggregatedHistoryTab
     Navigator.of(context)
         .push<void>(
       MaterialPageRoute<void>(
-        builder: (_) => ReportDetailStubScreen(
+        builder: (_) => ReportDetailScreen(
+          apiScope: widget.apiScope,
+          companyId: widget.companyId,
           projectId: r.projectId,
-          report: r,
+          reportId: r.id,
         ),
       ),
     )

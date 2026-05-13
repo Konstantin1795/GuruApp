@@ -15,6 +15,7 @@ import '../domain/operation_status.dart';
 import '../domain/operation_status_history_entry.dart';
 import '../domain/transfer_detail_view.dart';
 import '../providers.dart';
+import 'attach_report_to_transfer_sheet.dart';
 import 'operation_comment_dialog.dart';
 
 class TransferDetailScreen extends ConsumerStatefulWidget {
@@ -91,6 +92,23 @@ class _TransferDetailScreenState extends ConsumerState<TransferDetailScreen> {
       setState(() {
         _error = e is ApiException ? e.message : '_generic';
       });
+    }
+  }
+
+  Future<void> _openAttachToReport(TransferDetailView detail) async {
+    final num = detail.transfer.operationNumber?.trim();
+    if (num == null || num.isEmpty) return;
+    final linkedId = detail.linkedReport?.isLinked == true ? detail.linkedReport!.reportId : null;
+    final ok = await showAttachReportToTransferSheet(
+      context,
+      apiScope: widget.apiScope,
+      companyId: widget.companyId,
+      projectId: widget.projectId,
+      transferOperationNumber: num,
+      excludeReportIdLinked: linkedId,
+    );
+    if (ok && mounted) {
+      await _load(showFullscreenLoading: false);
     }
   }
 
@@ -222,6 +240,27 @@ class _TransferDetailScreenState extends ConsumerState<TransferDetailScreen> {
                                     detail.transfer.comment!.trim().isNotEmpty) ...[
                                   const SizedBox(height: 10),
                                   Text(detail.transfer.comment!.trim()),
+                                ],
+                                if (detail.linkedReport != null && detail.linkedReport!.isLinked) ...[
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    l10n.transferLinkedToReport(
+                                      detail.linkedReport!.operationNumber?.trim().isNotEmpty == true
+                                          ? detail.linkedReport!.operationNumber!.trim()
+                                          : 'REP-${detail.linkedReport!.reportId}',
+                                    ),
+                                    style: TextStyle(
+                                      color: Colors.lightBlueAccent.withValues(alpha: 0.95),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                                if (detail.linkedReport == null || !detail.linkedReport!.isLinked) ...[
+                                  const SizedBox(height: 12),
+                                  AppButton(
+                                    label: l10n.transferAttachToReportButton,
+                                    onPressed: () => _openAttachToReport(detail),
+                                  ),
                                 ],
                                 const SizedBox(height: 20),
                                 Text(l10n.transferLifecycleTitle,

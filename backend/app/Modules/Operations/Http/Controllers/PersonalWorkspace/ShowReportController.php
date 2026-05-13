@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Modules\Operations\Http\Controllers\CompanyWorkspace;
+namespace App\Modules\Operations\Http\Controllers\PersonalWorkspace;
 
 use App\Modules\Dictionaries\Enums\ProjectRoleCode;
 use App\Modules\Operations\Enums\ReportOperationViewerMode;
@@ -23,12 +23,11 @@ final class ShowReportController
         ReportAvailableActionsService $availableActions,
         ReportOperationViewerModeResolver $viewerMode,
         ReportOperationApiPayloadFactory $reportPayload,
-        int $companyId,
         int $projectId,
         int $reportId,
     ) {
         $userId = (int) $request->user()->id;
-        $project = $projectVisibility->assertCanAccessCompanyProject($userId, $companyId, $projectId);
+        $project = $projectVisibility->assertCanAccessPersonalWorkspaceProject($userId, $projectId);
 
         $report = $reportVisibility->assertCanViewReport($project, $userId, $reportId);
 

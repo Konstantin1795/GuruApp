@@ -573,6 +573,161 @@ class AppLocalizationsEn extends AppLocalizations {
   String get operationReportSoon => 'Report will be available later';
 
   @override
+  String get operationReportNoPermission =>
+      'You cannot create a report for this project with your current role.';
+
+  @override
+  String get reportDetailTitle => 'Report';
+
+  @override
+  String get reportTabDetails => 'Details';
+
+  @override
+  String get reportTabTransfers => 'Linked transfers';
+
+  @override
+  String get reportCustomerTotal => 'Customer total';
+
+  @override
+  String get reportRecipientTotal => 'Recipient total';
+
+  @override
+  String get reportProfit => 'Profit';
+
+  @override
+  String get reportLinesTitle => 'Line items';
+
+  @override
+  String get reportTransfersEmpty => 'No linked transfers yet.';
+
+  @override
+  String get reportAttachTransferButton => 'Attach transfer';
+
+  @override
+  String get reportAttachTransferTitle => 'Pick a transfer';
+
+  @override
+  String get reportAttachTransferSearchHint =>
+      'Search by number, date (YYYY-MM-DD), or amount';
+
+  @override
+  String get reportAttachTransferMissingNumber =>
+      'This transfer has no operation number yet.';
+
+  @override
+  String get transferAttachToReportButton => 'Attach to report';
+
+  @override
+  String get transferAttachToReportTitle => 'Pick a report';
+
+  @override
+  String get transferAttachToReportSearchHint =>
+      'Search by number, date (YYYY-MM-DD), or amount';
+
+  @override
+  String transferLinkedToReport(String number) {
+    return 'Linked to report $number';
+  }
+
+  @override
+  String get reportCreateAddCustomLine => 'Add custom line';
+
+  @override
+  String get reportCreateAddFromPriceList => 'From price list';
+
+  @override
+  String get reportCreatePreviewTitle => 'Preview (approximate)';
+
+  @override
+  String get reportCreatePreviewRecipient => 'Recipient total';
+
+  @override
+  String get reportCreatePreviewCustomerBase => 'Customer (lines)';
+
+  @override
+  String get reportCreatePreviewMarkup => 'Markup';
+
+  @override
+  String get reportCreatePreviewCustomerTotal => 'Customer total (with markup)';
+
+  @override
+  String get reportCreatePreviewProfit => 'Profit (lines)';
+
+  @override
+  String get reportCreatePreviewNote =>
+      'Final totals are calculated on the server.';
+
+  @override
+  String get reportPriceListPickerTitle => 'Attached price lists';
+
+  @override
+  String get reportPriceListPickerEmpty =>
+      'No positions found. Attach a price list to the project first.';
+
+  @override
+  String get reportCreateTitle => 'New report';
+
+  @override
+  String get reportCreateExpenseSection => 'Expense item';
+
+  @override
+  String get reportCreateExpenseItem => 'Expense item';
+
+  @override
+  String get reportCreateRecipient => 'Recipient (counterparty)';
+
+  @override
+  String get reportCreateOperationDate => 'Operation date';
+
+  @override
+  String get reportCreateLineSection => 'Positions';
+
+  @override
+  String get reportCreateLineName => 'Description';
+
+  @override
+  String get reportCreateQuantity => 'Quantity';
+
+  @override
+  String get reportCreateRecipientUnitPrice => 'Unit price (recipient)';
+
+  @override
+  String get reportCreateCustomerUnitPrice => 'Unit price (customer)';
+
+  @override
+  String get reportCreateMissingFields => 'Select expense item and recipient.';
+
+  @override
+  String get reportActionSubmit => 'Send';
+
+  @override
+  String get reportActionApproveCustomer => 'Confirm (customer)';
+
+  @override
+  String get reportActionRejectCustomer => 'Reject (customer)';
+
+  @override
+  String get reportActionApproveProjectHead => 'Approve (project head)';
+
+  @override
+  String get reportActionRejectProjectHead => 'Reject (project head)';
+
+  @override
+  String get reportActionApproveSupervisor => 'Approve (supervisor)';
+
+  @override
+  String get reportActionRejectSupervisor => 'Reject (supervisor)';
+
+  @override
+  String get reportActionCompleteWaiting => 'Complete waiting period';
+
+  @override
+  String get reportActionRollbackCompleted => 'Rollback completed report';
+
+  @override
+  String get reportCreated => 'Report created';
+
+  @override
   String get selectProject => 'Select project';
 
   @override

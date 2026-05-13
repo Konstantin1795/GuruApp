@@ -2,38 +2,45 @@
 
 declare(strict_types=1);
 
-namespace App\Modules\Operations\Http\Controllers\CompanyWorkspace;
+namespace App\Modules\Operations\Http\Controllers\PersonalWorkspace;
 
-use App\Modules\Operations\Http\Concerns\ResolvesProjectParticipant;
+use App\Modules\Operations\Http\Concerns\ResolvesPersonalWorkspaceProjectParticipant;
+use App\Modules\Operations\Http\Requests\RejectReportRequest;
 use App\Modules\Operations\Services\ReportLifecycleService;
 use App\Modules\Operations\Services\ReportOperationApiPayloadFactory;
 use App\Modules\Operations\Services\ReportOperationViewerModeResolver;
 use App\Modules\Operations\Services\ReportVisibilityService;
 use App\Modules\Projects\Services\ProjectVisibilityService;
 use App\Support\Http\ApiResponse;
-use Illuminate\Http\Request;
 
-final class ReportApproveCustomerController
+final class ReportRollbackCompletedController
 {
-    use ResolvesProjectParticipant;
+    use ResolvesPersonalWorkspaceProjectParticipant;
 
     public function __invoke(
-        Request $request,
+        RejectReportRequest $request,
         ProjectVisibilityService $projectVisibility,
         ReportVisibilityService $reportVisibility,
         ReportLifecycleService $lifecycle,
         ReportOperationViewerModeResolver $viewerMode,
         ReportOperationApiPayloadFactory $reportPayload,
-        int $companyId,
         int $projectId,
         int $reportId,
     ) {
-        $userId = (int) $request->user()->id;
-        $project = $projectVisibility->assertCanAccessCompanyProject($userId, $companyId, $projectId);
-        $report = $reportVisibility->assertCanViewReport($project, $userId, $reportId);
-        $actor = $this->projectParticipantForUser($request, $project, $companyId);
+        $user = $request->user();
+        $project = $projectVisibility->assertCanAccessPersonalWorkspaceProject((int) $user->id, $projectId);
 
-        $updated = $lifecycle->approveByCustomer($project, $report, $actor, $request->user());
+        $report = $reportVisibility->assertCanViewReport($project, (int) $user->id, $reportId);
+
+        $actor = $this->projectParticipantForPersonalWorkspace($request, $project);
+
+        $updated = $lifecycle->rollbackCompleted(
+            $project,
+            $report,
+            $actor,
+            $user,
+            (string) $request->validated('comment'),
+        );
 
         $mode = $viewerMode->resolve($actor, $updated);
 

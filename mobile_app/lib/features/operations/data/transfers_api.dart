@@ -23,11 +23,17 @@ class TransfersApi {
     required int projectId,
     required int page,
     required int perPage,
-  }) =>
-      _api.getJson(
-        _basePath(scope: scope, companyId: companyId, projectId: projectId),
-        query: {'page': page, 'per_page': perPage},
-      );
+    String? search,
+  }) {
+    final query = <String, dynamic>{'page': page, 'per_page': perPage};
+    if (search != null && search.trim().isNotEmpty) {
+      query['search'] = search.trim();
+    }
+    return _api.getJson(
+      _basePath(scope: scope, companyId: companyId, projectId: projectId),
+      query: query,
+    );
+  }
 
   Future<Map<String, dynamic>> listRecipients({
     required TransferApiScope scope,

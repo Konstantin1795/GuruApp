@@ -163,6 +163,12 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/projects/{projectId}/operations/incomes/{incomeId}/return-to-customer-approval', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\IncomeReturnToCustomerApprovalController::class);
             Route::post('/projects/{projectId}/operations/incomes/{incomeId}/reset-approval', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\IncomeResetApprovalController::class);
 
+            Route::get('/projects/{projectId}/operations/reports', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\ListReportsController::class);
+            Route::get('/projects/{projectId}/operations/reports/{reportId}', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\ShowReportController::class);
+            Route::post('/projects/{projectId}/operations/reports/{reportId}/approve-customer', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\ReportApproveCustomerController::class);
+            Route::post('/projects/{projectId}/operations/reports/{reportId}/reject-customer', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\ReportRejectCustomerController::class);
+            Route::post('/projects/{projectId}/operations/reports/{reportId}/rollback-completed', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\ReportRollbackCompletedController::class);
+
             Route::get('/projects/{projectId}/operations/reports/{reportId}/transfer-links', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\ListReportTransferLinksController::class);
             Route::post('/projects/{projectId}/operations/reports/{reportId}/transfer-links', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\AttachReportTransferLinkController::class);
             Route::delete('/projects/{projectId}/operations/reports/{reportId}/transfer-links/{linkId}', \App\Modules\Operations\Http\Controllers\PersonalWorkspace\DetachReportTransferLinkController::class)

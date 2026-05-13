@@ -25,6 +25,7 @@ class TransfersRepository {
     required int projectId,
     required int page,
     required int perPage,
+    String? search,
   }) async {
     final json = await _api.list(
       scope: scope,
@@ -32,6 +33,7 @@ class TransfersRepository {
       projectId: projectId,
       page: page,
       perPage: perPage,
+      search: search,
     );
     final data = (json['data'] as Map).cast<String, dynamic>();
     return Paginated<TransferOperation>.fromJson(data, parseItem: TransferOperation.fromJson);

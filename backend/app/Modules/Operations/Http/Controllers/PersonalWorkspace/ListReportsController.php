@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Modules\Operations\Http\Controllers\CompanyWorkspace;
+namespace App\Modules\Operations\Http\Controllers\PersonalWorkspace;
 
 use App\Modules\Operations\Services\ReportOperationApiPayloadFactory;
 use App\Modules\Operations\Services\ReportOperationViewerModeResolver;
@@ -20,11 +20,10 @@ final class ListReportsController
         ReportVisibilityService $reportVisibility,
         ReportOperationViewerModeResolver $viewerMode,
         ReportOperationApiPayloadFactory $reportPayload,
-        int $companyId,
         int $projectId,
     ) {
         $userId = (int) $request->user()->id;
-        $project = $projectVisibility->assertCanAccessCompanyProject($userId, $companyId, $projectId);
+        $project = $projectVisibility->assertCanAccessPersonalWorkspaceProject($userId, $projectId);
 
         $participant = $reportVisibility->participantForUser($project, $userId);
 

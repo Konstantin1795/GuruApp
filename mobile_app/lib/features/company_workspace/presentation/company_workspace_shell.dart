@@ -12,6 +12,8 @@ import '../../auth/presentation/login_screen.dart' show LocaleSwitchButton;
 import '../../auth/providers.dart';
 import '../../counterparties/domain/counterparty.dart';
 import '../../projects/domain/project.dart';
+import '../../projects/domain/project_workspace_scope.dart';
+import '../../projects/providers.dart';
 import '../../workspaces/providers.dart';
 import '../providers.dart';
 import 'company_counterparties_screen.dart' show CompanyCounterpartiesScreen, companyCounterpartiesControllerProvider;
@@ -19,6 +21,7 @@ import 'company_dashboard_screen.dart';
 import 'company_operations_placeholder_screen.dart';
 import 'company_projects_screen.dart';
 import 'company_workspace_identity.dart';
+import '../../operations/presentation/create_edit_report_screen.dart';
 import '../../operations/presentation/create_income_screen.dart';
 import '../../operations/data/transfers_api.dart';
 import '../../operations/data/incomes_api.dart';
@@ -215,9 +218,12 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
                 _OperationTypeItem(
                   icon: Icons.receipt_long_outlined,
                   label: l10n.operationReport,
-                  description: l10n.operationReportSoon,
-                  enabled: false,
-                  onTap: () {},
+                  description: l10n.operationReportDescription,
+                  enabled: true,
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+                    _openCreateReportFlow();
+                  },
                 ),
               ],
             ),
@@ -374,6 +380,114 @@ class _CompanyWorkspaceShellState extends ConsumerState<CompanyWorkspaceShell> {
         ),
       ),
     );
+  }
+
+  Future<void> _openCreateReportFlow() async {
+    final l10n = context.l10n;
+    final projectsState =
+        ref.read(companyProjectsControllerProvider(widget.companyId)).valueOrNull;
+
+    if (projectsState == null || projectsState.items.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.noProjects)));
+      return;
+    }
+
+    Project? selectedProject;
+
+    if (projectsState.items.length == 1) {
+      selectedProject = projectsState.items.first;
+    } else {
+      if (!mounted) return;
+      selectedProject = await showDialog<Project>(
+        context: context,
+        builder: (ctx) => SimpleDialog(
+          backgroundColor: const Color(0xFF0B1B2A),
+          title: Text(
+            ctx.l10n.selectProject,
+            style: const TextStyle(color: Colors.white),
+          ),
+          children: projectsState.items
+              .map(
+                (p) => SimpleDialogOption(
+                  onPressed: () => Navigator.of(ctx).pop(p),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Text(
+                      p.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+      );
+    }
+
+    if (selectedProject == null || !mounted) return;
+    final project = selectedProject;
+
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
+    final summary = await ref.read(
+      projectSummaryProvider(
+        ProjectWorkspaceKey(
+          projectId: project.id,
+          companyId: widget.companyId,
+          scope: ProjectWorkspaceScope.company,
+        ),
+      ).future,
+    );
+    if (!context.mounted) return;
+    if (!summary.visibility.canCreateReport) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.operationReportNoPermission)),
+      );
+      return;
+    }
+
+    final created = await navigator.push<bool>(
+      MaterialPageRoute(
+        builder: (_) => CreateEditReportScreen(
+          companyId: widget.companyId,
+          projectId: project.id,
+          projectName: project.name,
+        ),
+      ),
+    );
+
+    if (created == true) {
+      if (!context.mounted) return;
+      setState(() => _index = 3);
+      ref.invalidate(
+        combinedOperationsPendingCountProvider(
+          (scope: TransferApiScope.company, companyId: widget.companyId),
+        ),
+      );
+      ref.invalidate(
+        transferPendingActionCountProvider(
+          (scope: TransferApiScope.company, companyId: widget.companyId),
+        ),
+      );
+      ref.invalidate(
+        incomePendingActionCountProvider(
+          (scope: IncomeApiScope.company, companyId: widget.companyId),
+        ),
+      );
+      ref.invalidate(
+        reportPendingActionCountProvider(
+          (scope: TransferApiScope.company, companyId: widget.companyId),
+        ),
+      );
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.reportCreated)),
+      );
+    }
   }
 
   @override

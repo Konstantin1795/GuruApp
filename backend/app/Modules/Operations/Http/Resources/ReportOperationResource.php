@@ -73,6 +73,19 @@ final class ReportOperationResource extends JsonResource
                 $report->relationLoaded('transferLinks'),
                 fn () => ReportTransferLinkResource::collection($report->transferLinks)->resolve(),
             ),
+            'status_history' => $this->when(
+                $report->relationLoaded('statusHistories'),
+                fn () => $report->statusHistories->map(static fn ($h) => [
+                    'id' => $h->id,
+                    'from_status' => $h->from_status instanceof \BackedEnum
+                        ? $h->from_status->value
+                        : ($h->from_status !== null ? (string) $h->from_status : null),
+                    'to_status' => $h->to_status instanceof \BackedEnum ? $h->to_status->value : (string) $h->to_status,
+                    'comment' => $h->comment,
+                    'author_full_name' => $h->author_full_name,
+                    'created_at' => optional($h->created_at)?->toIso8601String(),
+                ])->all(),
+            ),
         ];
     }
 }

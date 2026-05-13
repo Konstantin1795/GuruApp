@@ -1190,6 +1190,300 @@ abstract class AppLocalizations {
   /// **'Report will be available later'**
   String get operationReportSoon;
 
+  /// No description provided for @operationReportNoPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot create a report for this project with your current role.'**
+  String get operationReportNoPermission;
+
+  /// No description provided for @reportDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get reportDetailTitle;
+
+  /// No description provided for @reportTabDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get reportTabDetails;
+
+  /// No description provided for @reportTabTransfers.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked transfers'**
+  String get reportTabTransfers;
+
+  /// No description provided for @reportCustomerTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer total'**
+  String get reportCustomerTotal;
+
+  /// No description provided for @reportRecipientTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient total'**
+  String get reportRecipientTotal;
+
+  /// No description provided for @reportProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit'**
+  String get reportProfit;
+
+  /// No description provided for @reportLinesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Line items'**
+  String get reportLinesTitle;
+
+  /// No description provided for @reportTransfersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No linked transfers yet.'**
+  String get reportTransfersEmpty;
+
+  /// No description provided for @reportAttachTransferButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach transfer'**
+  String get reportAttachTransferButton;
+
+  /// No description provided for @reportAttachTransferTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a transfer'**
+  String get reportAttachTransferTitle;
+
+  /// No description provided for @reportAttachTransferSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by number, date (YYYY-MM-DD), or amount'**
+  String get reportAttachTransferSearchHint;
+
+  /// No description provided for @reportAttachTransferMissingNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'This transfer has no operation number yet.'**
+  String get reportAttachTransferMissingNumber;
+
+  /// No description provided for @transferAttachToReportButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach to report'**
+  String get transferAttachToReportButton;
+
+  /// No description provided for @transferAttachToReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a report'**
+  String get transferAttachToReportTitle;
+
+  /// No description provided for @transferAttachToReportSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by number, date (YYYY-MM-DD), or amount'**
+  String get transferAttachToReportSearchHint;
+
+  /// No description provided for @transferLinkedToReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked to report {number}'**
+  String transferLinkedToReport(String number);
+
+  /// No description provided for @reportCreateAddCustomLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Add custom line'**
+  String get reportCreateAddCustomLine;
+
+  /// No description provided for @reportCreateAddFromPriceList.
+  ///
+  /// In en, this message translates to:
+  /// **'From price list'**
+  String get reportCreateAddFromPriceList;
+
+  /// No description provided for @reportCreatePreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview (approximate)'**
+  String get reportCreatePreviewTitle;
+
+  /// No description provided for @reportCreatePreviewRecipient.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient total'**
+  String get reportCreatePreviewRecipient;
+
+  /// No description provided for @reportCreatePreviewCustomerBase.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer (lines)'**
+  String get reportCreatePreviewCustomerBase;
+
+  /// No description provided for @reportCreatePreviewMarkup.
+  ///
+  /// In en, this message translates to:
+  /// **'Markup'**
+  String get reportCreatePreviewMarkup;
+
+  /// No description provided for @reportCreatePreviewCustomerTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer total (with markup)'**
+  String get reportCreatePreviewCustomerTotal;
+
+  /// No description provided for @reportCreatePreviewProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit (lines)'**
+  String get reportCreatePreviewProfit;
+
+  /// No description provided for @reportCreatePreviewNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Final totals are calculated on the server.'**
+  String get reportCreatePreviewNote;
+
+  /// No description provided for @reportPriceListPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Attached price lists'**
+  String get reportPriceListPickerTitle;
+
+  /// No description provided for @reportPriceListPickerEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No positions found. Attach a price list to the project first.'**
+  String get reportPriceListPickerEmpty;
+
+  /// No description provided for @reportCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New report'**
+  String get reportCreateTitle;
+
+  /// No description provided for @reportCreateExpenseSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense item'**
+  String get reportCreateExpenseSection;
+
+  /// No description provided for @reportCreateExpenseItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense item'**
+  String get reportCreateExpenseItem;
+
+  /// No description provided for @reportCreateRecipient.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient (counterparty)'**
+  String get reportCreateRecipient;
+
+  /// No description provided for @reportCreateOperationDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation date'**
+  String get reportCreateOperationDate;
+
+  /// No description provided for @reportCreateLineSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Positions'**
+  String get reportCreateLineSection;
+
+  /// No description provided for @reportCreateLineName.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get reportCreateLineName;
+
+  /// No description provided for @reportCreateQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get reportCreateQuantity;
+
+  /// No description provided for @reportCreateRecipientUnitPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit price (recipient)'**
+  String get reportCreateRecipientUnitPrice;
+
+  /// No description provided for @reportCreateCustomerUnitPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit price (customer)'**
+  String get reportCreateCustomerUnitPrice;
+
+  /// No description provided for @reportCreateMissingFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Select expense item and recipient.'**
+  String get reportCreateMissingFields;
+
+  /// No description provided for @reportActionSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get reportActionSubmit;
+
+  /// No description provided for @reportActionApproveCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm (customer)'**
+  String get reportActionApproveCustomer;
+
+  /// No description provided for @reportActionRejectCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject (customer)'**
+  String get reportActionRejectCustomer;
+
+  /// No description provided for @reportActionApproveProjectHead.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve (project head)'**
+  String get reportActionApproveProjectHead;
+
+  /// No description provided for @reportActionRejectProjectHead.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject (project head)'**
+  String get reportActionRejectProjectHead;
+
+  /// No description provided for @reportActionApproveSupervisor.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve (supervisor)'**
+  String get reportActionApproveSupervisor;
+
+  /// No description provided for @reportActionRejectSupervisor.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject (supervisor)'**
+  String get reportActionRejectSupervisor;
+
+  /// No description provided for @reportActionCompleteWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete waiting period'**
+  String get reportActionCompleteWaiting;
+
+  /// No description provided for @reportActionRollbackCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Rollback completed report'**
+  String get reportActionRollbackCompleted;
+
+  /// No description provided for @reportCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Report created'**
+  String get reportCreated;
+
   /// No description provided for @selectProject.
   ///
   /// In en, this message translates to:

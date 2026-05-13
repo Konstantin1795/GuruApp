@@ -56,6 +56,7 @@ class ProjectSummaryVisibility {
   final bool canViewParticipants;
   final bool canCreateIncome;
   final bool canCreateTransfer;
+  final bool canCreateReport;
   final bool canViewExpenseItems;
   final bool canManageExpenseItems;
   final bool canViewProjectPriceLists;
@@ -66,6 +67,7 @@ class ProjectSummaryVisibility {
     required this.canViewParticipants,
     required this.canCreateIncome,
     required this.canCreateTransfer,
+    required this.canCreateReport,
     required this.canViewExpenseItems,
     required this.canManageExpenseItems,
     required this.canViewProjectPriceLists,
@@ -77,6 +79,7 @@ class ProjectSummaryVisibility {
         canViewParticipants: json['can_view_participants'] as bool? ?? false,
         canCreateIncome: json['can_create_income'] as bool? ?? false,
         canCreateTransfer: json['can_create_transfer'] as bool? ?? false,
+        canCreateReport: json['can_create_report'] as bool? ?? false,
         canViewExpenseItems: json['can_view_expense_items'] as bool? ?? false,
         canManageExpenseItems: json['can_manage_expense_items'] as bool? ?? false,
         canViewProjectPriceLists: json['can_view_project_price_lists'] as bool? ?? false,

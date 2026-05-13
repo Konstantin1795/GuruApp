@@ -30,6 +30,7 @@ final class ShowTransferController
                 'sender.counterparty.user',
                 'receiver.counterparty.user',
                 'operation.statusHistory',
+                'reportTransferLink.reportOperation',
             ]);
 
         $participant = $operationVisibility->participantForUser($project, $userId);

@@ -20,7 +20,8 @@ final class ProjectSummaryVisibilityService
      *   can_view_internal_metrics: bool,
      *   can_view_participants: bool,
      *   can_create_income: bool,
-     *   can_create_transfer: bool
+     *   can_create_transfer: bool,
+     *   can_create_report: bool
      * }
      */
     public function flagsForCompanyWorkspace(User $user, int $companyId, Project $project): array
@@ -42,6 +43,7 @@ final class ProjectSummaryVisibilityService
             'can_view_participants'     => ! $onlyCustomer,
             'can_create_income'         => $this->canCreateIncomeCompany($participants),
             'can_create_transfer'       => $this->canCreateTransferCompany($participants),
+            'can_create_report'         => $this->canCreateReportCompany($participants),
         ];
     }
 
@@ -52,7 +54,8 @@ final class ProjectSummaryVisibilityService
      *   can_view_internal_metrics: bool,
      *   can_view_participants: bool,
      *   can_create_income: bool,
-     *   can_create_transfer: bool
+     *   can_create_transfer: bool,
+     *   can_create_report: bool
      * }
      */
     public function flagsForPersonalWorkspace(User $user, Project $project): array
@@ -67,6 +70,7 @@ final class ProjectSummaryVisibilityService
             'can_view_participants'     => ! $onlyCustomer,
             'can_create_income'         => false,
             'can_create_transfer'       => $this->canCreateTransferPersonal($participants),
+            'can_create_report'         => false,
         ];
     }
 
@@ -162,6 +166,25 @@ final class ProjectSummaryVisibilityService
             if (in_array($p->project_role_code, [
                 ProjectRoleCode::PROJECT_HEAD->value,
                 ProjectRoleCode::PARTNER->value,
+            ], true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /** @param Collection<int, ProjectParticipant> $participants */
+    private function canCreateReportCompany(Collection $participants): bool
+    {
+        foreach ($participants as $p) {
+            if (strtolower((string) $p->level) !== 'first') {
+                continue;
+            }
+            if (in_array($p->project_role_code, [
+                ProjectRoleCode::PROJECT_HEAD->value,
+                ProjectRoleCode::PARTNER->value,
+                ProjectRoleCode::EMPLOYEE->value,
             ], true)) {
                 return true;
             }
