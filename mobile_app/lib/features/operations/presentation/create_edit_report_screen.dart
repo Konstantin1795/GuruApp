@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/localization/app_localizations_extension.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_input.dart';
 import '../../../core/widgets/app_scaffold.dart';
@@ -10,10 +11,11 @@ import '../../auth/providers.dart';
 import '../../company_workspace/presentation/company_workspace_identity.dart';
 import '../../projects/domain/project_expense_item.dart';
 import '../../projects/providers.dart';
+import '../domain/report_line_data.dart';
 import '../providers.dart';
-import 'report_price_list_line_picker_sheet.dart';
+import 'report_positions_editor_screen.dart';
 
-/// Создание отчёта (company-workspace). Итоги на сервере; экран показывает только preview.
+/// Создание отчёта (company-workspace). Компактный экран + отдельный редактор позиций.
 class CreateEditReportScreen extends ConsumerStatefulWidget {
   final int companyId;
   final int projectId;
@@ -30,102 +32,10 @@ class CreateEditReportScreen extends ConsumerStatefulWidget {
   ConsumerState<CreateEditReportScreen> createState() => _CreateEditReportScreenState();
 }
 
-class _LineDraft {
-  _LineDraft({
-    required this.sourceType,
-    this.priceListId,
-    this.groupId,
-    this.positionId,
-    required String name,
-    required String qty,
-    required String ru,
-    required String cu,
-    int? unitId,
-    String? unitName,
-    String? unitShort,
-  })  : nameCtrl = TextEditingController(text: name),
-        qtyCtrl = TextEditingController(text: qty),
-        ruCtrl = TextEditingController(text: ru),
-        cuCtrl = TextEditingController(text: cu),
-        _unitIdFallback = unitId,
-        _unitNameFallback = unitName,
-        _unitShortFallback = unitShort;
-
-  factory _LineDraft.custom() => _LineDraft(
-        sourceType: 'CUSTOM',
-        name: 'Work',
-        qty: '1',
-        ru: '100.00',
-        cu: '120.00',
-      );
-
-  factory _LineDraft.fromPriceList(ReportPriceListPick p) {
-    final u = p.unit;
-    return _LineDraft(
-      sourceType: 'PRICE_LIST',
-      priceListId: p.priceListId,
-      groupId: p.groupId,
-      positionId: p.positionId,
-      name: p.name,
-      qty: '1',
-      ru: p.recipientUnitPrice,
-      cu: p.customerUnitPrice,
-      unitId: u?.id,
-      unitName: u?.name ?? 'pc',
-      unitShort: u?.shortName ?? 'pc',
-    );
-  }
-
-  final String sourceType;
-  final int? priceListId;
-  final int? groupId;
-  final int? positionId;
-  final TextEditingController nameCtrl;
-  final TextEditingController qtyCtrl;
-  final TextEditingController ruCtrl;
-  final TextEditingController cuCtrl;
-  final int? _unitIdFallback;
-  final String? _unitNameFallback;
-  final String? _unitShortFallback;
-
-  bool get isPriceList => sourceType == 'PRICE_LIST';
-
-  void dispose() {
-    nameCtrl.dispose();
-    qtyCtrl.dispose();
-    ruCtrl.dispose();
-    cuCtrl.dispose();
-  }
-
-  Map<String, dynamic> toRequestLine() {
-    final qty = qtyCtrl.text.trim();
-    final ru = ruCtrl.text.trim();
-    final cu = cuCtrl.text.trim();
-    final rt = (double.tryParse(qty) ?? 0) * (double.tryParse(ru) ?? 0);
-    final ct = (double.tryParse(qty) ?? 0) * (double.tryParse(cu) ?? 0);
-    final name = nameCtrl.text.trim().isEmpty ? 'Line' : nameCtrl.text.trim();
-    final unitName = _unitNameFallback ?? 'pc';
-    final unitShort = _unitShortFallback ?? 'pc';
-    return {
-      'source_type': sourceType,
-      if (priceListId != null) 'price_list_id': priceListId,
-      if (groupId != null) 'price_list_group_id': groupId,
-      if (positionId != null) 'price_list_position_id': positionId,
-      'name': name,
-      if (_unitIdFallback != null) 'unit_id': _unitIdFallback,
-      'unit_name': unitName,
-      'unit_short_name': unitShort,
-      'quantity': qty,
-      'recipient_unit_price': ru,
-      'customer_unit_price': cu,
-      'recipient_total': rt.toStringAsFixed(2),
-      'customer_total': ct.toStringAsFixed(2),
-    };
-  }
-}
-
 class _CreateEditReportScreenState extends ConsumerState<CreateEditReportScreen> {
   final _commentCtrl = TextEditingController();
+  final _manualRecipientCtrl = TextEditingController(text: '0');
+  final _manualCustomerCtrl = TextEditingController(text: '0');
 
   int? _expenseItemId;
   int? _recipientCounterpartyId;
@@ -133,24 +43,16 @@ class _CreateEditReportScreenState extends ConsumerState<CreateEditReportScreen>
 
   List<ProjectExpenseItemListRow> _expenseItems = [];
   List<ExpenseItemRecipientOption> _recipients = [];
-  final List<_LineDraft> _lines = [];
+  List<ReportLineData> _lines = [];
   bool _loadingMeta = true;
   bool _submitting = false;
   String? _metaError;
 
   @override
-  void initState() {
-    super.initState();
-    _lines.add(_LineDraft.custom());
-    _loadMeta();
-  }
-
-  @override
   void dispose() {
     _commentCtrl.dispose();
-    for (final l in _lines) {
-      l.dispose();
-    }
+    _manualRecipientCtrl.dispose();
+    _manualCustomerCtrl.dispose();
     super.dispose();
   }
 
@@ -161,6 +63,14 @@ class _CreateEditReportScreenState extends ConsumerState<CreateEditReportScreen>
       if (e.id == id) return e;
     }
     return null;
+  }
+
+  bool get _hasLines => _lines.isNotEmpty;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMeta();
   }
 
   Future<void> _loadMeta() async {
@@ -208,39 +118,43 @@ class _CreateEditReportScreenState extends ConsumerState<CreateEditReportScreen>
     if (picked != null) setState(() => _operationDate = picked);
   }
 
-  void _addCustomLine() {
-    setState(() => _lines.add(_LineDraft.custom()));
-  }
-
-  void _removeLine(int i) {
-    if (_lines.length <= 1) return;
-    setState(() {
-      final r = _lines.removeAt(i);
-      r.dispose();
-    });
-  }
-
-  Future<void> _addFromPriceList() async {
-    final pick = await showReportPriceListLinePicker(
-      context,
-      companyId: widget.companyId,
-      projectId: widget.projectId,
+  Future<void> _openPositionsEditor() async {
+    final result = await Navigator.of(context).push<List<ReportLineData>>(
+      MaterialPageRoute<List<ReportLineData>>(
+        fullscreenDialog: true,
+        builder: (_) => ReportPositionsEditorScreen(
+          companyId: widget.companyId,
+          projectId: widget.projectId,
+          projectName: widget.projectName,
+          initialLines: List<ReportLineData>.from(_lines),
+        ),
+      ),
     );
-    if (pick == null || !mounted) return;
-    final draft = _LineDraft.fromPriceList(pick);
-    setState(() => _lines.add(draft));
+    if (result != null && mounted) {
+      setState(() => _lines = result);
+    }
   }
 
   ({double recipient, double customerBase, double markup, double customerTotal, double profit}) _previewTotals() {
-    double rec = 0;
-    double cbase = 0;
-    for (final l in _lines) {
-      final qty = double.tryParse(l.qtyCtrl.text.trim()) ?? 0;
-      final ru = double.tryParse(l.ruCtrl.text.trim()) ?? 0;
-      final cu = double.tryParse(l.cuCtrl.text.trim()) ?? 0;
-      rec += qty * ru;
-      cbase += qty * cu;
+    if (_hasLines) {
+      double rec = 0;
+      double cbase = 0;
+      for (final l in _lines) {
+        rec += l.recipientLineTotal();
+        cbase += l.customerLineTotal();
+      }
+      final ei = _selectedExpense;
+      double markup = 0;
+      if (ei != null && ei.markupEnabled) {
+        final p = double.tryParse((ei.markupPercent ?? '0').replaceAll(',', '.')) ?? 0;
+        markup = cbase * (p / 100.0);
+      }
+      final customerTotal = cbase + markup;
+      final profit = cbase - rec;
+      return (recipient: rec, customerBase: cbase, markup: markup, customerTotal: customerTotal, profit: profit);
     }
+    final rec = double.tryParse(_manualRecipientCtrl.text.replaceAll(',', '.')) ?? 0;
+    final cbase = double.tryParse(_manualCustomerCtrl.text.replaceAll(',', '.')) ?? 0;
     final ei = _selectedExpense;
     double markup = 0;
     if (ei != null && ei.markupEnabled) {
@@ -260,6 +174,27 @@ class _CreateEditReportScreenState extends ConsumerState<CreateEditReportScreen>
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.reportCreateMissingFields)));
       return;
     }
+
+    final List<Map<String, dynamic>> requestLines;
+    if (_hasLines) {
+      requestLines = [for (final l in _lines) l.toRequestLine()];
+    } else {
+      final r = double.tryParse(_manualRecipientCtrl.text.replaceAll(',', '.')) ?? 0;
+      final c = double.tryParse(_manualCustomerCtrl.text.replaceAll(',', '.')) ?? 0;
+      if (r <= 0 || c <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.reportCreateMissingManualTotals)));
+        return;
+      }
+      requestLines = [
+        ReportLineData.custom(
+          name: l10n.reportManualLineTitle,
+          quantity: '1',
+          recipientUnitPrice: r.toStringAsFixed(2),
+          customerUnitPrice: c.toStringAsFixed(2),
+        ).toRequestLine(),
+      ];
+    }
+
     setState(() => _submitting = true);
     try {
       await ref.read(reportsRepositoryProvider).createReport(
@@ -270,7 +205,7 @@ class _CreateEditReportScreenState extends ConsumerState<CreateEditReportScreen>
               'recipient_counterparty_id': rid,
               'operation_date': _fmtDate(_operationDate),
               if (_commentCtrl.text.trim().isNotEmpty) 'comment': _commentCtrl.text.trim(),
-              'lines': [for (final l in _lines) l.toRequestLine()],
+              'lines': requestLines,
             },
           );
       if (!mounted) return;
@@ -290,12 +225,14 @@ class _CreateEditReportScreenState extends ConsumerState<CreateEditReportScreen>
     final userName = ref.watch(currentUserProvider).valueOrNull?.name.trim() ?? '';
     final roleLabel = companyWorkspaceHeaderRoleLabelRead(ref, widget.companyId, l10n);
     final pv = _previewTotals();
+    final ei = _selectedExpense;
+    final markupPct = ei?.markupPercent;
+    final showMarkupBlock = ei != null && ei.markupEnabled && (markupPct != null && markupPct.isNotEmpty);
 
     return AppScaffold(
       headerUserName: userName.isEmpty ? null : userName,
       headerRoleLabel: roleLabel,
-      title: l10n.reportCreateTitle,
-      subtitle: widget.projectName,
+      title: l10n.reportCreateFormationTitle,
       body: _loadingMeta
           ? const Center(child: CircularProgressIndicator())
           : _metaError != null
@@ -317,80 +254,188 @@ class _CreateEditReportScreenState extends ConsumerState<CreateEditReportScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(l10n.reportCreateExpenseSection, style: const TextStyle(fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 8),
-                      InputDecorator(
-                        decoration: InputDecoration(labelText: l10n.reportCreateExpenseItem),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<int>(
-                            isExpanded: true,
-                            value: _expenseItemId,
-                            items: [
-                              for (final e in _expenseItems)
-                                DropdownMenuItem(value: e.id, child: Text(e.name)),
-                            ],
-                            onChanged: (v) => setState(() => _expenseItemId = v),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      InputDecorator(
-                        decoration: InputDecoration(labelText: l10n.reportCreateRecipient),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<int>(
-                            isExpanded: true,
-                            value: _recipientCounterpartyId,
-                            items: [
-                              for (final r in _recipients)
-                                DropdownMenuItem(value: r.id, child: Text(r.counterpartyName)),
-                            ],
-                            onChanged: (v) => setState(() => _recipientCounterpartyId = v),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      ListTile(
-                        title: Text(l10n.reportCreateOperationDate),
-                        subtitle: Text(_fmtDate(_operationDate)),
-                        trailing: const Icon(Icons.calendar_today),
-                        onTap: _pickDate,
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
+                      _sectionCard(
+                        context,
                         children: [
-                          Expanded(child: Text(l10n.reportCreateLineSection, style: const TextStyle(fontWeight: FontWeight.w700))),
-                          TextButton(onPressed: _addCustomLine, child: Text(l10n.reportCreateAddCustomLine)),
-                          TextButton(onPressed: _addFromPriceList, child: Text(l10n.reportCreateAddFromPriceList)),
+                          ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(l10n.reportCreateProjectLabel, style: _labelStyle(context)),
+                            subtitle: Text(widget.projectName, style: _valueStyle(context)),
+                          ),
+                          ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(l10n.reportCreateOperationDate, style: _labelStyle(context)),
+                            subtitle: Text(_fmtDate(_operationDate), style: _valueStyle(context)),
+                            trailing: const Icon(Icons.calendar_today, color: AppColors.textSecondary),
+                            onTap: _pickDate,
+                          ),
+                          const Divider(height: 24),
+                          Text(l10n.reportCreateExpenseItem, style: _labelStyle(context)),
+                          const SizedBox(height: 4),
+                          InputDecorator(
+                            decoration: const InputDecoration(border: OutlineInputBorder()),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<int>(
+                                isExpanded: true,
+                                value: _expenseItemId,
+                                items: [
+                                  for (final e in _expenseItems)
+                                    DropdownMenuItem(
+                                      value: e.id,
+                                      child: Text(
+                                        e.markupEnabled && (e.markupPercent?.isNotEmpty ?? false)
+                                            ? '${e.name} (${e.markupPercent}%)'
+                                            : e.name,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                ],
+                                onChanged: (v) => setState(() => _expenseItemId = v),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          InkWell(
+                            onTap: _openPositionsEditor,
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.border),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.list_alt_rounded, color: AppColors.accent.withValues(alpha: 0.9)),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(l10n.reportCreateLineSection, style: _labelStyle(context)),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          l10n.reportPositionsRowSubtitle(
+                                            _lines.length,
+                                            pv.recipient.toStringAsFixed(2),
+                                          ),
+                                          style: TextStyle(
+                                            color: _hasLines ? AppColors.warning : AppColors.textSecondary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      for (var i = 0; i < _lines.length; i++) ...[
-                        KeyedSubtree(
-                          key: ObjectKey(_lines[i]),
-                          child: _LineCard(
-                            index: i,
-                            line: _lines[i],
-                            canRemove: _lines.length > 1,
-                            onRemove: () => _removeLine(i),
-                            onChanged: () => setState(() {}),
+                      const SizedBox(height: 16),
+                      _sectionCard(
+                        context,
+                        children: [
+                          Text(l10n.reportCreateRecipient, style: _labelStyle(context)),
+                          const SizedBox(height: 4),
+                          InputDecorator(
+                            decoration: const InputDecoration(border: OutlineInputBorder()),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<int>(
+                                isExpanded: true,
+                                value: _recipientCounterpartyId,
+                                items: [
+                                  for (final r in _recipients)
+                                    DropdownMenuItem(value: r.id, child: Text(r.counterpartyName)),
+                                ],
+                                onChanged: (v) => setState(() => _recipientCounterpartyId = v),
+                              ),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                      ],
-                      Text(l10n.reportCreatePreviewTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 6),
-                      Text('${l10n.reportCreatePreviewRecipient}: ${pv.recipient.toStringAsFixed(2)}'),
-                      Text('${l10n.reportCreatePreviewCustomerBase}: ${pv.customerBase.toStringAsFixed(2)}'),
-                      Text('${l10n.reportCreatePreviewMarkup}: ${pv.markup.toStringAsFixed(2)}'),
-                      Text('${l10n.reportCreatePreviewCustomerTotal}: ${pv.customerTotal.toStringAsFixed(2)}'),
-                      Text('${l10n.reportCreatePreviewProfit}: ${pv.profit.toStringAsFixed(2)}'),
-                      const SizedBox(height: 6),
-                      Text(
-                        l10n.reportCreatePreviewNote,
-                        style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.55)),
+                          const SizedBox(height: 16),
+                          if (_hasLines) ...[
+                            _lockedAmountTile(
+                              context,
+                              label: l10n.reportManualRecipientTotal,
+                              value: pv.recipient.toStringAsFixed(2),
+                            ),
+                            _lockedAmountTile(
+                              context,
+                              label: l10n.reportManualCustomerBase,
+                              value: pv.customerBase.toStringAsFixed(2),
+                            ),
+                            if (showMarkupBlock)
+                              _lockedAmountTile(
+                                context,
+                                label: '${l10n.reportCreatePreviewMarkup} ($markupPct%)',
+                                value: pv.markup.toStringAsFixed(2),
+                                valueColor: AppColors.accent,
+                              ),
+                            if (showMarkupBlock)
+                              _lockedAmountTile(
+                                context,
+                                label: l10n.reportCreatePreviewCustomerTotal,
+                                value: pv.customerTotal.toStringAsFixed(2),
+                                valueColor: AppColors.warning,
+                              ),
+                            _lockedAmountTile(
+                              context,
+                              label: l10n.reportCreatePreviewProfit,
+                              value: pv.profit.toStringAsFixed(2),
+                              valueColor: AppColors.success,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: Text(
+                                l10n.reportAmountsLockedFromLines,
+                                style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.5)),
+                              ),
+                            ),
+                          ] else ...[
+                            AppInput(
+                              controller: _manualRecipientCtrl,
+                              label: l10n.reportManualRecipientTotal,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              suffix: const Icon(Icons.calculate_outlined, color: AppColors.textSecondary),
+                              onChanged: (_) => setState(() {}),
+                            ),
+                            const SizedBox(height: 8),
+                            AppInput(
+                              controller: _manualCustomerCtrl,
+                              label: l10n.reportManualCustomerBase,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              suffix: const Icon(Icons.calculate_outlined, color: AppColors.textSecondary),
+                              onChanged: (_) => setState(() {}),
+                            ),
+                            if (showMarkupBlock) ...[
+                              const SizedBox(height: 12),
+                              Text(
+                                '${l10n.reportCreatePreviewMarkup} ($markupPct%): ${pv.markup.toStringAsFixed(2)}',
+                                style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${l10n.reportCreatePreviewCustomerTotal}: ${pv.customerTotal.toStringAsFixed(2)}',
+                                style: TextStyle(color: AppColors.warning, fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                            const SizedBox(height: 8),
+                            Text(
+                              '${l10n.reportCreatePreviewProfit}: ${pv.profit.toStringAsFixed(2)}',
+                              style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ],
                       ),
                       const SizedBox(height: 12),
-                      AppInput(controller: _commentCtrl, label: l10n.transferCommentLabel, maxLines: 3),
+                      Text(
+                        l10n.reportCreatePreviewNote,
+                        style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.5)),
+                      ),
+                      const SizedBox(height: 16),
+                      AppInput(controller: _commentCtrl, label: l10n.reportCreateCommentLabel, maxLines: 3),
                       const SizedBox(height: 24),
                       AppButton(
                         label: l10n.reportActionSubmit,
@@ -402,71 +447,44 @@ class _CreateEditReportScreenState extends ConsumerState<CreateEditReportScreen>
                 ),
     );
   }
-}
 
-class _LineCard extends StatelessWidget {
-  final int index;
-  final _LineDraft line;
-  final bool canRemove;
-  final VoidCallback onRemove;
-  final VoidCallback onChanged;
+  TextStyle _labelStyle(BuildContext context) =>
+      TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.55), fontWeight: FontWeight.w500);
 
-  const _LineCard({
-    required this.index,
-    required this.line,
-    required this.canRemove,
-    required this.onRemove,
-    required this.onChanged,
-  });
+  TextStyle _valueStyle(BuildContext context) =>
+      const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary);
 
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return InputDecorator(
-      decoration: InputDecoration(
-        labelText: '${l10n.reportCreateLineSection} ${index + 1}',
-        suffixIcon: canRemove
-            ? IconButton(
-                icon: const Icon(Icons.delete_outline),
-                onPressed: onRemove,
-              )
-            : null,
+  Widget _sectionCard(BuildContext context, {required List<Widget> children}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+        gradient: LinearGradient(
+          colors: [AppColors.cardGradientStart, AppColors.cardGradientEnd],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+    );
+  }
+
+  Widget _lockedAmountTile(
+    BuildContext context, {
+    required String label,
+    required String value,
+    Color? valueColor,
+  }) {
+    final color = valueColor ?? AppColors.textPrimary;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
         children: [
-          if (line.isPriceList)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Text('PRICE_LIST', style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12)),
-            ),
-          AppInput(
-            controller: line.nameCtrl,
-            label: l10n.reportCreateLineName,
-            onChanged: (_) => onChanged(),
-            enabled: !line.isPriceList,
-          ),
-          const SizedBox(height: 8),
-          AppInput(
-            controller: line.qtyCtrl,
-            label: l10n.reportCreateQuantity,
-            keyboardType: TextInputType.number,
-            onChanged: (_) => onChanged(),
-          ),
-          const SizedBox(height: 8),
-          AppInput(
-            controller: line.ruCtrl,
-            label: l10n.reportCreateRecipientUnitPrice,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            onChanged: (_) => onChanged(),
-          ),
-          const SizedBox(height: 8),
-          AppInput(
-            controller: line.cuCtrl,
-            label: l10n.reportCreateCustomerUnitPrice,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            onChanged: (_) => onChanged(),
-          ),
+          Expanded(child: Text(label, style: TextStyle(color: Colors.white.withValues(alpha: 0.75)))),
+          Text(value, style: TextStyle(fontWeight: FontWeight.w700, color: color)),
+          const SizedBox(width: 6),
+          const Icon(Icons.lock_outline, size: 18, color: AppColors.textSecondary),
         ],
       ),
     );

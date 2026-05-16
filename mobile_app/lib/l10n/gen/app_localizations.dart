@@ -1364,6 +1364,144 @@ abstract class AppLocalizations {
   /// **'New report'**
   String get reportCreateTitle;
 
+  /// No description provided for @reportCreateFormationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report builder'**
+  String get reportCreateFormationTitle;
+
+  /// No description provided for @reportCreateProjectLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Project'**
+  String get reportCreateProjectLabel;
+
+  /// No description provided for @reportCreateCommentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Report comment'**
+  String get reportCreateCommentLabel;
+
+  /// No description provided for @reportPositionsEditorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report positions'**
+  String get reportPositionsEditorTitle;
+
+  /// No description provided for @reportPositionsPriceListLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price list'**
+  String get reportPositionsPriceListLabel;
+
+  /// No description provided for @reportPositionsTabAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All positions'**
+  String get reportPositionsTabAll;
+
+  /// No description provided for @reportPositionsTabAddedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Added ({count})'**
+  String reportPositionsTabAddedCount(int count);
+
+  /// No description provided for @reportPositionsSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get reportPositionsSearch;
+
+  /// No description provided for @reportPositionsConfirmSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get reportPositionsConfirmSelection;
+
+  /// No description provided for @reportPositionsGoToAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added tab'**
+  String get reportPositionsGoToAdded;
+
+  /// No description provided for @reportPositionsDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get reportPositionsDone;
+
+  /// No description provided for @reportPositionsNoPriceLists.
+  ///
+  /// In en, this message translates to:
+  /// **'No price lists attached to this project. Attach one in project settings.'**
+  String get reportPositionsNoPriceLists;
+
+  /// No description provided for @reportPositionsNothingSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Select at least one position and quantity.'**
+  String get reportPositionsNothingSelected;
+
+  /// No description provided for @reportPositionsAddedEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No lines yet. Pick from the price list or add a custom line.'**
+  String get reportPositionsAddedEmpty;
+
+  /// No description provided for @reportPositionsAddCustomFab.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom line'**
+  String get reportPositionsAddCustomFab;
+
+  /// No description provided for @reportPositionsAddCustomTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom line'**
+  String get reportPositionsAddCustomTitle;
+
+  /// No description provided for @reportPositionsUnitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit of measure'**
+  String get reportPositionsUnitLabel;
+
+  /// No description provided for @reportPositionsUnitShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get reportPositionsUnitShort;
+
+  /// No description provided for @reportPositionsRowSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} lines · recipient {recipient}'**
+  String reportPositionsRowSubtitle(int count, String recipient);
+
+  /// No description provided for @reportManualRecipientTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient total'**
+  String get reportManualRecipientTotal;
+
+  /// No description provided for @reportManualCustomerBase.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer total (base, before markup)'**
+  String get reportManualCustomerBase;
+
+  /// No description provided for @reportAmountsLockedFromLines.
+  ///
+  /// In en, this message translates to:
+  /// **'Totals follow selected lines'**
+  String get reportAmountsLockedFromLines;
+
+  /// No description provided for @reportManualLineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Work (manual totals)'**
+  String get reportManualLineTitle;
+
   /// No description provided for @reportCreateExpenseSection.
   ///
   /// In en, this message translates to:
@@ -1423,6 +1561,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select expense item and recipient.'**
   String get reportCreateMissingFields;
+
+  /// No description provided for @reportCreateMissingManualTotals.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter positive recipient and customer amounts, or pick positions.'**
+  String get reportCreateMissingManualTotals;
 
   /// No description provided for @reportActionSubmit.
   ///

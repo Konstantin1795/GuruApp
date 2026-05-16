@@ -668,6 +668,82 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportCreateTitle => 'New report';
 
   @override
+  String get reportCreateFormationTitle => 'Report builder';
+
+  @override
+  String get reportCreateProjectLabel => 'Project';
+
+  @override
+  String get reportCreateCommentLabel => 'Report comment';
+
+  @override
+  String get reportPositionsEditorTitle => 'Report positions';
+
+  @override
+  String get reportPositionsPriceListLabel => 'Price list';
+
+  @override
+  String get reportPositionsTabAll => 'All positions';
+
+  @override
+  String reportPositionsTabAddedCount(int count) {
+    return 'Added ($count)';
+  }
+
+  @override
+  String get reportPositionsSearch => 'Search';
+
+  @override
+  String get reportPositionsConfirmSelection => 'Confirm';
+
+  @override
+  String get reportPositionsGoToAdded => 'Added tab';
+
+  @override
+  String get reportPositionsDone => 'Done';
+
+  @override
+  String get reportPositionsNoPriceLists =>
+      'No price lists attached to this project. Attach one in project settings.';
+
+  @override
+  String get reportPositionsNothingSelected =>
+      'Select at least one position and quantity.';
+
+  @override
+  String get reportPositionsAddedEmpty =>
+      'No lines yet. Pick from the price list or add a custom line.';
+
+  @override
+  String get reportPositionsAddCustomFab => 'Custom line';
+
+  @override
+  String get reportPositionsAddCustomTitle => 'Custom line';
+
+  @override
+  String get reportPositionsUnitLabel => 'Unit of measure';
+
+  @override
+  String get reportPositionsUnitShort => 'Unit';
+
+  @override
+  String reportPositionsRowSubtitle(int count, String recipient) {
+    return '$count lines · recipient $recipient';
+  }
+
+  @override
+  String get reportManualRecipientTotal => 'Recipient total';
+
+  @override
+  String get reportManualCustomerBase => 'Customer total (base, before markup)';
+
+  @override
+  String get reportAmountsLockedFromLines => 'Totals follow selected lines';
+
+  @override
+  String get reportManualLineTitle => 'Work (manual totals)';
+
+  @override
   String get reportCreateExpenseSection => 'Expense item';
 
   @override
@@ -696,6 +772,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportCreateMissingFields => 'Select expense item and recipient.';
+
+  @override
+  String get reportCreateMissingManualTotals =>
+      'Enter positive recipient and customer amounts, or pick positions.';
 
   @override
   String get reportActionSubmit => 'Send';

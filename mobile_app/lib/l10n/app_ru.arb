@@ -237,6 +237,40 @@
   "reportPriceListPickerTitle": "Прайс-листы проекта",
   "reportPriceListPickerEmpty": "Позиции не найдены. Сначала прикрепите прайс-лист к проекту.",
   "reportCreateTitle": "Новый отчёт",
+  "reportCreateFormationTitle": "Формирование отчёта",
+  "reportCreateProjectLabel": "Проект",
+  "reportCreateCommentLabel": "Комментарий к отчёту",
+  "reportPositionsEditorTitle": "Позиции отчёта",
+  "reportPositionsPriceListLabel": "Прайс-лист",
+  "reportPositionsTabAll": "Все позиции",
+  "reportPositionsTabAddedCount": "Добавлено ({count})",
+  "@reportPositionsTabAddedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "reportPositionsSearch": "Поиск",
+  "reportPositionsConfirmSelection": "Подтвердить",
+  "reportPositionsGoToAdded": "К добавленным",
+  "reportPositionsDone": "Готово",
+  "reportPositionsNoPriceLists": "К проекту не прикреплены прайс-листы. Прикрепите в карточке проекта.",
+  "reportPositionsNothingSelected": "Выберите позицию и количество.",
+  "reportPositionsAddedEmpty": "Пока нет строк. Выберите из прайса или добавьте свою позицию.",
+  "reportPositionsAddCustomFab": "Своя позиция",
+  "reportPositionsAddCustomTitle": "Своя позиция",
+  "reportPositionsUnitLabel": "Единица измерения",
+  "reportPositionsUnitShort": "Ед.",
+  "reportPositionsRowSubtitle": "{count} поз. · получателю {recipient}",
+  "@reportPositionsRowSubtitle": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "recipient": { "type": "String" }
+    }
+  },
+  "reportManualRecipientTotal": "Сумма получателю",
+  "reportManualCustomerBase": "Сумма заказчику (база, до наценки)",
+  "reportAmountsLockedFromLines": "Суммы считаются по позициям",
+  "reportManualLineTitle": "Работы (суммы вручную)",
   "reportCreateExpenseSection": "Статья расходов",
   "reportCreateExpenseItem": "Статья расходов",
   "reportCreateRecipient": "Получатель (контрагент)",
@@ -247,6 +281,7 @@
   "reportCreateRecipientUnitPrice": "Цена получателю (за ед.)",
   "reportCreateCustomerUnitPrice": "Цена заказчику (за ед.)",
   "reportCreateMissingFields": "Выберите статью расходов и получателя.",
+  "reportCreateMissingManualTotals": "Введите положительные суммы получателю и заказчику или выберите позиции.",
   "reportActionSubmit": "Отправить",
   "reportActionApproveCustomer": "Подтвердить (заказчик)",
   "reportActionRejectCustomer": "Отклонить (заказчик)",

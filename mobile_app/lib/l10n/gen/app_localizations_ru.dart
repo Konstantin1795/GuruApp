@@ -667,6 +667,81 @@ class AppLocalizationsRu extends AppLocalizations {
   String get reportCreateTitle => 'Новый отчёт';
 
   @override
+  String get reportCreateFormationTitle => 'Формирование отчёта';
+
+  @override
+  String get reportCreateProjectLabel => 'Проект';
+
+  @override
+  String get reportCreateCommentLabel => 'Комментарий к отчёту';
+
+  @override
+  String get reportPositionsEditorTitle => 'Позиции отчёта';
+
+  @override
+  String get reportPositionsPriceListLabel => 'Прайс-лист';
+
+  @override
+  String get reportPositionsTabAll => 'Все позиции';
+
+  @override
+  String reportPositionsTabAddedCount(int count) {
+    return 'Добавлено ($count)';
+  }
+
+  @override
+  String get reportPositionsSearch => 'Поиск';
+
+  @override
+  String get reportPositionsConfirmSelection => 'Подтвердить';
+
+  @override
+  String get reportPositionsGoToAdded => 'К добавленным';
+
+  @override
+  String get reportPositionsDone => 'Готово';
+
+  @override
+  String get reportPositionsNoPriceLists =>
+      'К проекту не прикреплены прайс-листы. Прикрепите в карточке проекта.';
+
+  @override
+  String get reportPositionsNothingSelected => 'Выберите позицию и количество.';
+
+  @override
+  String get reportPositionsAddedEmpty =>
+      'Пока нет строк. Выберите из прайса или добавьте свою позицию.';
+
+  @override
+  String get reportPositionsAddCustomFab => 'Своя позиция';
+
+  @override
+  String get reportPositionsAddCustomTitle => 'Своя позиция';
+
+  @override
+  String get reportPositionsUnitLabel => 'Единица измерения';
+
+  @override
+  String get reportPositionsUnitShort => 'Ед.';
+
+  @override
+  String reportPositionsRowSubtitle(int count, String recipient) {
+    return '$count поз. · получателю $recipient';
+  }
+
+  @override
+  String get reportManualRecipientTotal => 'Сумма получателю';
+
+  @override
+  String get reportManualCustomerBase => 'Сумма заказчику (база, до наценки)';
+
+  @override
+  String get reportAmountsLockedFromLines => 'Суммы считаются по позициям';
+
+  @override
+  String get reportManualLineTitle => 'Работы (суммы вручную)';
+
+  @override
   String get reportCreateExpenseSection => 'Статья расходов';
 
   @override
@@ -696,6 +771,10 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get reportCreateMissingFields =>
       'Выберите статью расходов и получателя.';
+
+  @override
+  String get reportCreateMissingManualTotals =>
+      'Введите положительные суммы получателю и заказчику или выберите позиции.';
 
   @override
   String get reportActionSubmit => 'Отправить';

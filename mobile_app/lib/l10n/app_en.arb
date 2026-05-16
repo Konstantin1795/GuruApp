@@ -257,6 +257,40 @@
   "reportPriceListPickerTitle": "Attached price lists",
   "reportPriceListPickerEmpty": "No positions found. Attach a price list to the project first.",
   "reportCreateTitle": "New report",
+  "reportCreateFormationTitle": "Report builder",
+  "reportCreateProjectLabel": "Project",
+  "reportCreateCommentLabel": "Report comment",
+  "reportPositionsEditorTitle": "Report positions",
+  "reportPositionsPriceListLabel": "Price list",
+  "reportPositionsTabAll": "All positions",
+  "reportPositionsTabAddedCount": "Added ({count})",
+  "@reportPositionsTabAddedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "reportPositionsSearch": "Search",
+  "reportPositionsConfirmSelection": "Confirm",
+  "reportPositionsGoToAdded": "Added tab",
+  "reportPositionsDone": "Done",
+  "reportPositionsNoPriceLists": "No price lists attached to this project. Attach one in project settings.",
+  "reportPositionsNothingSelected": "Select at least one position and quantity.",
+  "reportPositionsAddedEmpty": "No lines yet. Pick from the price list or add a custom line.",
+  "reportPositionsAddCustomFab": "Custom line",
+  "reportPositionsAddCustomTitle": "Custom line",
+  "reportPositionsUnitLabel": "Unit of measure",
+  "reportPositionsUnitShort": "Unit",
+  "reportPositionsRowSubtitle": "{count} lines · recipient {recipient}",
+  "@reportPositionsRowSubtitle": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "recipient": { "type": "String" }
+    }
+  },
+  "reportManualRecipientTotal": "Recipient total",
+  "reportManualCustomerBase": "Customer total (base, before markup)",
+  "reportAmountsLockedFromLines": "Totals follow selected lines",
+  "reportManualLineTitle": "Work (manual totals)",
   "reportCreateExpenseSection": "Expense item",
   "reportCreateExpenseItem": "Expense item",
   "reportCreateRecipient": "Recipient (counterparty)",
@@ -267,6 +301,7 @@
   "reportCreateRecipientUnitPrice": "Unit price (recipient)",
   "reportCreateCustomerUnitPrice": "Unit price (customer)",
   "reportCreateMissingFields": "Select expense item and recipient.",
+  "reportCreateMissingManualTotals": "Enter positive recipient and customer amounts, or pick positions.",
   "reportActionSubmit": "Send",
   "reportActionApproveCustomer": "Confirm (customer)",
   "reportActionRejectCustomer": "Reject (customer)",
