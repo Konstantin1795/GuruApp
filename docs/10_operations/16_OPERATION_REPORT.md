@@ -1,6 +1,6 @@
 # 16 — Operation REPORT (foundation / ТЗ-10C)
 
-**Статус:** канон по **уже реализованному** REPORT foundation + **ТЗ-10C.1** (API parity, personal list/show/actions, attach-flow в UI, MVP create с несколькими строками и прайс-строками, поиск list transfers/reports).  
+**Статус:** канон по **уже реализованному** REPORT foundation + **ТЗ-10C.1** (API parity, personal list/show/actions, attach-flow в UI, MVP create/edit с несколькими строками и прайс-строками, поиск list transfers/reports) + **компактный основной экран отчёта** и отдельный **`ReportPositionsEditorScreen`** на Flutter.  
 **Tech debt:** редактирование черновика отчёта после создания (PATCH UI), детач линков из Flutter, расширенные фильтры attach, realtime.
 
 Исторический черновик и уточнения до кода — **`13_OPERATION_REPORT_DRAFT.md`** (в т.ч. раздел **9**); при конфликте постановки «на бумаге» и этого файла приоритет у **фактической реализации** и у **16**.
@@ -46,7 +46,7 @@
 ## 5. MVP-ограничения и клиент
 
 17. **Отрицательная прибыль** (`profit_amount < 0`) в MVP **запрещена**: ответ **422** до применения финансов (`ReportService::recalculateTotals`).
-18. **Flutter (ТЗ-10C.1):** отчёт в объединённой истории; **`ReportDetailScreen`** (детали, вкладка «Переводы к отчёту» с **«Прикрепить перевод»** и bottom sheet поиска); **`TransferDetailScreen`** — **`linked_report`**, кнопка **«Прикрепить к отчёту»**; **`CreateEditReportScreen`** — несколько строк, CUSTOM + **PRICE_LIST** из прикреплённых к проекту прайс-листов, **preview** итогов (окончательный расчёт на backend).
+18. **Flutter — форма отчёта (ТЗ-10C.1 + компактный UI):** отчёт в объединённой истории; **`ReportDetailScreen`** (детали, вкладка «Переводы к отчёту» с **«Прикрепить перевод»** и bottom sheet поиска); **`TransferDetailScreen`** — **`linked_report`**, кнопка **«Прикрепить к отчёту»**. **`CreateEditReportScreen`** — **компактный** основной экран: проект, дата операции, статья расходов, основной получатель, **компактный блок «Позиции»** (краткая сводка, без длинного inline-списка строк на этом экране), суммы (получателю / заказчику), наценка, прибыль, комментарий, действия отправки. **Строки отчёта** выносятся в отдельный полноэкранный **`ReportPositionsEditorScreen`** (`report_positions_editor_screen.dart`): вкладки **«Все позиции»** и **«Добавлено»**, выбор прайс-листа проекта, поиск, выбор **PRICE_LIST**-позиций с указанием количества, перенос в «Добавлено», там же редактирование количества, удаление строк, добавление **CUSTOM**-строк (наименование, единица, количество, цены за ед. получателю/заказчику), **preview** итогов; при возврате на форму отчёта список строк подставляется обратно. Доменная модель строк на клиенте — **`ReportLineData`** (`report_line_data.dart`). Старый bottom sheet выбора строк из прайса (**`report_price_list_line_picker_sheet.dart`**) **удалён** в пользу редактора. **Правило сумм:** если в отчёте есть **хотя бы одна строка**, суммы на основном экране **заблокированы** для ручного ввода и считаются из строк (preview на клиенте; **финальный расчёт всегда выполняет backend** при создании/сохранении). Если строк **нет**, допускается **ручной MVP-сценарий** сумм по текущей логике экрана.
 19. **Personal-workspace (ТЗ-10C.1):** **`GET …/operations/reports`**, **`GET …/reports/{id}`**, **`POST …/approve-customer`**, **`POST …/reject-customer`**, **`POST …/rollback-completed`**, **transfer-links** list/attach/detach под `/api/personal-workspace/projects/{projectId}/…`. Создание отчёта и остальные lifecycle-этапы (кроме перечисленного) — **company-workspace**.
 20. **Поиск для attach UI:** опциональный query **`search`** на **`GET …/operations/transfers`** и **`GET …/operations/reports`** (company и personal): номер операции, дата `YYYY-MM-DD`, суммы — см. `TransferOperationListSearchFilter`, `ReportOperationListSearchFilter`.
 
@@ -54,7 +54,7 @@
 
 ## 6. См. также
 
-- Маршруты API: **`docs/20_api/20_API_ROUTES_CURRENT.md`**
+- Маршруты API: **`docs/20_api/20_API_ROUTES_CURRENT.md`** (в т.ч. семантика **`metrics.expense_total`** / **`project_balance`** в `GET …/summary`).
 - Статьи расходов: **`docs/10_operations/14_PROJECT_EXPENSE_ITEMS.md`**
 - Прайс-листы: **`docs/10_operations/15_PRICE_LISTS.md`**
 - Карта тестов: **`docs/90_current/95_TEST_COVERAGE_MAP.md`**

@@ -31,7 +31,7 @@ docs/90_current/96_GURU_DEFINITION_OF_DONE.md
 
 **ТЗ-12.1 (targeted refactor перед REPORT):** `CreateProjectService` для создания проекта; тесты OWNER/PARTNER + кошельки; PHPDoc слоёв кошелька под будущий REPORT — см. раздел **12** в `docs/90_current/94_CODE_STRUCTURE_MAP.md` и `90_GURU_CURRENT_STATE.md`.
 
-**ТЗ-10C (REPORT foundation):** канон по **реализованному** коду — **`docs/10_operations/16_OPERATION_REPORT.md`**. **ТЗ-10C.1:** UI attach отчёт↔перевод, MVP create/edit (multi-line + preview), поиск list, hardening-тесты — см. тот же **16**, **`32_FLUTTER_SCREENS_CURRENT.md`**, **`95_TEST_COVERAGE_MAP.md`**. Исторические уточнения и прежние формулировки до кода — **`docs/10_operations/13_OPERATION_REPORT_DRAFT.md`** (раздел **9**); не подменять канон **16** при расхождении с черновиком.
+**ТЗ-10C (REPORT foundation):** канон по **реализованному** коду — **`docs/10_operations/16_OPERATION_REPORT.md`**. **ТЗ-10C.1:** UI attach отчёт↔перевод, MVP create/edit, поиск list, hardening-тесты — см. тот же **16**, **`32_FLUTTER_SCREENS_CURRENT.md`**, **`95_TEST_COVERAGE_MAP.md`**. **UI формы отчёта:** компактный **`CreateEditReportScreen`** + полноэкранный **`ReportPositionsEditorScreen`** (вкладки, PRICE_LIST + CUSTOM). **Сводка проекта:** **`GET …/summary`** — расход по подтверждённым REPORT и баланс «поступления − расход» — **`20_API_ROUTES_CURRENT.md`**, тест **`ProjectSummaryReportExpenseMetricsTest`**. Исторические уточнения — **`docs/10_operations/13_OPERATION_REPORT_DRAFT.md`** (раздел **9**); не подменять канон **16** при расхождении с черновиком.
 
 Дефолтный «широкий» минимум без выбора сценария:
 

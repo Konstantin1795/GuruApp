@@ -95,6 +95,12 @@ DELETE /projects/{projectId}/price-lists/{priceListId}
 `GET /context` дополняется блоком `price_lists` (флаги библиотеки компании для UI).  
 `GET …/summary` → `visibility` дополняется `can_view_project_price_lists`, `can_manage_project_price_list_attachments`.
 
+**Показатели проекта в ответе `GET …/projects/{projectId}/summary` (блок `metrics`):**
+
+- **`income_total`** — сумма подтверждённых поступлений (**INCOME** с применёнными дельтами; статусы и правила — `ProjectSummaryMetricsService::incomeTotalApplied`).
+- **`expense_total`** — **расход по отчётам:** сумма поля **`customer_total_amount`** по строкам таблицы **`report_operations`** данного проекта, где **`wallets_applied_at IS NOT NULL`** и **`wallets_reverted_at IS NULL`**. Не входят: черновики и прочие отчёты без применённых финансов; отчёты с откатанными дельтами (в нормальном lifecycle после отката `wallets_applied_at` сбрасывается — такие строки также не суммируются).
+- **`project_balance`** — для карточки «Показатели проекта» на экране проекта: **`income_total − expense_total`** (тот же сервис: `summaryProjectBalanceIncomeMinusExpense`). Это **не** подотчётный баланс кошелька заказчика; отдельный показатель **`project_balance`** в **`GET …/internal-metrics`** по-прежнему строится из кошельков участников — см. `ProjectInternalMetricsService` / `ProjectSummaryMetricsService::customerAccountableBalance`.
+
 ### Counterparties
 
 ```http

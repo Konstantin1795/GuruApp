@@ -13,6 +13,7 @@
 | `backend/app/Modules/*/Http/Requests` | FormRequest — правила валидации. |
 | `backend/app/Modules/*/Services` | Бизнес-действия, доступ, агрегации, расчёты ответов. |
 | `backend/app/Modules/Projects/Services/CreateProjectService.php` | Создание проекта в company-workspace (РП **first** + кошелёк; опционально CUSTOMER **first** при выборе заказчика). |
+| `backend/app/Modules/Projects/Services/ProjectSummaryMetricsService.php` | Агрегаты **`GET …/projects/{id}/summary`**: поступления с дельтами; **расход** = сумма **`customer_total_amount`** по **REPORT** с **`wallets_applied_at`** и **`wallets_reverted_at IS NULL`**; **баланс** карточки «Показатели проекта» = поступления − расход. Для **`internal-metrics`** по-прежнему используется кошелёк заказчика и пр. |
 | `backend/app/Modules/*/Models` | Eloquent: связи, casts; без сложной бизнес-логики. |
 | `backend/routes/api.php` | Регистрация маршрутов (два контура: `company-workspace`, `personal-workspace`). |
 
@@ -24,7 +25,7 @@
 |------|----------------|
 | `mobile_app/lib/core/` | API (Dio), тема, общие виджеты, локализация. |
 | `mobile_app/lib/features/*/` | Фичи: `data/` (API), `domain/`, `presentation/`, `providers.dart`. |
-| `mobile_app/lib/features/operations/` | Переводы, поступления, объединённая история (**TRANSFER + INCOME + REPORT**), минимальный контур REPORT (pending, stub-деталь). |
+| `mobile_app/lib/features/operations/` | Переводы, поступления, объединённая история (**TRANSFER + INCOME + REPORT**), REPORT: **`CreateEditReportScreen`**, **`ReportPositionsEditorScreen`**, **`ReportLineData`**, детали/attach — см. **`32_FLUTTER_SCREENS_CURRENT.md`**. |
 | `mobile_app/lib/features/projects/` | Проекты, деталь, статьи расходов. |
 | `mobile_app/lib/features/price_lists/` | Прайс-листы компании и привязка к проекту. |
 

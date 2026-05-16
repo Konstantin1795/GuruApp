@@ -1,6 +1,6 @@
 # 95 — Карта тестового покрытия (backend)
 
-**Обновлено:** 2026-05-11. Сводка по PHPUnit в `backend/tests/`. SQLite + `RefreshDatabase` для feature-тестов (см. `phpunit.xml`).
+**Обновлено:** 2026-05-11 (в т.ч. `ProjectSummaryReportExpenseMetricsTest`, сводка проекта). Сводка по PHPUnit в `backend/tests/`. SQLite + `RefreshDatabase` для feature-тестов (см. `phpunit.xml`).
 
 ---
 
@@ -52,6 +52,7 @@
 | Область | Покрыто | Не покрыто / слабо |
 |---------|---------|---------------------|
 | PARTNER / OWNER создают проект, кошелёк РП | `Feature/CreateProjectPartnerCompanyWorkspaceTest.php`, `Feature/CreateProjectOwnerCompanyWorkspaceTest.php` (в т.ч. заказчик при создании: **CUSTOMER, level=first** + wallet). | Полный матричный набор ролей компании. |
+| Сводка проекта / расход по REPORT | `Feature/ProjectSummaryReportExpenseMetricsTest.php` — `expense_total` и баланс из применённых отчётов; отчёт без `wallets_applied_at` и сценарий с `wallets_reverted_at`; HTTP summary. | Расширение матрицы ролей и краевых сумм. |
 
 ---
 

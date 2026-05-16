@@ -129,6 +129,8 @@ UnitPickerSheet
 ExpenseItemRecipientPickerSheet (bottom sheet)
 ProjectParticipantsScreen
 ProjectInternalMetricsSection (на экране участников, если API разрешил can_view_internal_metrics)
+CreateEditReportScreen
+ReportPositionsEditorScreen
 ```
 
 Навигация к деталям проекта из списка компании / личного кабинета.
@@ -137,7 +139,9 @@ ProjectInternalMetricsSection (на экране участников, если 
 
 ```text
 projectSummaryProvider → GET …/projects/{id}/summary
-карточка метрик (доход / расход / баланс из summary)
+карточка метрик: income_total / expense_total / project_balance из summary
+  — expense_total: сумма customer_total_amount по REPORT с применёнными и не откатанными дельтами
+  — project_balance: подтверждённые поступления минус этот расход (не кошелёк заказчика)
 кнопка истории операций → AggregatedOperationsHistoryScreen (company)
 меню: при can_view_expense_items → статьи расходов (список); при can_view_project_price_lists → прайс-листы проекта (прикрепление); участники; переводы (company); заглушки документов/статуса
 ```
@@ -272,10 +276,11 @@ AggregatedOperationsHistoryScreen — карточка отчёта
 reportPendingActionCountProvider + combinedOperationsPendingCountProvider
 `ReportDetailScreen` — деталь REPORT (детали + вкладка «Переводы к отчёту» с **«Прикрепить перевод»** и bottom sheet; для `viewer_context == customer` одна вкладка).
 `TransferDetailScreen` — **`linked_report`** в шапке и кнопка **«Прикрепить к отчёту»** (bottom sheet списка отчётов с поиском).
-`CreateEditReportScreen` — создание отчёта (company-workspace): несколько строк, CUSTOM + **PRICE_LIST** из прайсов, прикреплённых к проекту, **preview** итогов (сервер пересчитывает окончательно).
+`CreateEditReportScreen` — компактная форма создания/редактирования отчёта (company-workspace): проект, дата, статья расходов, получатель, блок «Позиции», суммы, наценка, прибыль, комментарий, отправка; без длинного inline-списка строк.
+`ReportPositionsEditorScreen` — отдельный экран строк: вкладки «Все позиции» / «Добавлено», PRICE_LIST + CUSTOM, количества, удаление, preview, возврат списка в форму (`report_positions_editor_screen.dart`; домен строк — `report_line_data.dart`).
 ```
 
-Полноценный **Create/Edit/Detail** UI отчёта — **не** реализован (следующий этап).
+Дальнейший **tech debt** по REPORT UI: PATCH черновика, detach transfer-link из клиента, полный smoke lifecycle — см. **`docs/10_operations/16_OPERATION_REPORT.md`**.
 
 ---
 
@@ -335,7 +340,7 @@ combinedOperationsPendingCountProvider (TRANSFER + INCOME + REPORT)
 ## 13. Не реализовано / placeholder
 
 ```text
-Полноценный UI операции REPORT (создание/редактирование/деталь, не stub)
+PATCH отчёта и detach transfer-links из Flutter (см. tech debt REPORT)
 Documents
 Push notifications
 Realtime/WebSocket
