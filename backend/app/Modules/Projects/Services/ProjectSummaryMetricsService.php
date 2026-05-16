@@ -5,6 +5,7 @@ namespace App\Modules\Projects\Services;
 use App\Modules\Dictionaries\Enums\ProjectRoleCode;
 use App\Modules\Operations\Enums\OperationStatus;
 use App\Modules\Operations\Models\IncomeOperation;
+use App\Modules\Operations\Models\ReportOperation;
 use App\Modules\Projects\Models\Project;
 use App\Modules\Projects\Models\ProjectParticipant;
 use Illuminate\Support\Facades\DB;
@@ -23,25 +24,26 @@ final class ProjectSummaryMetricsService
      */
     public function incomeTotalApplied(Project $project): string
     {
-        $sum = IncomeOperation::query()
-            ->where('project_id', $project->id)
-            ->whereIn('operation_status', [
-                OperationStatus::CUSTOMER_APPROVAL,
-                OperationStatus::WAITING_24_HOURS,
-                OperationStatus::COMPLETED,
-            ])
-            ->whereNotNull('wallets_applied_at')
-            ->sum(DB::raw('CAST(amount AS DECIMAL(18,2))'));
-
-        return $this->formatMoney($sum);
+        return $this->formatMoney($this->incomeAppliedDecimalSum($project));
     }
 
     /**
-     * Расход: до REPORT всегда 0 (ТЗ-07 §11.2).
+     * Расход по проекту: сумма {@see ReportOperation::$customer_total_amount} по отчётам REPORT,
+     * у которых финансовые дельты применены и не откатаны (`wallets_applied_at`, `wallets_reverted_at`).
      */
-    public function expenseTotalPlaceholder(): string
+    public function reportExpenseTotalApplied(Project $project): string
     {
-        return '0.00';
+        return $this->formatMoney($this->reportCustomerTotalAppliedDecimalSum($project));
+    }
+
+    /**
+     * Баланс в карточке «Показатели проекта» (summary): поступление минус расход по отчётам заказчику.
+     */
+    public function summaryProjectBalanceIncomeMinusExpense(Project $project): string
+    {
+        $balance = $this->incomeAppliedDecimalSum($project) - $this->reportCustomerTotalAppliedDecimalSum($project);
+
+        return $this->formatMoney($balance);
     }
 
     /**
@@ -85,6 +87,32 @@ final class ProjectSummaryMetricsService
     public function zeroPlaceholder(): string
     {
         return '0.00';
+    }
+
+    private function incomeAppliedDecimalSum(Project $project): float
+    {
+        $sum = IncomeOperation::query()
+            ->where('project_id', $project->id)
+            ->whereIn('operation_status', [
+                OperationStatus::CUSTOMER_APPROVAL,
+                OperationStatus::WAITING_24_HOURS,
+                OperationStatus::COMPLETED,
+            ])
+            ->whereNotNull('wallets_applied_at')
+            ->sum(DB::raw('CAST(amount AS DECIMAL(18,2))'));
+
+        return (float) ($sum ?? 0);
+    }
+
+    private function reportCustomerTotalAppliedDecimalSum(Project $project): float
+    {
+        $sum = ReportOperation::query()
+            ->where('project_id', $project->id)
+            ->whereNotNull('wallets_applied_at')
+            ->whereNull('wallets_reverted_at')
+            ->sum(DB::raw('CAST(customer_total_amount AS DECIMAL(18,2))'));
+
+        return (float) ($sum ?? 0);
     }
 
     private function formatMoney(mixed $value): string

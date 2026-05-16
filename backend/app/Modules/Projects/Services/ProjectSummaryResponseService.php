@@ -23,6 +23,9 @@ final class ProjectSummaryResponseService
      *   metrics: array{income_total: string, expense_total: string, project_balance: string},
      *   visibility: array<string, bool>
      * }
+     *
+     * В `metrics`: `expense_total` — сумма `customer_total_amount` по REPORT с применёнными и не откатанными дельтами;
+     * `project_balance` — поступление минус этот расход (карточка «Показатели проекта»).
      */
     public function build(User $user, Project $project, ?int $companyId): array
     {
@@ -65,8 +68,8 @@ final class ProjectSummaryResponseService
             ],
             'metrics' => [
                 'income_total'    => $this->metrics->incomeTotalApplied($project),
-                'expense_total'   => $this->metrics->expenseTotalPlaceholder(),
-                'project_balance' => $this->metrics->customerAccountableBalance($project),
+                'expense_total'   => $this->metrics->reportExpenseTotalApplied($project),
+                'project_balance' => $this->metrics->summaryProjectBalanceIncomeMinusExpense($project),
             ],
             'visibility' => $visibility,
         ];
