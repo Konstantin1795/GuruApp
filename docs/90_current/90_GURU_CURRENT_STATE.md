@@ -62,6 +62,17 @@
 
 ## 6. Следующий крупный этап
 
+Подготовлено ТЗ по аналитике главного экрана Company Workspace: **`docs/90_current/TZ_Company_Dashboard_Analytics_Report_Transfer.md`**.
+
+Оно фиксирует:
+
+- OWNER analytics по всей компании;
+- PARTNER analytics по его начислениям/выплатам, включая second-order;
+- доход / задолженность / переплату;
+- клики по месяцам виджета;
+- клики по показателям с переходом к операциям;
+- удаление заглушки «Данные отчета-позже».
+
 - **После foundation:** полноценный UI отчёта, personal-workspace parity для REPORT (по необходимости), расширенные тесты, доработка **`PriceListReportUsageChecker`**, продуктовая операция **REPORT** поверх foundation. Канон по статьям расходов — **`docs/10_operations/14_PROJECT_EXPENSE_ITEMS.md`**; по прайс-листам — **`docs/10_operations/15_PRICE_LISTS.md`**; по текущему foundation — **`docs/10_operations/16_OPERATION_REPORT.md`**.
 - Доработки **ТЗ-07** (UX проекта, заказчик, аналитика) поверх уже существующего detail / summary / internal-metrics — по приоритету продукта.
 - После REPORT — **документы** и **realtime** по отдельным ТЗ.

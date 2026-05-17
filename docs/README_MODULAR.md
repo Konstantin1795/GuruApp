@@ -58,6 +58,7 @@ docs/90_current/96_GURU_DEFINITION_OF_DONE.md
 ```
 
 - `docs/90_current/91_GURU_NEXT_TASK_REPORT.md` — краткий контекст по цепочке **ТЗ-10** к REPORT; **ТЗ-10A** и **ТЗ-10B** сделаны; **ТЗ-10C foundation** в коде — см. **`16_OPERATION_REPORT.md`**. Уточнения до кода — **`13_OPERATION_REPORT_DRAFT.md`** (раздел **9**).
+- **`docs/90_current/TZ_Company_Dashboard_Analytics_Report_Transfer.md`** — ТЗ по аналитике главного экрана Company Workspace: OWNER/PARTNER, REPORT/TRANSFER, доход, задолженность, переплата, месяцы, клики по показателям.
 - `docs/10_operations/14_PROJECT_EXPENSE_ITEMS.md` — ТЗ-10A: статьи расходов (реализовано в коде); уточнения и связь с REPORT.
 - `docs/10_operations/15_PRICE_LISTS.md` — ТЗ-10B: прайс-листы компании, группы, позиции, единицы, прикрепление к проекту (реализовано в коде).
 
