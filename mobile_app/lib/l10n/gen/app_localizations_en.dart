@@ -269,7 +269,89 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardQuarterAnalytics => 'Quarter analytics';
 
   @override
-  String get dashboardMetricsPending => 'From reports — coming soon';
+  String dashboardMonthAnalytics(String month) {
+    return 'Analytics for $month';
+  }
+
+  @override
+  String get dashboardAnalyticsOperationsTitle => 'Operations for this metric';
+
+  @override
+  String get dashboardAnalyticsOperationsEmpty =>
+      'No operations for the selected metric';
+
+  @override
+  String get dashboardAnalyticsMetricIncome => 'Income';
+
+  @override
+  String get dashboardAnalyticsMetricDebt => 'Debt';
+
+  @override
+  String get dashboardAnalyticsMetricOverpayment => 'Overpayment';
+
+  @override
+  String dashboardAnalyticsIncomeFromReport(String amount) {
+    return 'Income from report: $amount';
+  }
+
+  @override
+  String dashboardAnalyticsReceivedAmount(String amount) {
+    return 'Received: $amount';
+  }
+
+  @override
+  String dashboardAnalyticsAccruedAmount(String amount) {
+    return 'Accrued: $amount';
+  }
+
+  @override
+  String dashboardAnalyticsDebtAmount(String amount) {
+    return 'Debt: $amount';
+  }
+
+  @override
+  String dashboardAnalyticsOverpaymentAmount(String amount) {
+    return 'Overpayment: $amount';
+  }
+
+  @override
+  String dashboardAnalyticsOperationStatus(String status) {
+    return 'Status: $status';
+  }
+
+  @override
+  String get dashboardAnalyticsProjectFallback => 'Project';
+
+  @override
+  String get dashboardAnalyticsAggregateOverpaymentTitle =>
+      'Project overpayment';
+
+  @override
+  String get dashboardAnalyticsAnalyticClosureNote =>
+      'Closed analytically without a manual transfer link';
+
+  @override
+  String get dashboardOverpaymentDetailTitle => 'Project overpayment';
+
+  @override
+  String get dashboardOverpaymentDetailReceivedLabel =>
+      'Received via transfers';
+
+  @override
+  String get dashboardOverpaymentDetailEarnedReportsLabel =>
+      'Accrued from reports';
+
+  @override
+  String get dashboardOverpaymentDetailRemainderLabel => 'Overpayment balance';
+
+  @override
+  String get dashboardOverpaymentDetailTransfersSection => 'Transfers';
+
+  @override
+  String get dashboardOverpaymentDetailReportsSection => 'Reports';
+
+  @override
+  String get dashboardOverpaymentDetailLoadError => 'Could not load breakdown';
 
   @override
   String get dashboardProjectsTile => 'Projects';
@@ -278,11 +360,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardCounterpartiesTile => 'Counterparties';
 
   @override
-  String get dashboardDocumentsSoon => 'Documents — coming soon';
+  String get dashboardDocumentsSoon => 'Documents';
 
   @override
-  String get dashboardAnalyticsSettingsSoon =>
-      'Analytics settings — coming soon';
+  String get dashboardAnalyticsSettingsSoon => 'Analytics settings';
 
   @override
   String companyWorkspaceFallbackName(int id) {

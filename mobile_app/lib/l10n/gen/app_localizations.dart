@@ -602,11 +602,137 @@ abstract class AppLocalizations {
   /// **'Quarter analytics'**
   String get dashboardQuarterAnalytics;
 
-  /// No description provided for @dashboardMetricsPending.
+  /// No description provided for @dashboardMonthAnalytics.
   ///
   /// In en, this message translates to:
-  /// **'From reports — coming soon'**
-  String get dashboardMetricsPending;
+  /// **'Analytics for {month}'**
+  String dashboardMonthAnalytics(String month);
+
+  /// No description provided for @dashboardAnalyticsOperationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Operations for this metric'**
+  String get dashboardAnalyticsOperationsTitle;
+
+  /// No description provided for @dashboardAnalyticsOperationsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No operations for the selected metric'**
+  String get dashboardAnalyticsOperationsEmpty;
+
+  /// No description provided for @dashboardAnalyticsMetricIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get dashboardAnalyticsMetricIncome;
+
+  /// No description provided for @dashboardAnalyticsMetricDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt'**
+  String get dashboardAnalyticsMetricDebt;
+
+  /// No description provided for @dashboardAnalyticsMetricOverpayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Overpayment'**
+  String get dashboardAnalyticsMetricOverpayment;
+
+  /// No description provided for @dashboardAnalyticsIncomeFromReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Income from report: {amount}'**
+  String dashboardAnalyticsIncomeFromReport(String amount);
+
+  /// No description provided for @dashboardAnalyticsReceivedAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Received: {amount}'**
+  String dashboardAnalyticsReceivedAmount(String amount);
+
+  /// No description provided for @dashboardAnalyticsAccruedAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Accrued: {amount}'**
+  String dashboardAnalyticsAccruedAmount(String amount);
+
+  /// No description provided for @dashboardAnalyticsDebtAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt: {amount}'**
+  String dashboardAnalyticsDebtAmount(String amount);
+
+  /// No description provided for @dashboardAnalyticsOverpaymentAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Overpayment: {amount}'**
+  String dashboardAnalyticsOverpaymentAmount(String amount);
+
+  /// No description provided for @dashboardAnalyticsOperationStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status: {status}'**
+  String dashboardAnalyticsOperationStatus(String status);
+
+  /// No description provided for @dashboardAnalyticsProjectFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Project'**
+  String get dashboardAnalyticsProjectFallback;
+
+  /// No description provided for @dashboardAnalyticsAggregateOverpaymentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Project overpayment'**
+  String get dashboardAnalyticsAggregateOverpaymentTitle;
+
+  /// No description provided for @dashboardAnalyticsAnalyticClosureNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed analytically without a manual transfer link'**
+  String get dashboardAnalyticsAnalyticClosureNote;
+
+  /// No description provided for @dashboardOverpaymentDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Project overpayment'**
+  String get dashboardOverpaymentDetailTitle;
+
+  /// No description provided for @dashboardOverpaymentDetailReceivedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Received via transfers'**
+  String get dashboardOverpaymentDetailReceivedLabel;
+
+  /// No description provided for @dashboardOverpaymentDetailEarnedReportsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Accrued from reports'**
+  String get dashboardOverpaymentDetailEarnedReportsLabel;
+
+  /// No description provided for @dashboardOverpaymentDetailRemainderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Overpayment balance'**
+  String get dashboardOverpaymentDetailRemainderLabel;
+
+  /// No description provided for @dashboardOverpaymentDetailTransfersSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfers'**
+  String get dashboardOverpaymentDetailTransfersSection;
+
+  /// No description provided for @dashboardOverpaymentDetailReportsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get dashboardOverpaymentDetailReportsSection;
+
+  /// No description provided for @dashboardOverpaymentDetailLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load breakdown'**
+  String get dashboardOverpaymentDetailLoadError;
 
   /// No description provided for @dashboardProjectsTile.
   ///
@@ -623,13 +749,13 @@ abstract class AppLocalizations {
   /// No description provided for @dashboardDocumentsSoon.
   ///
   /// In en, this message translates to:
-  /// **'Documents — coming soon'**
+  /// **'Documents'**
   String get dashboardDocumentsSoon;
 
   /// No description provided for @dashboardAnalyticsSettingsSoon.
   ///
   /// In en, this message translates to:
-  /// **'Analytics settings — coming soon'**
+  /// **'Analytics settings'**
   String get dashboardAnalyticsSettingsSoon;
 
   /// No description provided for @companyWorkspaceFallbackName.

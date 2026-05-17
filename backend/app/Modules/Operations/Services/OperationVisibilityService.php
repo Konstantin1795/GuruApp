@@ -2,6 +2,8 @@
 
 namespace App\Modules\Operations\Services;
 
+use App\Modules\Companies\Models\Counterparty;
+use App\Modules\Dictionaries\Enums\CompanyRoleCode;
 use App\Modules\Dictionaries\Enums\ProjectRoleCode;
 use App\Modules\Operations\Models\TransferOperation;
 use App\Modules\Projects\Models\Project;
@@ -13,7 +15,9 @@ use Illuminate\Database\Eloquent\Builder;
  *
  * Базово: пользователь видит операцию, только если его {@see ProjectParticipant} участвует
  * в строке перевода (инициатор / отправитель / получатель). Роль PROJECT_HEAD — все операции
- * **своего** проекта. Для ленты «все операции» без расширения РП на весь проект используйте
+ * **своего** проекта. Владелец компании ({@see CompanyRoleCode::OWNER}) видит все переводы по
+ * проектам своей компании (как в {@see IncomeVisibilityService} / {@see ReportVisibilityService}).
+ * Для ленты «все операции» без расширения РП на весь проект используйте
  * {@see self::transferQueryParticipationOnlyForUser} / {@see self::transferQueryParticipationOnlyAcrossProjects}.
  */
 final class OperationVisibilityService
@@ -21,6 +25,11 @@ final class OperationVisibilityService
     public function transferQueryForUser(Project $project, int $userId): Builder
     {
         $query = TransferOperation::query()->where('project_id', $project->id);
+
+        if ($this->userIsCompanyOwnerForProjectCompany($userId, $project)) {
+            return $query;
+        }
+
         $participant = $this->participantForUser($project, $userId);
 
         if (! $participant) {
@@ -119,5 +128,18 @@ final class OperationVisibilityService
                 $query->where('user_id', $userId)->where('is_active', true);
             })
             ->first();
+    }
+
+    /**
+     * Владелец компании видит переводы по всем проектам компании (согласовано с дашбордом и INCOME/REPORT).
+     */
+    private function userIsCompanyOwnerForProjectCompany(int $userId, Project $project): bool
+    {
+        return Counterparty::query()
+            ->where('company_id', $project->company_id)
+            ->where('user_id', $userId)
+            ->where('is_active', true)
+            ->where('company_role_code', CompanyRoleCode::OWNER->value)
+            ->exists();
     }
 }

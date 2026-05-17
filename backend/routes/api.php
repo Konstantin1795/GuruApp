@@ -22,6 +22,15 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware(\App\Modules\Workspaces\Http\Middleware\EnsureCompanyWorkspaceAccess::class)
         ->group(function () {
             Route::get('/context', \App\Modules\Workspaces\Http\Controllers\CompanyWorkspaceContextController::class);
+            Route::get('/dashboard/analytics', \App\Modules\Workspaces\Http\Controllers\GetCompanyDashboardAnalyticsController::class);
+            Route::get(
+                '/dashboard/analytics/operations',
+                \App\Modules\Workspaces\Http\Controllers\GetCompanyDashboardAnalyticsOperationsController::class,
+            );
+            Route::get(
+                '/dashboard/analytics/overpayment-detail',
+                \App\Modules\Workspaces\Http\Controllers\GetCompanyDashboardOverpaymentDetailController::class,
+            );
 
             Route::get('/operations/transfers/history', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\ListAggregatedTransfersController::class);
             Route::get('/operations/transfers/pending-count', \App\Modules\Operations\Http\Controllers\CompanyWorkspace\TransferPendingCountController::class);

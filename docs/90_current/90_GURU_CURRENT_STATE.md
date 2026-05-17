@@ -23,6 +23,12 @@
 - **Unified operations:** `GET …/operations/history` с параметром **`tab`** (`pending` | `all`): вкладка «На подтверждение» / «Все операции»; на клиенте **`AggregatedOperationsHistoryScreen`** (TabBar + TabBarView); **`combinedOperationsPendingCountProvider`** = сумма pending-count **TRANSFER + INCOME + REPORT** и совпадает с вкладкой **pending** (без `WAITING_24_HOURS`, без «только откат», без **INCOME** `reset_approval` на этапе заказчика — тогда «на подтверждение» только у заказчика; для TRANSFER учтён **`complete_immediate`** у инициатора РП/Партнёра в **CREATED**; для REPORT `complete_waiting` не входит в pending-бейдж). Для **OWNER** компании вкладка **all** — все операции компании (включая REPORT по `company_id`); для **PARTNER / CUSTOMER** — только участие в строке операции.
 - **REPORT (ТЗ-10C + 10C.1):** backend — см. **`docs/10_operations/16_OPERATION_REPORT.md`**; Flutter — карточка в истории, pending, **`ReportDetailScreen`** (attach перевода), **`TransferDetailScreen`** (attach к отчёту, баннер связи), **`CreateEditReportScreen`** + **`ReportPositionsEditorScreen`** (компактная форма, строки отдельно; см. **16**).
 - **Customer:** карточки проектов с **«Поступило» / баланс** из API (`PersonalProjectResource` + экран заказчика).
+- **Дашборд компании:** `GET …/dashboard/analytics` + `GET …/dashboard/analytics/operations` (см. `20_API_ROUTES_CURRENT.md`); сервис **`CompanyDashboardAnalyticsService`**; Flutter **`CompanyDashboardScreen`** — квартал / выбор месяца, суммы, списки операций по клику; тесты **`CompanyDashboardAnalyticsTest`**.
+- **Аналитика главного экрана Company Workspace доработана:**
+  - задолженность и переплата считаются по `project_id` + `project_participant_id`, без взаимного гашения разных участников/проектов;
+  - REPORT и TRANSFER могут закрываться аналитически без `report_transfer_links`, если совпадают проект и участник;
+  - bottom sheet «Операции по показателю» показывает бизнесовые карточки без #0 и project id;
+  - OWNER получил корректную видимость transfer details по проектам своей компании.
 - **Локализация:** RU/EN, ARB, переключатель локали.
 
 ---
@@ -30,7 +36,6 @@
 ## 2. Частично реализовано
 
 - Вкладка **«Операции»** в нижнем меню компании — оболочка / точки входа; не полноценный «операционный центр».
-- **Дашборд компании:** часть блоков (квартальная аналитика и т.п.) — заглушки до REPORT и полной ТЗ-07 по аналитике.
 - **Метрики проекта:** карточка на **`ProjectDetailScreen`** использует **`GET …/summary`**: расход по **REPORT** с применёнными дельтами; баланс в карточке = поступления − расход; блок **`internal-metrics`** — отдельные показатели (кошельки и плейсхолдеры там, где ещё нет продуктовой аналитики).
 - **Прайс-листы (ТЗ-10B) и историчность удаления:** в `PriceListDeletionService` заложена ветка soft-delete при «использовании в отчётах»; **`PriceListReportUsageChecker`** при foundation REPORT **ещё** должен быть доработан под реальные ссылки отчёт → прайс (см. TODO в коде и **`docs/10_operations/15_PRICE_LISTS.md`**), иначе историчность удаления под риском.
 
@@ -42,13 +47,12 @@
 - **WebSocket / realtime** обновлений.
 - **Документы** (прочие, вне прайс-листов) — заглушки «скоро».
 - **Push**, **offline-sync**, **production-grade** тестовый контур.
-- Полная **финансовая аналитика** (долг / переплата и т.д.) без REPORT.
+- Расширенная **финансовая аналитика** вне главного экрана company-workspace (если появится отдельный продуктовый контур).
 
 ---
 
 ## 4. Текущий технический долг
 
-- Дашборд компании и «полная» финансовая аналитика без REPORT; не раздувать placeholder-логику до отдельного ТЗ.
 - **ТЗ-11 (аудит):** смешение EN/RU в PHPDoc отдельных сервисов Operations; крупные Flutter-экраны (`ProjectDetailScreen`, `AggregatedOperationsHistoryScreen`) — позже декомпозиция на виджеты без смены поведения; **интеграционный «полный lifecycle + кошелёк»** для TRANSFER/INCOME через HTTP — по отдельному ТЗ.
 - **ТЗ-12.1:** создание проекта вынесено в `CreateProjectService` — при добавлении полей создания проекта обновлять сервис и оба feature-теста (OWNER / PARTNER). Интеграционные smoke «TRANSFER/INCOME + дельты» и расширенный **REPORT** lifecycle — по отдельному этапу после foundation.
 
@@ -62,16 +66,7 @@
 
 ## 6. Следующий крупный этап
 
-Подготовлено ТЗ по аналитике главного экрана Company Workspace: **`docs/90_current/TZ_Company_Dashboard_Analytics_Report_Transfer.md`**.
-
-Оно фиксирует:
-
-- OWNER analytics по всей компании;
-- PARTNER analytics по его начислениям/выплатам, включая second-order;
-- доход / задолженность / переплату;
-- клики по месяцам виджета;
-- клики по показателям с переходом к операциям;
-- удаление заглушки «Данные отчета-позже».
+**Аналитика главного экрана Company Workspace (ТЗ `docs/90_current/TZ_Company_Dashboard_Analytics_Report_Transfer.md`):** backend + Flutter MVP (квартал / месяц, суммы, списки операций) и тесты **`CompanyDashboardAnalyticsTest`**; уточнение списков по задолженности/переплате и продуктовые доработки — по обратной связи.
 
 - **После foundation:** полноценный UI отчёта, personal-workspace parity для REPORT (по необходимости), расширенные тесты, доработка **`PriceListReportUsageChecker`**, продуктовая операция **REPORT** поверх foundation. Канон по статьям расходов — **`docs/10_operations/14_PROJECT_EXPENSE_ITEMS.md`**; по прайс-листам — **`docs/10_operations/15_PRICE_LISTS.md`**; по текущему foundation — **`docs/10_operations/16_OPERATION_REPORT.md`**.
 - Доработки **ТЗ-07** (UX проекта, заказчик, аналитика) поверх уже существующего detail / summary / internal-metrics — по приоритету продукта.

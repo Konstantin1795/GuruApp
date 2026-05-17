@@ -37,6 +37,7 @@
 - **Lifecycle и смена статусов:** `TransferLifecycleService`, `IncomeLifecycleService`, **`ReportLifecycleService`**.
 - **Доступные POST-действия (UI):** `TransferAvailableActionsService`, `IncomeAvailableActionsService`, **`ReportAvailableActionsService`**.
 - **Контроллеры:** `Operations/Http/Controllers/CompanyWorkspace/*`, `PersonalWorkspace/*` (для REPORT в personal сейчас в основном **pending-count** и **transfer-links** — см. **`16_OPERATION_REPORT.md`**).
+- **Аналитика главного экрана company-workspace:** `Workspaces/Services/CompanyDashboardAnalyticsService.php`; `Workspaces/Http/Controllers/GetCompanyDashboardAnalyticsController.php`, `GetCompanyDashboardAnalyticsOperationsController.php` (префикс `/api/company-workspace/{companyId}/dashboard/…`).
 
 ### 3.1. REPORT foundation — сервисы
 
@@ -62,7 +63,7 @@ ReportParticipantResolver
 - **Проект в воркспейсе:** `ProjectVisibilityService`, middleware `EnsureCompanyWorkspaceAccess` / personal-аналоги.
 - **Статьи расходов (ТЗ-10A):** `ProjectExpenseItemAccessService`.
 - **Прайс-листы (ТЗ-10B):** `PriceListAccessService`.
-- **Видимость операций в лентах:** `OperationVisibilityService`, `IncomeVisibilityService`, **`ReportVisibilityService`** (не путать с company OWNER «все операции компании» — это в `AggregatedOperationsHistoryService`).
+- **Видимость операций в лентах:** `OperationVisibilityService` (в т.ч. **OWNER компании** — полный набор TRANSFER по проекту в `transferQueryForUser`, согласовано с REPORT/INCOME), `IncomeVisibilityService`, **`ReportVisibilityService`**. Расширенная лента «все операции компании» для OWNER — ещё и **`AggregatedOperationsHistoryService`**.
 
 ---
 

@@ -269,7 +269,89 @@ class AppLocalizationsRu extends AppLocalizations {
   String get dashboardQuarterAnalytics => 'Аналитика за квартал';
 
   @override
-  String get dashboardMetricsPending => 'Данные отчёта — позже';
+  String dashboardMonthAnalytics(String month) {
+    return 'Аналитика за $month';
+  }
+
+  @override
+  String get dashboardAnalyticsOperationsTitle => 'Операции по показателю';
+
+  @override
+  String get dashboardAnalyticsOperationsEmpty =>
+      'Нет операций по выбранному показателю';
+
+  @override
+  String get dashboardAnalyticsMetricIncome => 'Доход';
+
+  @override
+  String get dashboardAnalyticsMetricDebt => 'Задолженность';
+
+  @override
+  String get dashboardAnalyticsMetricOverpayment => 'Переплата';
+
+  @override
+  String dashboardAnalyticsIncomeFromReport(String amount) {
+    return 'Доход по отчёту: $amount';
+  }
+
+  @override
+  String dashboardAnalyticsReceivedAmount(String amount) {
+    return 'Получено: $amount';
+  }
+
+  @override
+  String dashboardAnalyticsAccruedAmount(String amount) {
+    return 'Начислено: $amount';
+  }
+
+  @override
+  String dashboardAnalyticsDebtAmount(String amount) {
+    return 'Задолженность: $amount';
+  }
+
+  @override
+  String dashboardAnalyticsOverpaymentAmount(String amount) {
+    return 'Переплата: $amount';
+  }
+
+  @override
+  String dashboardAnalyticsOperationStatus(String status) {
+    return 'Статус: $status';
+  }
+
+  @override
+  String get dashboardAnalyticsProjectFallback => 'Проект';
+
+  @override
+  String get dashboardAnalyticsAggregateOverpaymentTitle =>
+      'Переплата по проекту';
+
+  @override
+  String get dashboardAnalyticsAnalyticClosureNote =>
+      'Закрыто аналитически, без ручной привязки к переводу';
+
+  @override
+  String get dashboardOverpaymentDetailTitle => 'Переплата по проекту';
+
+  @override
+  String get dashboardOverpaymentDetailReceivedLabel => 'Получено переводами';
+
+  @override
+  String get dashboardOverpaymentDetailEarnedReportsLabel =>
+      'Начислено по отчётам';
+
+  @override
+  String get dashboardOverpaymentDetailRemainderLabel => 'Остаток переплаты';
+
+  @override
+  String get dashboardOverpaymentDetailTransfersSection => 'Переводы';
+
+  @override
+  String get dashboardOverpaymentDetailReportsSection => 'Отчёты';
+
+  @override
+  String get dashboardOverpaymentDetailLoadError =>
+      'Не удалось загрузить детализацию';
 
   @override
   String get dashboardProjectsTile => 'Проекты';
@@ -278,10 +360,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get dashboardCounterpartiesTile => 'Контрагенты';
 
   @override
-  String get dashboardDocumentsSoon => 'Документы — скоро';
+  String get dashboardDocumentsSoon => 'Документы';
 
   @override
-  String get dashboardAnalyticsSettingsSoon => 'Настройки аналитики — скоро';
+  String get dashboardAnalyticsSettingsSoon => 'Настройки аналитики';
 
   @override
   String companyWorkspaceFallbackName(int id) {

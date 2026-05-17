@@ -115,11 +115,67 @@
   "companyWorkspaceRoleHead": "Company head",
 
   "dashboardQuarterAnalytics": "Quarter analytics",
-  "dashboardMetricsPending": "From reports — coming soon",
+  "dashboardMonthAnalytics": "Analytics for {month}",
+  "@dashboardMonthAnalytics": {
+    "placeholders": {
+      "month": { "type": "String" }
+    }
+  },
+  "dashboardAnalyticsOperationsTitle": "Operations for this metric",
+  "dashboardAnalyticsOperationsEmpty": "No operations for the selected metric",
+  "dashboardAnalyticsMetricIncome": "Income",
+  "dashboardAnalyticsMetricDebt": "Debt",
+  "dashboardAnalyticsMetricOverpayment": "Overpayment",
+  "dashboardAnalyticsIncomeFromReport": "Income from report: {amount}",
+  "@dashboardAnalyticsIncomeFromReport": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "dashboardAnalyticsReceivedAmount": "Received: {amount}",
+  "@dashboardAnalyticsReceivedAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "dashboardAnalyticsAccruedAmount": "Accrued: {amount}",
+  "@dashboardAnalyticsAccruedAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "dashboardAnalyticsDebtAmount": "Debt: {amount}",
+  "@dashboardAnalyticsDebtAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "dashboardAnalyticsOverpaymentAmount": "Overpayment: {amount}",
+  "@dashboardAnalyticsOverpaymentAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "dashboardAnalyticsOperationStatus": "Status: {status}",
+  "@dashboardAnalyticsOperationStatus": {
+    "placeholders": {
+      "status": { "type": "String" }
+    }
+  },
+  "dashboardAnalyticsProjectFallback": "Project",
+  "dashboardAnalyticsAggregateOverpaymentTitle": "Project overpayment",
+  "dashboardAnalyticsAnalyticClosureNote": "Closed analytically without a manual transfer link",
+  "dashboardOverpaymentDetailTitle": "Project overpayment",
+  "dashboardOverpaymentDetailReceivedLabel": "Received via transfers",
+  "dashboardOverpaymentDetailEarnedReportsLabel": "Accrued from reports",
+  "dashboardOverpaymentDetailRemainderLabel": "Overpayment balance",
+  "dashboardOverpaymentDetailTransfersSection": "Transfers",
+  "dashboardOverpaymentDetailReportsSection": "Reports",
+  "dashboardOverpaymentDetailLoadError": "Could not load breakdown",
   "dashboardProjectsTile": "Projects",
   "dashboardCounterpartiesTile": "Counterparties",
-  "dashboardDocumentsSoon": "Documents — coming soon",
-  "dashboardAnalyticsSettingsSoon": "Analytics settings — coming soon",
+  "dashboardDocumentsSoon": "Documents",
+  "dashboardAnalyticsSettingsSoon": "Analytics settings",
   "companyWorkspaceFallbackName": "Company #{id}",
   "@companyWorkspaceFallbackName": {
     "placeholders": {

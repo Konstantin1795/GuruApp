@@ -95,11 +95,67 @@
   "companyWorkspaceRoleHead": "Руководитель компании",
 
   "dashboardQuarterAnalytics": "Аналитика за квартал",
-  "dashboardMetricsPending": "Данные отчёта — позже",
+  "dashboardMonthAnalytics": "Аналитика за {month}",
+  "@dashboardMonthAnalytics": {
+    "placeholders": {
+      "month": { "type": "String" }
+    }
+  },
+  "dashboardAnalyticsOperationsTitle": "Операции по показателю",
+  "dashboardAnalyticsOperationsEmpty": "Нет операций по выбранному показателю",
+  "dashboardAnalyticsMetricIncome": "Доход",
+  "dashboardAnalyticsMetricDebt": "Задолженность",
+  "dashboardAnalyticsMetricOverpayment": "Переплата",
+  "dashboardAnalyticsIncomeFromReport": "Доход по отчёту: {amount}",
+  "@dashboardAnalyticsIncomeFromReport": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "dashboardAnalyticsReceivedAmount": "Получено: {amount}",
+  "@dashboardAnalyticsReceivedAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "dashboardAnalyticsAccruedAmount": "Начислено: {amount}",
+  "@dashboardAnalyticsAccruedAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "dashboardAnalyticsDebtAmount": "Задолженность: {amount}",
+  "@dashboardAnalyticsDebtAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "dashboardAnalyticsOverpaymentAmount": "Переплата: {amount}",
+  "@dashboardAnalyticsOverpaymentAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "dashboardAnalyticsOperationStatus": "Статус: {status}",
+  "@dashboardAnalyticsOperationStatus": {
+    "placeholders": {
+      "status": { "type": "String" }
+    }
+  },
+  "dashboardAnalyticsProjectFallback": "Проект",
+  "dashboardAnalyticsAggregateOverpaymentTitle": "Переплата по проекту",
+  "dashboardAnalyticsAnalyticClosureNote": "Закрыто аналитически, без ручной привязки к переводу",
+  "dashboardOverpaymentDetailTitle": "Переплата по проекту",
+  "dashboardOverpaymentDetailReceivedLabel": "Получено переводами",
+  "dashboardOverpaymentDetailEarnedReportsLabel": "Начислено по отчётам",
+  "dashboardOverpaymentDetailRemainderLabel": "Остаток переплаты",
+  "dashboardOverpaymentDetailTransfersSection": "Переводы",
+  "dashboardOverpaymentDetailReportsSection": "Отчёты",
+  "dashboardOverpaymentDetailLoadError": "Не удалось загрузить детализацию",
   "dashboardProjectsTile": "Проекты",
   "dashboardCounterpartiesTile": "Контрагенты",
-  "dashboardDocumentsSoon": "Документы — скоро",
-  "dashboardAnalyticsSettingsSoon": "Настройки аналитики — скоро",
+  "dashboardDocumentsSoon": "Документы",
+  "dashboardAnalyticsSettingsSoon": "Настройки аналитики",
   "companyWorkspaceFallbackName": "Компания №{id}",
   "@companyWorkspaceFallbackName": {
     "placeholders": {

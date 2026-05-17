@@ -39,7 +39,12 @@ GET /api/workspaces
 ```http
 GET /context
 GET /companies/current
+GET /dashboard/analytics?month=YYYY-MM
+GET /dashboard/analytics/operations?metric=income|debt|overpayment&month=YYYY-MM
+GET /dashboard/analytics/overpayment-detail?project_id=&month=YYYY-MM
 ```
+
+**Аналитика главного экрана:** `GET /dashboard/analytics` — доход / задолженность / переплата / активные проекты для текущего контрагента (**OWNER** — по компании; **PARTNER** — финансы по участникам контрагента, активные проекты только где он **PROJECT_HEAD** first-order). Опционально **`month`** пересчитывает показатели за выбранный месяц (состояние долга/переплаты на конец месяца, доход за месяц). Ответ: `matrix_role`, `selected_month`, денежные поля строками с двумя знаками, `active_projects_total`, `quarter.months[]` с помесячными срезами. `GET /dashboard/analytics/operations` — до **100** ссылок `{type: report|transfer, id, project_id}` для раскрытия показателя (MVP-списки по REPORT/TRANSFER). Для агрегата переплаты по проекту (`operation_kind=aggregate`) детализация — **`GET /dashboard/analytics/overpayment-detail`**: `project_id` (обяз.), опционально `month`; ответ `project_name`, `received_amount`, `earned_amount`, `overpayment_amount`, массивы `transfers[]` / `reports[]` (поля как у строк операций); **404**, если по проекту нет переплаты в зоне видимости.
 
 Ответ **`GET /context`**: помимо `active_company_id`, `company_role`, `company` — объект **`price_lists`**: `can_view_company_price_list_library`, `can_create_company_price_list`, `company_price_list_create_blocked_reason` (`partner_not_project_head` | `partner_already_has_active_list` | `null`), `active_own_price_list_id`.
 

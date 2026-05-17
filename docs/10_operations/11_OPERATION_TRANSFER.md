@@ -230,6 +230,8 @@ TransferPendingActionCountService
 OperationVisibilityService
 ```
 
+**Видимость TRANSFER по проекту (`OperationVisibilityService::transferQueryForUser`):** владелец компании (**`CompanyRoleCode::OWNER`**) по `project.company_id` видит все переводы проекта (как в `IncomeVisibilityService` / `ReportVisibilityService`); иначе — участие в строке или роль **PROJECT_HEAD** на проекте. Лента «только участие» — `transferQueryParticipationOnlyForUser`.
+
 ---
 
 ## 12. API
